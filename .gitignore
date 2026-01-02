@@ -95,3 +95,4 @@ supabasePgvector_setup/
 *.temp
 *.bak
 !data/benchmark_queries.json
+docs
