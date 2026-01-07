@@ -57,9 +57,10 @@ class TestInteractionHelper:
         }
 
 
-# Generate unique test user ID for this test run
+# Generate unique valid UUID for test user
 import time
-TEST_USER_ID = f"test-user-{int(time.time())}"
+import uuid
+TEST_USER_ID = str(uuid.uuid4())
 
 
 @pytest.fixture(scope="module")
@@ -70,7 +71,7 @@ def interaction_helper(client, base_url):
 
 @pytest.fixture(scope="module")
 def test_user_id():
-    """Return unique test user ID."""
+    """Return unique test user ID (valid UUID)."""
     return TEST_USER_ID
 
 
@@ -209,7 +210,7 @@ class TestGetMyInterestsEndpoint:
     
     def test_get_my_interests_new_user(self, interaction_helper):
         """Test getting interests for user with no interactions."""
-        new_user_id = f"new-user-{int(time.time())}"
+        new_user_id = str(uuid.uuid4())
         result = interaction_helper.get_my_interests(new_user_id)
         
         assert result["status_code"] == 200
@@ -275,8 +276,8 @@ class TestMultipleUsersInteractions:
         if len(sample_news_ids) < 3:
             pytest.skip("Not enough news available for testing")
         
-        user_a = f"user-a-{int(time.time())}"
-        user_b = f"user-b-{int(time.time())}"
+        user_a = str(uuid.uuid4())
+        user_b = str(uuid.uuid4())
         
         # User A approves news 0
         interaction_helper.create_interaction(user_a, sample_news_ids[0], "approve")
