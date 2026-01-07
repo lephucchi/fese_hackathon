@@ -133,9 +133,15 @@ register_exception_handlers(app)
 # =========================================================================
 from src.api.routes.query import router as query_router
 from src.api.routes.health import router as health_router
+from src.api.routes.auth import router as auth_router
+from src.api.routes.users import router as users_router
+from src.api.routes.admin import router as admin_router
 
 app.include_router(query_router, prefix="/api")
 app.include_router(health_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
+app.include_router(admin_router, prefix="/api")
 
 
 # =========================================================================

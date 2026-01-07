@@ -2,14 +2,16 @@
 Vector search repository for RPC function calls.
 """
 from typing import List, Dict, Any, Optional
-from supabase import Client
 
-from supabase.schemas import (
-    MatchFinanceDocumentsResult,
-    MatchNewsDocumentsResult,
-    MatchLegalDocumentsResult,
-    MatchGlossaryResult,
-)
+# Note: 'supabase' on line below refers to the pip package (supabase-py)
+# Import using sys.path workaround or direct dict access (avoiding type hints for now)
+try:
+    from supabase import Client
+except ImportError:
+    # Fallback if there's a naming conflict
+    import sys
+    import importlib
+    Client = importlib.import_module('supabase._sync.client').SyncClient
 
 
 class VectorRepository:

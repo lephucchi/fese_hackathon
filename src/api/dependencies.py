@@ -22,10 +22,11 @@ def get_supabase_client() -> Client:
         Initialized Supabase client
     """
     url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_KEY")
+    # Try service role key first (for server-side operations), then anon key
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY")
     
     if not url or not key:
-        raise RuntimeError("SUPABASE_URL and SUPABASE_KEY must be set")
+        raise RuntimeError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_ANON_KEY) must be set")
     
     return create_client(url, key)
 
