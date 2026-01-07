@@ -4,6 +4,7 @@ News Response Schemas.
 Pydantic models for news endpoint responses.
 """
 from typing import List, Optional
+from datetime import datetime
 from pydantic import BaseModel, Field
 
 
