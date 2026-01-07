@@ -1,7 +1,14 @@
 """
-FastAPI Application Entry Point.
+FastAPI Application Entry Point - Refactored.
 
 Multi-Index RAG API for Vietnamese Financial & Legal Data.
+
+Architecture:
+- Routes: Thin layer for request/response handling
+- Services: Business logic and orchestration
+- Repositories: Data access layer (Supabase)
+- Middleware: Cross-cutting concerns (logging, auth, rate limiting)
+- Exceptions: Centralized error handling
 """
 import os
 import logging
@@ -62,7 +69,6 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down API...")
 
 
-
 # Create FastAPI app
 app = FastAPI(
     title="Multi-Index RAG API",
@@ -78,10 +84,17 @@ app = FastAPI(
     - **News** - Market news, trends
     
     ### Features
-    - ✅ Multi-label routing
+    - ✅ Multi-label routing with semantic classification
     - ✅ Query decomposition for complex questions
-    - ✅ Parallel retrieval
+    - ✅ Parallel retrieval across multiple indices
     - ✅ Grounded generation with citations
+    - ✅ Clean architecture: Routes → Services → Repositories
+    
+    ### Architecture
+    - **Routes**: Thin layer for HTTP handling
+    - **Services**: Business logic and orchestration
+    - **Repositories**: Data access (Supabase)
+    - **Schemas**: Request/Response validation
     """,
     version="1.0.0",
     docs_url="/docs",
@@ -89,7 +102,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# =========================================================================
 # CORS Configuration
+# =========================================================================
 cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
@@ -99,40 +114,48 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-from .routes import query_router, health_router
+# =========================================================================
+# Custom Middleware
+# =========================================================================
+from src.api.middleware import log_requests_middleware
+
+app.middleware("http")(log_requests_middleware)
+
+# =========================================================================
+# Exception Handlers
+# =========================================================================
+from src.api.exceptions import register_exception_handlers
+
+register_exception_handlers(app)
+
+# =========================================================================
+# Include Routers
+# =========================================================================
+from src.api.routes.query import router as query_router
+from src.api.routes.health import router as health_router
 
 app.include_router(query_router, prefix="/api")
 app.include_router(health_router, prefix="/api")
 
 
-# Root endpoint
+# =========================================================================
+# Root Endpoint
+# =========================================================================
 @app.get("/", tags=["Root"])
 async def root():
     """API root - redirect to docs."""
     return {
         "name": "Multi-Index RAG API",
         "version": "1.0.0",
+        "architecture": "Routes → Services → Repositories",
         "docs": "/docs",
         "health": "/api/health"
     }
 
 
-# Global exception handler
-@app.exception_handler(Exception)
-async def global_exception_handler(request, exc):
-    """Handle uncaught exceptions."""
-    logger.error(f"Unhandled exception: {exc}", exc_info=True)
-    return JSONResponse(
-        status_code=500,
-        content={
-            "error": "internal_error",
-            "message": "An unexpected error occurred. Please try again."
-        }
-    )
-
-
-# For running directly
+# =========================================================================
+# Run Directly (Development)
+# =========================================================================
 if __name__ == "__main__":
     import uvicorn
     
