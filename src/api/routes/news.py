@@ -2,6 +2,7 @@
 News routes - News API endpoints.
 
 Provides endpoints for fetching news articles from database.
+Flow: Routes → Services → Repositories
 """
 import logging
 from typing import Optional
@@ -17,6 +18,7 @@ from ..schemas.responses import (
     SentimentStats,
     ErrorResponse,
 )
+from ..services.news_service import NewsService
 from ..repositories.news_repository import NewsRepository
 from ..dependencies import get_supabase_client
 
@@ -30,6 +32,13 @@ def get_news_repository(
 ) -> NewsRepository:
     """Dependency to get NewsRepository instance."""
     return NewsRepository(supabase)
+
+
+def get_news_service(
+    news_repo: NewsRepository = Depends(get_news_repository)
+) -> NewsService:
+    """Dependency to get NewsService instance."""
+    return NewsService(news_repo)
 
 
 @router.get(
@@ -52,33 +61,24 @@ async def get_news_list(
     page: int = Query(default=1, ge=1, description="Page number"),
     page_size: int = Query(default=10, ge=1, le=100, description="Items per page"),
     sentiment: Optional[str] = Query(default=None, description="Filter by sentiment"),
-    news_repo: NewsRepository = Depends(get_news_repository)
+    news_service: NewsService = Depends(get_news_service)
 ):
     """Get paginated list of news articles."""
     try:
-        offset = (page - 1) * page_size
-        
-        # Get news articles
-        news_data = await news_repo.find_all(
-            limit=page_size,
-            offset=offset,
+        result = await news_service.get_news_list(
+            page=page,
+            page_size=page_size,
             sentiment=sentiment
         )
         
-        # Get total count
-        filters = {"sentiment": sentiment} if sentiment else None
-        total = await news_repo.count(filters)
-        
-        # Build response
-        news_items = [_build_news_item(item) for item in news_data]
-        has_next = offset + page_size < total
+        news_items = [_build_news_item(item) for item in result["news"]]
         
         return NewsListResponse(
             news=news_items,
-            total=total,
-            page=page,
-            page_size=page_size,
-            has_next=has_next
+            total=result["total"],
+            page=result["page"],
+            page_size=result["page_size"],
+            has_next=result["has_next"]
         )
         
     except Exception as e:
@@ -100,19 +100,17 @@ async def get_news_list(
     description="Get overall statistics including sentiment breakdown and top tickers."
 )
 async def get_news_stats(
-    news_repo: NewsRepository = Depends(get_news_repository)
+    news_service: NewsService = Depends(get_news_service)
 ):
     """Get news statistics and analytics."""
     try:
-        total = await news_repo.count()
-        sentiment_data = await news_repo.get_sentiment_stats()
-        top_tickers = await news_repo.get_top_tickers(limit=10)
+        result = await news_service.get_news_stats()
         
         return NewsStatsResponse(
-            total_news=total,
-            sentiment_stats=SentimentStats(**sentiment_data),
-            top_tickers=top_tickers,
-            latest_crawl_at=None  # TODO: Track last crawl time
+            total_news=result["total_news"],
+            sentiment_stats=SentimentStats(**result["sentiment_stats"]),
+            top_tickers=result["top_tickers"],
+            latest_crawl_at=result["latest_crawl_at"]
         )
         
     except Exception as e:
@@ -136,33 +134,24 @@ async def get_news_stats(
 async def get_news_by_ticker(
     ticker: str,
     page: int = Query(default=1, ge=1, description="Page number"),
-    page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
-    news_repo: NewsRepository = Depends(get_news_repository)
+    page_size: int = Query(default=10, ge=1, le=100, description="Items per page"),
+    news_service: NewsService = Depends(get_news_service)
 ):
     """Get news articles for a specific stock ticker."""
     try:
-        offset = (page - 1) * page_size
-        ticker_upper = ticker.upper()
-        
-        # Get news for ticker
-        news_data = await news_repo.find_by_ticker(
-            ticker=ticker_upper,
-            limit=page_size,
-            offset=offset
+        result = await news_service.get_news_by_ticker(
+            ticker=ticker,
+            page=page,
+            page_size=page_size
         )
         
-        # Get counts
-        total = await news_repo.count_by_ticker(ticker_upper)
-        sentiment_data = await news_repo.get_sentiment_stats(ticker=ticker_upper)
-        
-        # Build response
-        news_items = [_build_news_item(item) for item in news_data]
+        news_items = [_build_news_item(item) for item in result["news"]]
         
         return NewsByTickerResponse(
-            ticker=ticker_upper,
+            ticker=result["ticker"],
             news=news_items,
-            total=total,
-            sentiment_summary=sentiment_data
+            total=result["total"],
+            sentiment_summary=result["sentiment_summary"]
         )
         
     except Exception as e:
@@ -186,11 +175,11 @@ async def get_news_by_ticker(
 )
 async def get_news_detail(
     news_id: str,
-    news_repo: NewsRepository = Depends(get_news_repository)
+    news_service: NewsService = Depends(get_news_service)
 ):
     """Get single news article by ID."""
     try:
-        news_data = await news_repo.find_by_id(news_id)
+        news_data = await news_service.get_news_by_id(news_id)
         
         if not news_data:
             raise HTTPException(
@@ -220,7 +209,7 @@ def _build_news_item(data: dict) -> NewsItem:
     Build NewsItem from database data.
     
     Args:
-        data: Raw news data from repository
+        data: Raw news data from service
         
     Returns:
         NewsItem Pydantic model
@@ -238,4 +227,3 @@ def _build_news_item(data: dict) -> NewsItem:
         sentiment=data.get("sentiment"),
         tickers=tickers
     )
-
