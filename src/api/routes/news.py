@@ -225,5 +225,7 @@ def _build_news_item(data: dict) -> NewsItem:
         source_url=data.get("source_url"),
         published_at=data.get("published_at"),
         sentiment=data.get("sentiment"),
+        analyst=data.get("analyst"),
         tickers=tickers
     )
+

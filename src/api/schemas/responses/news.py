@@ -21,6 +21,7 @@ class NewsItem(BaseModel):
     source_url: Optional[str] = Field(None, description="Original source URL")
     published_at: Optional[str] = Field(None, description="Publication timestamp")
     sentiment: Optional[str] = Field(None, description="Sentiment: positive/negative/neutral")
+    analyst: Optional[dict] = Field(None, description="Analysis content for the news")
     tickers: List[TickerInfo] = Field(default=[], description="Related stock tickers")
     
     model_config = {

@@ -111,6 +111,27 @@ class NewsRepository(BaseRepository):
         
         return [self._format_news_with_tickers(item) for item in response.data]
     
+    async def find_by_ids(self, news_ids: List[str]) -> List[Dict[str, Any]]:
+        """
+        Find multiple news articles by list of IDs.
+        
+        Args:
+            news_ids: List of news UUIDs
+            
+        Returns:
+            List of news dicts with ticker mappings and analyst
+        """
+        if not news_ids:
+            return []
+        
+        response = self.supabase.table(self.table_name)\
+            .select("*, news_stock_mapping(ticker)")\
+            .in_("news_id", news_ids)\
+            .order("published_at", desc=True)\
+            .execute()
+        
+        return [self._format_news_with_tickers(item) for item in response.data]
+    
     async def count(self, filters: Optional[Dict[str, Any]] = None) -> int:
         """
         Count total news articles.

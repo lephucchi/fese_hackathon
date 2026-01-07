@@ -21,6 +21,10 @@ from .news import (
     SentimentStats,
     NewsStatsResponse,
 )
+from .interaction import (
+    InteractionResponse,
+    UserInterestsResponse,
+)
 
 __all__ = [
     "QueryResponse",
@@ -44,5 +48,9 @@ __all__ = [
     "NewsByTickerResponse",
     "SentimentStats",
     "NewsStatsResponse",
+    # Interaction
+    "InteractionResponse",
+    "UserInterestsResponse",
 ]
+
 
