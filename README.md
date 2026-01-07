@@ -38,7 +38,7 @@ A production-ready **Multi-Index RAG (Retrieval-Augmented Generation)** system d
 
 ## ✨ Features
 
-### Semantic Router
+### Semantic Router.
 
 > Intelligent query classification to route questions to the right knowledge base
 
