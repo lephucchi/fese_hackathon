@@ -23,8 +23,8 @@ class Settings:
     """Global application settings from environment."""
     
     # Supabase
-    SUPABASE_URL: str = os.getenv("supabase_url", "")
-    SUPABASE_KEY: str = os.getenv("supabase_service_role_key", "")
+    SUPABASE_URL: str = os.getenv("SUPABASE_URL", "")
+    SUPABASE_KEY: str = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
     
     # Gemini
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")

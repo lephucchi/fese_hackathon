@@ -167,9 +167,9 @@ pip install -r requirements.txt
 cp .env.example .env
 
 # Edit with your credentials
-supabase_url=https://your-project.supabase.co
-supabase_service_role_key=your-key
-openai_api_key=your-key  # or GEMINI_API_KEY
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-key
+OPENAI_API_KEY=your-key  # or GEMINI_API_KEY
 ```
 
 ### Run

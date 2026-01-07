@@ -36,8 +36,8 @@ class RetrieverConfig:
             encoder_model=os.getenv("ENCODER_MODEL", "BAAI/bge-m3"),
             k_per_index=int(os.getenv("K_PER_INDEX", "10")),
             timeout_seconds=float(os.getenv("RETRIEVAL_TIMEOUT", "30.0")),
-            supabase_url=os.getenv("supabase_url", ""),
-            supabase_key=os.getenv("supabase_service_role_key", ""),
+            supabase_url=os.getenv("SUPABASE_URL", ""),
+            supabase_key=os.getenv("SUPABASE_SERVICE_ROLE_KEY", ""),
         )
 
 
