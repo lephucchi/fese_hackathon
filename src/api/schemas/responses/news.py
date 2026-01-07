@@ -4,7 +4,6 @@ News Response Schemas.
 Pydantic models for news endpoint responses.
 """
 from typing import List, Optional
-from datetime import datetime
 from pydantic import BaseModel, Field
 
 
@@ -19,11 +18,10 @@ class NewsItem(BaseModel):
     news_id: str = Field(..., description="Unique news ID")
     title: str = Field(..., description="News title")
     content: Optional[str] = Field(None, description="News content/snippet")
-    source_url: str = Field(..., description="Original source URL")
-    published_at: Optional[datetime] = Field(None, description="Publication timestamp")
+    source_url: Optional[str] = Field(None, description="Original source URL")
+    published_at: Optional[str] = Field(None, description="Publication timestamp")
     sentiment: Optional[str] = Field(None, description="Sentiment: positive/negative/neutral")
     tickers: List[TickerInfo] = Field(default=[], description="Related stock tickers")
-    created_at: Optional[datetime] = Field(None, description="Record creation timestamp")
     
     model_config = {
         "json_schema_extra": {
