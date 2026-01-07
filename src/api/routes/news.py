@@ -44,13 +44,13 @@ def get_news_repository(
     Retrieve news articles with pagination and optional filters.
     
     - **page**: Page number (default: 1)
-    - **page_size**: Items per page (default: 20, max: 100)
+    - **page_size**: Items per page (default: 10, max: 100)
     - **sentiment**: Filter by sentiment (positive/negative/neutral)
     """
 )
 async def get_news_list(
     page: int = Query(default=1, ge=1, description="Page number"),
-    page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    page_size: int = Query(default=10, ge=1, le=100, description="Items per page"),
     sentiment: Optional[str] = Query(default=None, description="Filter by sentiment"),
     news_repo: NewsRepository = Depends(get_news_repository)
 ):

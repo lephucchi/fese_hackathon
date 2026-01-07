@@ -47,7 +47,7 @@ class NewsListResponse(BaseModel):
     news: List[NewsItem] = Field(..., description="List of news articles")
     total: int = Field(..., description="Total number of articles")
     page: int = Field(default=1, description="Current page number")
-    page_size: int = Field(default=20, description="Items per page")
+    page_size: int = Field(default=10, description="Items per page")
     has_next: bool = Field(default=False, description="Whether more pages exist")
     
     model_config = {
@@ -65,7 +65,7 @@ class NewsListResponse(BaseModel):
                     ],
                     "total": 100,
                     "page": 1,
-                    "page_size": 20,
+                    "page_size": 10,
                     "has_next": True
                 }
             ]
