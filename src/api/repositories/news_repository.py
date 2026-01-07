@@ -163,7 +163,7 @@ class NewsRepository(BaseRepository):
             Count of news for this ticker
         """
         response = self.supabase.table("news_stock_mapping")\
-            .select("mapping_id", count="exact")\
+            .select("news_id", count="exact")\
             .eq("ticker", ticker.upper())\
             .execute()
         
