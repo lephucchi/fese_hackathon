@@ -62,6 +62,12 @@ class NewsAnalystConfig:
     # Ticker Detection
     ticker_min_confidence: float = 0.7
     
+    # Comprehensive Search Configuration
+    enable_market_search: bool = True    # Search for market news (VN-Index)
+    enable_macro_search: bool = True     # Search for macro news (GDP, CPI, interest)
+    enable_ticker_search: bool = True    # Search for specific tickers
+    top_tickers_count: int = 10          # Number of top priority tickers to search
+    
     def validate(self) -> bool:
         """
         Validate configuration.
