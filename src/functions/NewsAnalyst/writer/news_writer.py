@@ -12,8 +12,9 @@ from datetime import datetime
 import hashlib
 from supabase import Client
 
-from ..config import NewsAnalystConfig
+from postgrest.exceptions import APIError 
 
+from ..config import NewsAnalystConfig
 logger = logging.getLogger(__name__)
 
 
@@ -119,6 +120,24 @@ class NewsWriter:
         
         return False
     
+    def _validate_sentiment(self, raw_sentiment: Any) -> Optional[str]:
+        """
+        Chuẩn hóa sentiment để khớp với Constraint của Database.
+        Database chỉ chấp nhận: 'Positive', 'Negative', 'Neutral'
+        """
+        ALLOWED = ["Positive", "Negative", "Neutral"]
+        
+        if not raw_sentiment or not isinstance(raw_sentiment, str):
+            return None
+            
+        # Chuyển về dạng Title Case (vd: "positive" -> "Positive")
+        formatted = raw_sentiment.title().strip()
+        
+        if formatted in ALLOWED:
+            return formatted
+        
+        return None
+
     async def _insert_news(self, article: Dict[str, Any]) -> Optional[str]:
         """
         Insert news article into news table.
@@ -130,13 +149,17 @@ class NewsWriter:
             news_id if successful, None otherwise
         """
         try:
+            # Xử lý sentiment kỹ càng trước khi gửi
+            raw_sentiment = article.get("sentiment", {}).get("sentiment")
+            final_sentiment = self._validate_sentiment(raw_sentiment)
+
             # Prepare data
             data = {
                 "title": article.get("title", ""),
                 "content": article.get("content", article.get("snippet", "")),
                 "source_url": article.get("url"),
                 "published_at": article.get("published_at"),
-                "sentiment": article.get("sentiment", {}).get("sentiment"),
+                "sentiment": final_sentiment, # Sử dụng biến đã validate
                 # TODO: Add more fields as needed
             }
             
@@ -150,8 +173,21 @@ class NewsWriter:
                 logger.debug(f"Inserted article: {news_id}")
                 return news_id
                 
+        except APIError as e:
+            # SỬA LỖI LOG: In chi tiết lỗi từ Supabase để debug
+            error_details = e.message if hasattr(e, 'message') else str(e)
+            if hasattr(e, 'details'):
+                error_details += f" | Details: {e.details}"
+            if hasattr(e, 'hint'):
+                 error_details += f" | Hint: {e.hint}"
+
+            logger.error(f"SUPABASE API ERROR: {error_details}")
+            
+            # Không raise exception để vòng lặp tiếp tục chạy các bài báo khác
+            return None
+
         except Exception as e:
-            logger.error(f"Error inserting news: {e}")
+            logger.error(f"Error inserting news (General): {e}")
         
         return None
     
