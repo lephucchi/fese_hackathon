@@ -141,6 +141,56 @@ Auto-resizing textarea with:
 - `CitationBadge` - Inline citation number badges
 - `CitationList` - Expandable source list with previews
 
+### Dashboard Components
+
+#### Market Tab (Phân tích Vĩ mô)
+Display macro economic news with impact analysis for investor decision-making:
+- Impact badges with dynamic levels (High/Medium/Low)
+- Color-coded impact indicators (Red/Yellow/Green)
+- Macro analysis summary with AI-generated insights
+- Smart keywords detection for impact level determination
+- Enhanced tags showing top 3 with "+X more" indicator
+
+#### Personal Tab (Danh mục của bạn)
+Connect portfolio management with macro news impact:
+- Portfolio overview with edit functionality
+- Macro impact alert cards for immediate attention
+- AI synthesis reports for daily insights
+
+#### Academy Tab (Học viện Vĩ mô)
+Provide macro economics education:
+- Structured learning paths
+- Progress tracking
+- Content categorization (Personalized, Theory, Events)
+- Newsletter signup for weekly updates
+
+### Design System
+
+#### Color Scheme
+- **Primary Accent**: `#00D97E` (Neon Green) - Consistent with homepage
+- **Dark Background**: `#0A0E12` / `#151A20`
+- **Card Background**: `#1C2127`
+- **Border Color**: `#2A3340`
+- **Text Primary**: `#FFFFFF`
+- **Text Secondary**: `#8B97A8`
+- **Status Colors**:
+  - High Impact: `#FF4757` (Red)
+  - Medium Impact: `#FFC107` (Yellow)
+  - Positive: `#00D97E` (Green)
+
+#### Typography
+- **Font**: Inter (Google Fonts)
+- **Weights**: 300, 400, 500, 600, 700
+- **Headers**: Bold (700), sized proportionally
+- **Body Text**: Regular (400), clear hierarchy
+
+#### Effects
+- Glassmorphism backgrounds
+- Gradient buttons with neon green accents
+- Smooth animations (0.2-0.3s transitions)
+- Custom scrollbars
+- Hover effects with slight lift (translateY) + border glow
+
 ## 🌐 Internationalization
 
 All UI text is in Vietnamese:
@@ -155,7 +205,34 @@ All UI text is in Vietnamese:
 - Optimized re-renders with React hooks
 - Lazy loading for heavy components
 - Smooth 60fps animations
+## 🛠️ Development Guide
 
+### Common Issues & Solutions
+
+#### Issue: npm command not recognized
+**Solution**: Install Node.js LTS from https://nodejs.org/
+1. Download and install Node.js LTS version
+2. Restart PowerShell after installation
+3. Verify installation: `node --version` and `npm --version`
+
+#### Issue: TypeScript errors in editor
+**Solution**: Install dependencies first
+```bash
+npm install
+```
+This will install all required packages including React, TypeScript, and type definitions.
+
+#### Issue: Script execution disabled
+**Solution**: Enable PowerShell scripts
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+```
+
+### Quick Install Script
+Use the provided PowerShell script for automated setup:
+```powershell
+.\install-dependencies.ps1
+```
 ## 📄 License
 
 Part of the UEL Final Report 2024.
