@@ -8,23 +8,29 @@ Can run as:
 """
 import asyncio
 import logging
+import os
 import sys
 from pathlib import Path
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
+from dotenv import load_dotenv
+load_dotenv()
 from src.functions.NewsAnalyst.config import NewsAnalystConfig
 from src.functions.NewsAnalyst.pipeline import NewsAnalystPipeline
 from src.functions.NewsAnalyst.scheduler import NewsAnalystScheduler
 
+
+# Create logs directory if it doesn't exist
+os.makedirs('logs', exist_ok=True)
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/news_analyst.log'),
+        logging.FileHandler('logs/news_analyst.log', encoding='utf-8'),
         logging.StreamHandler()
     ]
 )

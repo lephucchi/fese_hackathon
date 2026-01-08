@@ -43,7 +43,7 @@ class NewsAnalystPipeline:
         )
         
         # Initialize components
-        self.searcher = GoogleNewsSearcher(self.config)
+        self.searcher = GoogleNewsSearcher(self.config, self.supabase)
         self.finbert = FinBERTAnalyzer(self.config)
         self.phobert = PhoBERTAnalyzer(self.config)
         self.ticker_detector = TickerDetector(self.config, self.supabase)
@@ -69,9 +69,14 @@ class NewsAnalystPipeline:
         }
         
         try:
-            # Step 1: Scrape news
-            logger.info("Step 1: Scraping news...")
-            articles = await self.searcher.search_multiple_sources()
+            # Step 1: Scrape news (comprehensive search with priorities)
+            logger.info("Step 1: Scraping news with comprehensive search...")
+            articles = await self.searcher.search_comprehensive(
+                enable_market=self.config.enable_market_search,
+                enable_macro=self.config.enable_macro_search,
+                enable_tickers=self.config.enable_ticker_search,
+                top_tickers_count=self.config.top_tickers_count
+            )
             stats["scraped"] = len(articles)
             logger.info(f"Scraped {stats['scraped']} articles")
             

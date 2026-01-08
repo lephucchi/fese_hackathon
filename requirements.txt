@@ -40,3 +40,8 @@ scikit-learn>=1.3.0
 # Development
 pytest>=7.0.0
 
+# Scheduling
+apscheduler>=3.10.0
+
+# Add accelerate for Transformers Trainer
+accelerate>=0.26.0
