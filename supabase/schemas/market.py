@@ -12,3 +12,5 @@ class MarketData(SupabaseBaseModel):
     company_name: Optional[str]
     exchange: Optional[str]
     industry: Optional[str]
+    categories: Optional[str]
+
