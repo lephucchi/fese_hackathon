@@ -68,6 +68,24 @@ class NewsAnalystConfig:
     enable_ticker_search: bool = True    # Search for specific tickers
     top_tickers_count: int = 10          # Number of top priority tickers to search
     
+    # RSS Feed Configuration (Primary scraping method)
+    use_rss_primary: bool = True         # Use RSS feeds as primary, Google as fallback
+    rss_feeds: dict = field(default_factory=lambda: {
+        "vnexpress_chungkhoan": "https://vnexpress.net/rss/kinh-doanh/chung-khoan.rss",
+        "vnexpress_kinhdoanh": "https://vnexpress.net/rss/kinh-doanh.rss",
+        "cafef_chungkhoan": "https://cafef.vn/rss/chung-khoan.rss",
+        "vtv_kinhte": "https://vtv.vn/rss/kinh-te.rss",
+        "vietnamnews_economy": "https://vietnamnews.vn/rss/economy.rss",
+    })
+    rss_lookback_hours: int = 24         # Only fetch articles from last N hours
+    
+    # Content Extraction
+    max_content_length: int = 10000      # Max characters to extract per article
+    extraction_timeout: int = 30         # Timeout for content extraction (seconds)
+    
+    # Dual Sentiment Analysis
+    run_dual_analysis: bool = True       # Run both FinBERT and PhoBERT
+    
     def validate(self) -> bool:
         """
         Validate configuration.

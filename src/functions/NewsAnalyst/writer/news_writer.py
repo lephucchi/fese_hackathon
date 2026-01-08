@@ -173,80 +173,213 @@ class NewsWriter:
         """
         Build analyst JSON object with analysis results.
         
-        Format:
+        New Format (no duplicate data):
         {
-            "title": "...",
-            "url": "...",
-            "content": "...",
-            "sentiment": "negative",
-            "analyze": {
-                "polarity": 0.0,
-                "subjectivity": 0.0,
-                "vader": {"neg": 0.0, "neu": 1.0, "pos": 0.0, "compound": 0.0},
-                "vietnamese": {"label": "NEG", "score": 0.713}
-            },
-            "overall": "negative"
+            "finbert": {"sentiment": "positive", "confidence": 0.87, "scores": {...}},
+            "phobert": {"sentiment": "positive", "confidence": 0.91, "scores": {...}},
+            "average": {"sentiment": "positive", "confidence": 0.89, "scores": {...}},
+            "tickers": ["VNM", "VCB"],  # Must match Ticker column
+            "keywords": ["VN-Index", "tăng mạnh"],
+            "analyzed_at": "2026-01-08T15:00:00Z"
         }
         """
-        title = article.get("title", "")
-        url = article.get("url", "")
-        content = article.get("content", article.get("snippet", "")) or ""
+        # Get individual model results
+        finbert_data = article.get("finbert_sentiment", {})
+        phobert_data = article.get("phobert_sentiment", {})
         
-        # Get sentiment data from PhoBERT/FinBERT analysis
-        sentiment_data = article.get("sentiment", {})
-        if not sentiment_data or not isinstance(sentiment_data, dict):
-            sentiment_data = {"sentiment": "neutral", "confidence": 0.5, "scores": {}}
+        # If using old single sentiment format, convert it
+        if not finbert_data and not phobert_data:
+            old_sentiment = article.get("sentiment", {})
+            if isinstance(old_sentiment, dict):
+                # Determine which model was used based on language
+                language = article.get("language", "vi")
+                if language == "vi":
+                    phobert_data = old_sentiment
+                else:
+                    finbert_data = old_sentiment
         
-        # Extract values
-        overall = sentiment_data.get("sentiment", "neutral") or "neutral"
-        confidence = sentiment_data.get("confidence", 0.5)
-        scores = sentiment_data.get("scores", {})
+        # Build FinBERT result
+        finbert_result = self._format_model_sentiment(finbert_data, "finbert")
         
-        # Ensure confidence is float
-        try:
-            confidence = float(confidence)
-        except (ValueError, TypeError):
-            confidence = 0.5
+        # Build PhoBERT result
+        phobert_result = self._format_model_sentiment(phobert_data, "phobert")
         
-        # Map sentiment to short label
-        label_map = {"positive": "POS", "negative": "NEG", "neutral": "NEU"}
-        vi_label = label_map.get(overall.lower(), "NEU")
+        # Calculate average
+        average_result = self._calculate_average_sentiment(finbert_result, phobert_result)
         
-        # Calculate polarity from scores (-1 to 1)
-        pos_score = scores.get("positive", 0.33)
-        neg_score = scores.get("negative", 0.33)
-        polarity = pos_score - neg_score
+        # Get tickers as list (must match Ticker column)
+        tickers_data = article.get("tickers", [])
+        ticker_list = self._extract_ticker_list(tickers_data)
         
-        # Calculate compound score (similar to VADER)
-        compound = polarity  # Simplified
-        if overall.lower() == "positive":
-            compound = abs(polarity)
-        elif overall.lower() == "negative":
-            compound = -abs(polarity) if polarity != 0 else -0.5
+        # Get keywords
+        keywords = article.get("keywords", [])
+        if not keywords:
+            # Extract keywords from ticker detection if available
+            keywords = self._extract_keywords_from_tickers(tickers_data)
         
         analyst_json = {
-            "title": title,
-            "url": url,
-            "content": content[:500] if len(content) > 500 else content,
-            "sentiment": overall.lower(),
-            "analyze": {
-                "polarity": round(polarity, 4),
-                "subjectivity": round(confidence, 4),  # Use confidence as proxy
-                "vader": {
-                    "neg": round(neg_score, 4),
-                    "neu": round(scores.get("neutral", 0.34), 4),
-                    "pos": round(pos_score, 4),
-                    "compound": round(compound, 4)
-                },
-                "vietnamese": {
-                    "label": vi_label,
-                    "score": round(confidence, 16)
-                }
-            },
-            "overall": overall.lower()
+            "finbert": finbert_result,
+            "phobert": phobert_result,
+            "average": average_result,
+            "tickers": ticker_list,
+            "keywords": keywords,
+            "analyzed_at": datetime.now().isoformat()
         }
         
         return analyst_json
+    
+    def _format_model_sentiment(
+        self, 
+        sentiment_data: Dict[str, Any], 
+        model_name: str
+    ) -> Dict[str, Any]:
+        """
+        Format sentiment data from a single model.
+        
+        Args:
+            sentiment_data: Raw sentiment data from model
+            model_name: Model identifier (finbert/phobert)
+            
+        Returns:
+            Formatted sentiment dictionary
+        """
+        if not sentiment_data or not isinstance(sentiment_data, dict):
+            return {
+                "sentiment": "neutral",
+                "confidence": 0.0,
+                "scores": {"positive": 0.0, "negative": 0.0, "neutral": 1.0}
+            }
+        
+        sentiment = str(sentiment_data.get("sentiment", "neutral")).lower()
+        confidence = float(sentiment_data.get("confidence", 0.5))
+        scores = sentiment_data.get("scores", {})
+        
+        return {
+            "sentiment": sentiment,
+            "confidence": round(confidence, 4),
+            "scores": {
+                "positive": round(float(scores.get("positive", 0.0)), 4),
+                "negative": round(float(scores.get("negative", 0.0)), 4),
+                "neutral": round(float(scores.get("neutral", 0.0)), 4)
+            }
+        }
+    
+    def _calculate_average_sentiment(
+        self,
+        finbert_result: Dict[str, Any],
+        phobert_result: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Calculate average sentiment from both models.
+        
+        Args:
+            finbert_result: Formatted FinBERT result
+            phobert_result: Formatted PhoBERT result
+            
+        Returns:
+            Average sentiment dictionary
+        """
+        # Get scores from both models
+        fb_scores = finbert_result.get("scores", {})
+        pb_scores = phobert_result.get("scores", {})
+        fb_conf = finbert_result.get("confidence", 0.0)
+        pb_conf = phobert_result.get("confidence", 0.0)
+        
+        # Count active models
+        active_models = 0
+        if fb_conf > 0:
+            active_models += 1
+        if pb_conf > 0:
+            active_models += 1
+        
+        if active_models == 0:
+            return {
+                "sentiment": "neutral",
+                "confidence": 0.0,
+                "scores": {"positive": 0.0, "negative": 0.0, "neutral": 1.0}
+            }
+        
+        # Calculate averages
+        avg_pos = (fb_scores.get("positive", 0) + pb_scores.get("positive", 0)) / active_models
+        avg_neg = (fb_scores.get("negative", 0) + pb_scores.get("negative", 0)) / active_models
+        avg_neu = (fb_scores.get("neutral", 0) + pb_scores.get("neutral", 0)) / active_models
+        avg_conf = (fb_conf + pb_conf) / active_models
+        
+        # Determine overall sentiment
+        max_score = max(avg_pos, avg_neg, avg_neu)
+        if max_score == avg_pos:
+            sentiment = "positive"
+        elif max_score == avg_neg:
+            sentiment = "negative"
+        else:
+            sentiment = "neutral"
+        
+        return {
+            "sentiment": sentiment,
+            "confidence": round(avg_conf, 4),
+            "scores": {
+                "positive": round(avg_pos, 4),
+                "negative": round(avg_neg, 4),
+                "neutral": round(avg_neu, 4)
+            }
+        }
+    
+    def _extract_ticker_list(self, tickers_data: List[Any]) -> List[str]:
+        """
+        Extract ticker symbols as list (synced with Ticker column).
+        
+        Args:
+            tickers_data: Raw tickers data from article
+            
+        Returns:
+            List of ticker symbols
+        """
+        if not tickers_data:
+            return []
+        
+        ticker_list = []
+        seen = set()
+        
+        for t in tickers_data:
+            ticker = None
+            if isinstance(t, dict):
+                ticker = t.get("ticker")
+            elif isinstance(t, str):
+                ticker = t
+            
+            if ticker and ticker not in seen:
+                seen.add(ticker)
+                ticker_list.append(ticker)
+        
+        return ticker_list
+    
+    def _extract_keywords_from_tickers(
+        self, 
+        tickers_data: List[Any]
+    ) -> List[str]:
+        """
+        Extract keywords from ticker detection context.
+        
+        Args:
+            tickers_data: Raw tickers data with context
+            
+        Returns:
+            List of keywords
+        """
+        keywords = set()
+        
+        for t in tickers_data:
+            if isinstance(t, dict):
+                # Add context if available
+                context = t.get("context", "")
+                if context:
+                    # Extract significant words
+                    words = context.split()
+                    for word in words:
+                        if len(word) > 3:
+                            keywords.add(word.lower())
+        
+        return list(keywords)[:10]  # Limit to 10 keywords
 
     async def _insert_news(self, article: Dict[str, Any]) -> Optional[str]:
         """
@@ -319,43 +452,96 @@ class NewsWriter:
         tickers: List[Dict[str, Any]]
     ):
         """
-        Insert news-ticker mappings.
+        Insert news-ticker mappings to link news with market_data.
         
-        Only inserts stock tickers (not macro indicators) to avoid
-        foreign key constraint violations.
+        Validates that tickers exist in market_data table before inserting
+        to avoid foreign key constraint violations.
+        
+        Flow: news -> news_stock_mapping -> market_data
         
         Args:
             news_id: News article ID
             tickers: List of ticker dictionaries
         """
         try:
-            # Filter out macro indicators - only insert stock tickers
-            # that exist in the market_data table
-            stock_tickers = [
-                t for t in tickers 
-                if t.get("type") == "stock"
-            ]
+            if not tickers:
+                logger.debug(f"No tickers to map for {news_id}")
+                return
             
-            if not stock_tickers:
+            # Extract unique ticker symbols
+            ticker_symbols = set()
+            for t in tickers:
+                ticker = None
+                if isinstance(t, dict):
+                    # Only include stock tickers, not macro indicators
+                    if t.get("type") == "stock":
+                        ticker = t.get("ticker")
+                elif isinstance(t, str):
+                    ticker = t
+                
+                if ticker:
+                    ticker_symbols.add(ticker)
+            
+            if not ticker_symbols:
                 logger.debug(f"No stock tickers to map for {news_id}")
                 return
             
+            # Validate tickers exist in market_data table
+            valid_tickers = await self._validate_tickers_in_market_data(list(ticker_symbols))
+            
+            if not valid_tickers:
+                logger.debug(f"No valid tickers in market_data for {news_id}")
+                return
+            
+            # Build mappings for valid tickers only
             mappings = [
                 {
                     "news_id": news_id,
-                    "ticker": ticker["ticker"]
+                    "ticker": ticker
                 }
-                for ticker in stock_tickers
+                for ticker in valid_tickers
             ]
             
+            # Insert mappings
             response = self.supabase.table("news_stock_mapping")\
                 .insert(mappings)\
                 .execute()
             
-            logger.debug(f"Inserted {len(mappings)} ticker mappings for {news_id}")
+            logger.info(f"Linked {len(mappings)} tickers to news {news_id}: {valid_tickers}")
             
         except Exception as e:
             logger.error(f"Error inserting ticker mappings: {e}")
+    
+    async def _validate_tickers_in_market_data(
+        self,
+        tickers: List[str]
+    ) -> List[str]:
+        """
+        Validate that tickers exist in market_data table.
+        
+        Args:
+            tickers: List of ticker symbols to validate
+            
+        Returns:
+            List of tickers that exist in market_data
+        """
+        try:
+            # Query market_data for these tickers
+            response = self.supabase.table("market_data")\
+                .select("ticker")\
+                .in_("ticker", tickers)\
+                .execute()
+            
+            if response.data:
+                valid = [row["ticker"] for row in response.data]
+                logger.debug(f"Validated {len(valid)}/{len(tickers)} tickers in market_data")
+                return valid
+            
+            return []
+            
+        except Exception as e:
+            logger.error(f"Error validating tickers: {e}")
+            return []
     
     @staticmethod
     def _hash_content(content: str) -> str:

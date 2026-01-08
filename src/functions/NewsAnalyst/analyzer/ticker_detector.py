@@ -124,6 +124,77 @@ INDUSTRY_KEYWORDS = {
     "technology": "Software and Computer Services",
 }
 
+# Common Vietnamese Company Name to Ticker mappings
+# For companies frequently mentioned in financial news
+COMPANY_NAME_MAPPINGS = {
+    # VN30 major companies
+    "vinamilk": "VNM",
+    "sữa vinamilk": "VNM",
+    "vietcombank": "VCB",
+    "ngân hàng ngoại thương": "VCB",
+    "fpt": "FPT",
+    "tập đoàn fpt": "FPT",
+    "hòa phát": "HPG",
+    "thép hòa phát": "HPG",
+    "vinhomes": "VHM",
+    "vingroup": "VIC",
+    "tập đoàn vingroup": "VIC",
+    "masan": "MSN", 
+    "tập đoàn masan": "MSN",
+    "thế giới di động": "MWG",
+    "mobile world": "MWG",
+    "techcombank": "TCB",
+    "ngân hàng kỹ thương": "TCB",
+    "vpbank": "VPB",
+    "ngân hàng việt nam thịnh vượng": "VPB",
+    "mb bank": "MBB",
+    "ngân hàng quân đội": "MBB",
+    "vietinbank": "CTG",
+    "ngân hàng công thương": "CTG",
+    "bidv": "BID",
+    "ngân hàng đầu tư": "BID",
+    "acb": "ACB",
+    "ngân hàng á châu": "ACB",
+    "sabeco": "SAB",
+    "bia sài gòn": "SAB",
+    "vincom retail": "VRE",
+    "petrolimex": "PLX",
+    "xăng dầu": "PLX",
+    "pv gas": "GAS",
+    "khí việt nam": "GAS",
+    "vietjet air": "VJC",
+    "vietjet": "VJC",
+    "vietnam airlines": "HVN",
+    "novaland": "NVL",
+    "pnj": "PNJ",
+    "vàng bạc phú nhuận": "PNJ",
+    "ree": "REE",
+    "điện lạnh ree": "REE",
+    "gemadept": "GMD",
+    "hoa sen": "HSG",
+    "thép hoa sen": "HSG",
+    # Real estate
+    "đất xanh": "DXG",
+    "khang điền": "KDH",
+    "nam long": "NLG",
+    # Securities
+    "ssi": "SSI",
+    "vndirect": "VND",
+    "hsc": "HCM",
+    # Banks
+    "sacombank": "STB",
+    "eximbank": "EIB",
+    "hdbank": "HDB",
+    "tpbank": "TPB",
+    "vib": "VIB",
+    "lpbank": "LPB",
+    "ocb": "OCB",
+    # Others
+    "vinfast": "VFS",
+    "dược hậu giang": "DHG",
+    "traphaco": "TRA",
+}
+
 
 class TickerDetector:
     """
@@ -287,8 +358,9 @@ class TickerDetector:
         
         Methods:
         1. Direct ticker pattern matching (VNM, HPG, etc.)
-        2. Macro indicator detection (lãi suất, GDP, etc.)
-        3. Keyword matching from finance_index (company descriptions)
+        2. Company name matching (Vinamilk -> VNM, etc.)
+        3. Macro indicator detection (lãi suất, GDP, etc.)
+        4. Keyword matching from finance_index (company descriptions)
         
         Args:
             text: Text to analyze
@@ -302,11 +374,15 @@ class TickerDetector:
         # This only detects tickers explicitly written in the text
         detected.extend(self._detect_by_pattern(text))
         
-        # Method 2: Macro indicator detection (lãi suất, GDP, etc.)
+        # Method 2: Company name matching (Vinamilk -> VNM, FPT -> FPT)
+        # Crucial for Vietnamese news which often uses company names
+        detected.extend(self._detect_by_company_name(text))
+        
+        # Method 3: Macro indicator detection (lãi suất, GDP, etc.)
         # These are important economic indicators mentioned in news
         detected.extend(self._detect_macro_indicators(text))
         
-        # Method 3: Keyword matching from finance_index
+        # Method 4: Keyword matching from finance_index
         # Match keywords from company descriptions to find related tickers
         detected.extend(self._detect_by_finance_index(text))
         
@@ -381,10 +457,29 @@ class TickerDetector:
         """Detect tickers by matching company names in text."""
         detected = []
         text_lower = text.lower()
+        found_tickers = set()
         
+        # First, check static COMPANY_NAME_MAPPINGS (common Vietnamese companies)
+        for company_name, ticker in COMPANY_NAME_MAPPINGS.items():
+            if company_name in text_lower and ticker not in found_tickers:
+                # Verify ticker exists in market_data
+                if ticker in self.known_tickers:
+                    found_tickers.add(ticker)
+                    detected.append({
+                        "ticker": ticker,
+                        "confidence": 0.90,  # Higher confidence for known mappings
+                        "method": "company_name_static",
+                        "type": "stock",
+                        "matched_text": company_name
+                    })
+        
+        # Then check dynamic company_to_ticker from database
         for company_name, ticker in self.company_to_ticker.items():
+            if ticker in found_tickers:
+                continue  # Skip if already found
             # Check if company name appears in text
             if len(company_name) >= 5 and company_name in text_lower:
+                found_tickers.add(ticker)
                 detected.append({
                     "ticker": ticker,
                     "confidence": 0.85,
