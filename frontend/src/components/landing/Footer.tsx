@@ -1,69 +1,179 @@
 'use client';
 
-import { Github } from 'lucide-react';
-import { Logo } from '../shared/Logo';
-import { APIStatus } from '@/components/common/APIStatus';
-
-const techStack = [
-  'Next.js',
-  'LangGraph', 
-  'FastAPI',
-  'Supabase',
-  'Gemini',
-];
+import { TrendingUp } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer style={{ padding: '3rem 1rem', background: 'var(--surface)', borderTop: '1px solid var(--border)' }}>
-      <div style={{ width: '100%', maxWidth: '80rem', margin: '0 auto' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', alignItems: 'flex-start' }}>
-          {/* Left - Logo & Description */}
-          <div style={{ maxWidth: '28rem' }}>
-            <Logo size="sm" showText={false} />
-            <p style={{ marginTop: '0.75rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-              Multi-Index RAG for Vietnamese Financial & Legal AI. 
-              A research-grade knowledge retrieval system.
+    <footer style={{
+      borderTop: '1px solid var(--border)',
+      padding: '64px 0 32px',
+      background: 'var(--glass-bg)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)'
+    }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '48px',
+          marginBottom: '48px'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+              <TrendingUp size={28} style={{ color: 'var(--primary)' }} />
+              <span style={{ fontSize: '22px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                MacroInsight
+              </span>
+            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '15px', lineHeight: '1.6' }}>
+              Nền tảng phân tích và tổng hợp tin tức kinh tế vĩ mô thông minh
             </p>
           </div>
 
-          {/* Center - Tech Stack */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {techStack.map((tech) => (
-              <span
-                key={tech}
-                style={{
-                  padding: '0.25rem 0.75rem',
-                  borderRadius: '9999px',
-                  fontSize: '0.75rem',
-                  fontWeight: 500,
-                  background: 'var(--background)',
-                  border: '1px solid var(--border)',
-                  color: 'var(--text-secondary)',
+          <div>
+            <h3 style={{ 
+              fontWeight: '600', 
+              marginBottom: '20px', 
+              color: 'var(--text-primary)',
+              fontSize: '16px'
+            }}>
+              Sản phẩm
+            </h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <li>
+                <a href="#" style={{ 
+                  color: 'var(--text-secondary)', 
+                  textDecoration: 'none', 
+                  fontSize: '15px',
+                  transition: 'color 0.2s'
+                }} 
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                  Tính năng
+                </a>
+              </li>
+              <li>
+                <a href="#" style={{ 
+                  color: 'var(--text-secondary)', 
+                  textDecoration: 'none', 
+                  fontSize: '15px',
+                  transition: 'color 0.2s'
                 }}
-              >
-                {tech}
-              </span>
-            ))}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                  Cách hoạt động
+                </a>
+              </li>
+              <li>
+                <a href="#" style={{ 
+                  color: 'var(--text-secondary)', 
+                  textDecoration: 'none', 
+                  fontSize: '15px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                  Bảng giá
+                </a>
+              </li>
+            </ul>
           </div>
 
-          {/* Right - Links & Status */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <APIStatus />
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'opacity 0.2s' }}
-            >
-              <Github size={18} />
-              <span>GitHub</span>
-            </a>
+          <div>
+            <h3 style={{ 
+              fontWeight: '600', 
+              marginBottom: '20px', 
+              color: 'var(--text-primary)',
+              fontSize: '16px'
+            }}>
+              Công ty
+            </h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <li>
+                <a href="#" style={{ 
+                  color: 'var(--text-secondary)', 
+                  textDecoration: 'none', 
+                  fontSize: '15px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                  Về chúng tôi
+                </a>
+              </li>
+              <li>
+                <a href="#" style={{ 
+                  color: 'var(--text-secondary)', 
+                  textDecoration: 'none', 
+                  fontSize: '15px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                  Blog
+                </a>
+              </li>
+              <li>
+                <a href="#" style={{ 
+                  color: 'var(--text-secondary)', 
+                  textDecoration: 'none', 
+                  fontSize: '15px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                  Liên hệ
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 style={{ 
+              fontWeight: '600', 
+              marginBottom: '20px', 
+              color: 'var(--text-primary)',
+              fontSize: '16px'
+            }}>
+              Pháp lý
+            </h3>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <li>
+                <a href="#" style={{ 
+                  color: 'var(--text-secondary)', 
+                  textDecoration: 'none', 
+                  fontSize: '15px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                  Chính sách bảo mật
+                </a>
+              </li>
+              <li>
+                <a href="#" style={{ 
+                  color: 'var(--text-secondary)', 
+                  textDecoration: 'none', 
+                  fontSize: '15px',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary)'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}>
+                  Điều khoản dịch vụ
+                </a>
+              </li>
+            </ul>
           </div>
         </div>
 
-        {/* Copyright */}
-        <div style={{ marginTop: '2.5rem', paddingTop: '1.5rem', textAlign: 'center', fontSize: '0.75rem', borderTop: '1px solid var(--border)', color: 'var(--text-tertiary)' }}>
-          © 2024 Multi-Index RAG. UEL Final Report Project.
+        <div style={{
+          paddingTop: '32px',
+          borderTop: '1px solid var(--border)',
+          textAlign: 'center',
+          color: 'var(--text-secondary)',
+          fontSize: '14px'
+        }}>
+          © {new Date().getFullYear()} MacroInsight. Designed with ❤️ in Vietnam.
         </div>
       </div>
     </footer>

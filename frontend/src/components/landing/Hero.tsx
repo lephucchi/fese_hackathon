@@ -2,216 +2,177 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { Sparkles, ArrowRight, Play } from 'lucide-react';
 
-export function Hero() {
+interface HeroProps {
+  onGetStarted: () => void;
+}
+
+export function Hero({ onGetStarted }: HeroProps) {
   return (
     <section 
       id="hero"
       style={{ 
-        position: 'relative',
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingTop: '5rem',
-        paddingBottom: '4rem',
-        paddingLeft: '1rem',
-        paddingRight: '1rem',
+        paddingTop: '140px',
+        paddingBottom: '80px',
         background: 'var(--background)',
-        width: '100%',
-        overflow: 'hidden'
+        position: 'relative',
+        overflow: 'hidden',
+        width: '100%'
       }}
     >
-      {/* Background gradient */}
-      <div 
-        style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: 0.2,
-          background: 'radial-gradient(ellipse at 50% 30%, var(--primary) 0%, transparent 60%)',
-          pointerEvents: 'none'
-        }}
-      />
+      {/* Background Elements */}
+      <div style={{
+        position: 'absolute',
+        top: '-10%',
+        right: '-5%',
+        width: '600px',
+        height: '600px',
+        background: 'radial-gradient(circle, rgba(0, 200, 5, 0.08) 0%, transparent 70%)',
+        borderRadius: '50%',
+        filter: 'blur(60px)',
+        pointerEvents: 'none'
+      }} />
 
-      <div style={{ 
-        position: 'relative', 
-        zIndex: 10, 
-        width: '100%', 
-        maxWidth: '72rem', 
-        margin: '0 auto', 
-        textAlign: 'center'
-      }}>
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '0.5rem', 
-            padding: '0.5rem 1rem', 
-            borderRadius: '9999px', 
-            marginBottom: '1.5rem',
-            background: 'var(--surface)', 
-            border: '1px solid var(--border)' 
-          }}
-        >
-          <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            Powered by LangGraph & Supabase
-          </span>
-        </motion.div>
-
-        {/* Headline */}
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          style={{ 
-            fontSize: 'clamp(2rem, 5vw, 4rem)',
-            fontWeight: 700,
-            marginBottom: '1.5rem',
-            lineHeight: 1.2,
-            padding: '0 1rem',
-            color: 'var(--text-primary)'
-          }}
-        >
-          Multi-Domain{' '}
-          <span className="text-gradient">Knowledge Router</span>
-          <br />
-          <span style={{ fontSize: 'clamp(1.5rem, 4vw, 3rem)' }}>powered by RAG</span>
-        </motion.h1>
-
-        {/* Sub-headline */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          style={{
-            fontSize: 'clamp(1rem, 2vw, 1.25rem)',
-            marginBottom: '2.5rem',
-            maxWidth: '42rem',
-            margin: '0 auto 2.5rem',
-            padding: '0 1rem',
-            color: 'var(--text-secondary)'
-          }}
-        >
-          Query once. Route intelligently. Answer with evidence.
-        </motion.p>
-
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '1rem',
-            padding: '0 1rem'
-          }}
-        >
-          <Link href="/chat" style={{ width: '100%', maxWidth: '300px' }}>
-            <button
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                padding: '0.875rem 2rem',
-                borderRadius: '0.75rem',
-                color: 'white',
-                fontWeight: 600,
-                fontSize: '1.125rem',
-                width: '100%',
-                border: 'none',
-                cursor: 'pointer',
-                background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-                boxShadow: 'var(--shadow-glow)',
-                transition: 'all 0.2s'
-              }}
-            >
-              Try the Chatbot
-              <ArrowRight size={20} />
-            </button>
-          </Link>
-          <Link href="#how-it-works" style={{ width: '100%', maxWidth: '300px' }}>
-            <button
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                padding: '0.875rem 2rem',
-                borderRadius: '0.75rem',
-                fontWeight: 600,
-                fontSize: '1.125rem',
-                width: '100%',
-                cursor: 'pointer',
-                background: 'transparent',
-                border: '2px solid var(--border)',
-                color: 'var(--text-primary)',
-                transition: 'all 0.2s'
-              }}
-            >
-              View Architecture
-            </button>
-          </Link>
-        </motion.div>
-
-        {/* Flow Diagram */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          style={{ marginTop: '4rem', padding: '0 1rem' }}
-        >
-          <FlowDiagram />
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
-function FlowDiagram() {
-  const steps = [
-    { label: 'Query', icon: '💬' },
-    { label: 'Route', icon: '🎯' },
-    { label: 'Search', icon: '📚' },
-    { label: 'Generate', icon: '🧠' },
-    { label: 'Answer', icon: '✅' },
-  ];
-
-  return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
-      {steps.map((step, index) => (
-        <React.Fragment key={step.label}>
-          <div
+      <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
+        <div style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}>
+          {/* Badge */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
             style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
-              gap: '0.5rem', 
-              padding: '0.75rem 1rem', 
-              borderRadius: '0.75rem',
-              background: 'var(--surface)', 
-              border: '1px solid var(--border)' 
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 20px',
+              background: 'rgba(0, 200, 5, 0.1)',
+              borderRadius: '9999px',
+              marginBottom: '24px',
+              border: '1px solid rgba(0, 200, 5, 0.2)'
             }}
           >
-            <span style={{ fontSize: '1.5rem' }}>{step.icon}</span>
-            <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-              {step.label}
+            <Sparkles size={16} color="var(--primary)" />
+            <span style={{ color: 'var(--primary)', fontSize: '14px', fontWeight: 600 }}>
+              Trợ lý đầu tư AI thế hệ mới
             </span>
-          </div>
-          {index < steps.length - 1 && (
-            <span style={{ fontSize: '1.125rem', color: 'var(--text-tertiary)' }}>→</span>
-          )}
-        </React.Fragment>
-      ))}
-    </div>
+          </motion.div>
+
+          {/* Main Heading */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            style={{ 
+              fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              fontWeight: 800,
+              lineHeight: 1.1,
+              marginBottom: '24px',
+              letterSpacing: '-0.02em',
+              color: 'var(--text-primary)'
+            }}
+          >
+            Biến Thông Tin Vĩ Mô <br />
+            Thành <span className="text-gradient">Quyết Định Đầu Tư</span>
+          </motion.h1>
+
+          {/* Subheading */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            style={{ 
+              fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
+              color: 'var(--text-secondary)',
+              lineHeight: 1.6,
+              marginBottom: '40px',
+              maxWidth: '700px',
+              margin: '0 auto 40px'
+            }}
+          >
+            Không còn bị ngợp trong biển tin tức hỗn độn. MacroInsight giúp bạn lọc, phân tích và hiểu tác động của tin tức vĩ mô đến danh mục đầu tư chỉ trong vài giây.
+          </motion.p>
+
+          {/* CTA Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            style={{ 
+              display: 'flex', 
+              gap: '16px',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              marginBottom: '60px'
+            }}
+          >
+            <button
+              onClick={onGetStarted}
+              className="btn-primary interactive-scale"
+              style={{ 
+                padding: '16px 40px',
+                fontSize: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              Dùng thử miễn phí
+              <ArrowRight size={20} />
+            </button>
+            <button
+              className="btn-secondary interactive-scale"
+              style={{ 
+                padding: '16px 40px', 
+                fontSize: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              <Play size={18} />
+              Xem demo
+            </button>
+          </motion.div>
+
+          {/* Stats */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            style={{ 
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gap: '32px',
+              maxWidth: '700px',
+              margin: '0 auto'
+            }}
+          >
+            {[
+              { value: '2 phút', label: 'Cập nhật sáng' },
+              { value: '10 tin', label: 'Lọc tự động' },
+              { value: '24/7', label: 'Trợ lý AI' }
+            ].map((stat, i) => (
+              <div key={i}>
+                <div style={{ 
+                  fontSize: '2rem',
+                  fontWeight: 800,
+                  color: 'var(--primary)',
+                  marginBottom: '4px'
+                }}>
+                  {stat.value}
+                </div>
+                <div style={{ 
+                  fontSize: '14px',
+                  color: 'var(--text-tertiary)'
+                }}>
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </div>
+    </section>
   );
 }

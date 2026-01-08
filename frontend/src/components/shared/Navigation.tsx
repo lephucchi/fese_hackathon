@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, TrendingUp, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -13,10 +13,16 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { label: 'Home', href: '/' },
-  { label: 'Chat', href: '/chat' },
+  { label: 'Market', href: '/dashboard' },
+  { label: 'Personal', href: '/personal' },
+  { label: 'Education', href: '/education' },
 ];
 
-export function Navigation() {
+interface NavigationProps {
+  onLoginClick?: () => void;
+}
+
+export function Navigation({ onLoginClick }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -54,38 +60,66 @@ export function Navigation() {
               alignItems: 'center', 
               gap: '0.5rem',
               textDecoration: 'none',
-              transition: 'opacity 0.2s'
+              transition: 'all 0.2s'
             }}
-            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
-            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '0.9';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
+            {/* Modern Logo with Gradient Icon */}
             <div
               style={{ 
-                width: '2.25rem', 
-                height: '2.25rem', 
-                borderRadius: '0.5rem', 
+                width: '2.5rem', 
+                height: '2.5rem', 
+                borderRadius: '12px', 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center',
-                background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)' 
+                background: 'linear-gradient(135deg, var(--primary) 0%, #00a004 100%)',
+                boxShadow: '0 4px 12px rgba(0, 200, 5, 0.25)',
+                position: 'relative',
+                overflow: 'hidden'
               }}
             >
-              <span style={{ color: 'white', fontWeight: 'bold', fontSize: '0.875rem' }}>MR</span>
+              {/* Animated background glow */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent)',
+                opacity: 0.5
+              }} />
+              <TrendingUp 
+                size={20} 
+                style={{ 
+                  color: 'white', 
+                  position: 'relative',
+                  strokeWidth: 2.5
+                }} 
+              />
             </div>
             <span 
               style={{ 
-                fontWeight: 600, 
-                fontSize: '1.125rem', 
-                color: 'var(--text-primary)',
-                display: window.innerWidth >= 640 ? 'block' : 'none'
+                fontWeight: 700, 
+                fontSize: '1.25rem', 
+                background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.02em'
               }}
+              className="hidden-sm"
             >
-              Multi-RAG
+              MacroInsight
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <div style={{ display: window.innerWidth >= 768 ? 'flex' : 'none', alignItems: 'center', gap: '2rem' }}>
+          <div style={{ alignItems: 'center', gap: '2rem' }} className="show-md-flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
@@ -133,33 +167,44 @@ export function Navigation() {
               )}
             </button>
 
-            {/* CTA Button - Desktop */}
-            <Link
-              href="/chat"
-              style={{ 
-                display: window.innerWidth >= 640 ? 'flex' : 'none',
-                alignItems: 'center', 
-                gap: '0.5rem', 
-                padding: '0.625rem 1.25rem', 
-                borderRadius: '0.5rem', 
-                fontSize: '0.875rem', 
-                fontWeight: 500, 
-                color: 'white',
-                background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)', 
-                boxShadow: 'var(--shadow-md)',
-                textDecoration: 'none',
-                transition: 'transform 0.2s'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-            >
-              Open Chat
-            </Link>
+            {/* Login Button - Desktop */}
+            {onLoginClick && (
+              <button
+                onClick={onLoginClick}
+                className="interactive-scale hidden-sm"
+                style={{ 
+                  alignItems: 'center', 
+                  gap: '0.5rem', 
+                  padding: '0.625rem 1.5rem', 
+                  borderRadius: '9999px', 
+                  fontSize: '0.875rem', 
+                  fontWeight: 600, 
+                  color: 'white',
+                  background: 'var(--primary)', 
+                  boxShadow: '0 4px 12px rgba(0, 200, 5, 0.2)',
+                  textDecoration: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 200, 5, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 200, 5, 0.2)';
+                }}
+              >
+                Đăng nhập
+              </button>
+            )}
 
             {/* Mobile Menu Toggle */}
             <button
+              className="hide-md"
               style={{ 
-                display: window.innerWidth >= 768 ? 'none' : 'flex',
+                display: 'flex',
                 width: '2.5rem', 
                 height: '2.5rem', 
                 borderRadius: '0.5rem', 
@@ -192,8 +237,8 @@ export function Navigation() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            className="hide-md"
             style={{ 
-              display: window.innerWidth >= 768 ? 'none' : 'block',
               overflow: 'hidden',
               background: 'var(--background)',
               borderBottom: '1px solid var(--border)'
