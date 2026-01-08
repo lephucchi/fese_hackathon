@@ -12,6 +12,19 @@ from .auth import (
     SessionInfo,
     SessionsResponse,
 )
+from .news import (
+    TickerInfo,
+    NewsItem,
+    NewsListResponse,
+    NewsDetailResponse,
+    NewsByTickerResponse,
+    SentimentStats,
+    NewsStatsResponse,
+)
+from .interaction import (
+    InteractionResponse,
+    UserInterestsResponse,
+)
 
 __all__ = [
     "QueryResponse",
@@ -27,5 +40,17 @@ __all__ = [
     "LogoutResponse",
     "SessionInfo",
     "SessionsResponse",
+    # News
+    "TickerInfo",
+    "NewsItem",
+    "NewsListResponse",
+    "NewsDetailResponse",
+    "NewsByTickerResponse",
+    "SentimentStats",
+    "NewsStatsResponse",
+    # Interaction
+    "InteractionResponse",
+    "UserInterestsResponse",
 ]
+
 
