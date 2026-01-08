@@ -18,7 +18,7 @@ function formatCurrency(amount: number): string {
     style: 'currency',
     currency: 'VND',
     minimumFractionDigits: 0,
-  }).stringify(amount);
+  }).format(amount);
 }
 
 /**

@@ -1,6 +1,6 @@
 export { Hero } from './Hero';
-export { CoreValue } from './CoreValue';
+export { FeatureHighlights } from './FeatureHighlights';
 export { HowItWorks } from './HowItWorks';
-export { UseCases } from './UseCases';
-export { CTA } from './CTA';
+export { Pricing } from './Pricing';
+export { AuthModal } from './AuthModal';
 export { Footer } from './Footer';

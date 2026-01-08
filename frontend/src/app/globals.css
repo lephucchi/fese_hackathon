@@ -2,119 +2,142 @@
 
 /* ============================================
    TAILWIND V4 THEME CONFIGURATION
+   MACROINSIGHT - ROBINHOOD-ESQUE DESIGN
    ============================================ */
 @theme {
-  /* Extend color palette */
-  --color-primary: #6366f1;
-  --color-primary-light: #818cf8;
-  --color-primary-dark: #4f46e5;
-  --color-secondary: #8b5cf6;
-  --color-accent: #ec4899;
+  /* Robinhood-style Color Palette */
+  --color-primary: #00C805; /* Robinhood Green */
+  --color-primary-light: #33D433;
+  --color-primary-dark: #00A004;
+  --color-secondary: #1F2937; /* Dark Slate */
+  --color-accent: #FFD700; /* Gold for gamification */
   
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  --color-success: #00C805; /* Robinhood Green */
+  --color-warning: #FF9F1C; /* Orange */
+  --color-error: #FF5A5F; /* Coral Red */
+  --color-risk: #FF5A5F; /* Coral Red */
+  --color-mpoints: #FFD700; /* Gold */
   
   /* Font family */
-  --font-family-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-family-sans: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
   
   /* Spacing scale extensions */
   --spacing-18: 4.5rem;
   
-  /* Shadow extensions */
-  --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.25);
-  --shadow-glow-dark: 0 0 30px rgba(129, 140, 248, 0.3);
+  /* Shadow extensions - Soft, diffused */
+  --shadow-fintech: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --shadow-fintech-hover: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-glow-green: 0 0 24px rgba(0, 200, 5, 0.2);
+  
+  /* Border radius - Heavy rounding */
+  --radius-pill: 9999px;
+  --radius-card: 24px;
+  --radius-lg: 20px;
+  --radius-md: 16px;
 }
 
 /* ============================================
    BASE VARIABLES - LIGHT MODE (DEFAULT)
+   ROBINHOOD-ESQUE FINTECH DESIGN
    ============================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #FFFFFF; /* Pure White */
+  --background-soft: #F5F9F9; /* Very Light Mint for softness */
+  --foreground: #1F2937; /* Dark Slate - easier on eyes */
 
-  /* Brand Colors */
-  --primary: #6366f1;
-  --primary-light: #818cf8;
-  --primary-dark: #4f46e5;
-  --secondary: #8b5cf6;
-  --accent: #ec4899;
+  /* Brand Colors - Robinhood Style */
+  --primary: #00C805; /* Robinhood Green */
+  --primary-light: #33D433;
+  --primary-dark: #00A004;
+  --secondary: #1F2937; /* Dark Slate */
+  --accent: #FFD700; /* Gold for M-Points */
 
-  /* Status Colors */
-  --success: #10b981;
-  --warning: #f59e0b;
-  --error: #ef4444;
+  /* Semantic Colors (Finance) */
+  --success: #00C805; /* Up/Success/Save - Vibrant Green */
+  --warning: #FF9F1C; /* Orange */
+  --error: #FF5A5F; /* Down/Risk - Coral Red */
+  --risk: #FF5A5F; /* Coral Red */
+  --mpoints: #FFD700; /* Gold */
 
-  /* Surface & Background */
-  --surface: #f8fafc;
-  --surface-hover: #f1f5f9;
-  --surface-active: #e2e8f0;
-  --card: #ffffff;
-  --card-hover: #fafafa;
+  /* Surface & Background - Minimalist */
+  --surface: #F0F2F5; /* Light Grey for cards/inputs */
+  --surface-hover: #E8EAED;
+  --surface-active: #DDE0E3;
+  --card: #FFFFFF;
+  --card-hover: #FAFBFC;
 
-  /* Borders */
-  --border: #e2e8f0;
-  --border-hover: #cbd5e1;
+  /* Borders - Subtle */
+  --border: #E5E7EB;
+  --border-hover: #D1D5DB;
 
-  /* Text */
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-tertiary: #94a3b8;
-  --text-muted: #cbd5e1;
+  /* Text - Robinhood Style */
+  --text-primary: #1F2937; /* Dark Slate */
+  --text-secondary: #6B7280; /* Cool Grey */
+  --text-tertiary: #9CA3AF;
+  --text-muted: #D1D5DB;
 
   /* Glass Effect */
-  --glass-bg: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(226, 232, 240, 0.8);
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(229, 231, 235, 0.8);
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.04);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.08), 0 8px 10px -6px rgb(0 0 0 / 0.04);
-  --shadow-glow: 0 0 24px rgba(99, 102, 241, 0.25);
+  /* Shadows - Soft & Diffused */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 24px rgba(0, 200, 5, 0.2);
 }
 
 /* ============================================
    DARK MODE - Using .dark class on <html>
+   ROBINHOOD-ESQUE DARK THEME
    ============================================ */
 .dark {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
+  --background: #0A0E14; /* Deep Dark */
+  --background-soft: #121621;
+  --foreground: #F5F9F9;
 
-  /* Brand Colors (slightly brighter for dark) */
-  --primary: #818cf8;
-  --primary-light: #a5b4fc;
-  --primary-dark: #6366f1;
-  --secondary: #a78bfa;
-  --accent: #f472b6;
+  /* Brand Colors (vibrant for dark) */
+  --primary: #00C805; /* Robinhood Green */
+  --primary-light: #33D433;
+  --primary-dark: #00A004;
+  --secondary: #E5E7EB;
+  --accent: #FFD700; /* Gold */
+
+  /* Semantic Colors */
+  --success: #00C805;
+  --warning: #FF9F1C;
+  --error: #FF5A5F;
+  --risk: #FF5A5F;
+  --mpoints: #FFD700;
 
   /* Surface & Background */
-  --surface: #1e293b;
-  --surface-hover: #334155;
-  --surface-active: #475569;
-  --card: #1e293b;
-  --card-hover: #263348;
+  --surface: #1A1F2E;
+  --surface-hover: #242936;
+  --surface-active: #2E3442;
+  --card: #1A1F2E;
+  --card-hover: #1F2533;
 
   /* Borders */
-  --border: #334155;
-  --border-hover: #475569;
+  --border: #2E3442;
+  --border-hover: #3A4050;
 
   /* Text */
-  --text-primary: #f1f5f9;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #64748b;
-  --text-muted: #475569;
+  --text-primary: #F5F9F9;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+  --text-muted: #4B5563;
 
   /* Glass Effect */
-  --glass-bg: rgba(30, 41, 59, 0.85);
-  --glass-border: rgba(71, 85, 105, 0.5);
+  --glass-bg: rgba(26, 31, 46, 0.85);
+  --glass-border: rgba(46, 52, 66, 0.5);
 
   /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
-  --shadow-glow: 0 0 30px rgba(129, 140, 248, 0.3);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 28px rgba(0, 200, 5, 0.25);
 }
 
 /* ============================================
@@ -137,14 +160,14 @@ body {
   min-height: 100vh;
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', 'SF Pro Display', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 16px;
   font-weight: 400;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-x: hidden;
 }
 
@@ -200,7 +223,8 @@ body {
 }
 
 /* ============================================
-   TYPOGRAPHY
+   TYPOGRAPHY - ROBINHOOD-ESQUE
+   Font: Inter / SF Pro Display - Clean Sans-Serif
    ============================================ */
 h1,
 h2,
@@ -209,42 +233,51 @@ h4,
 h5,
 h6 {
   color: var(--text-primary);
-  font-weight: 600;
-  line-height: 1.3;
+  font-weight: 700; /* Bold for headings */
+  line-height: 1.2; /* Tight line-height for impact */
+  letter-spacing: -0.02em; /* Large tracking for modern feel */
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: 3rem; /* 48px */
+  font-weight: 800; /* Heavy contrast */
 }
 
 h2 {
-  font-size: 2rem;
+  font-size: 2.25rem; /* 36px */
+  font-weight: 700;
 }
 
 h3 {
-  font-size: 1.5rem;
+  font-size: 1.875rem; /* 30px */
+  font-weight: 700;
 }
 
 h4 {
-  font-size: 1.25rem;
+  font-size: 1.5rem; /* 24px */
+  font-weight: 600;
 }
 
 h5 {
-  font-size: 1rem;
+  font-size: 1.25rem; /* 20px */
+  font-weight: 600;
 }
 
 h6 {
-  font-size: 0.875rem;
+  font-size: 1rem; /* 16px */
+  font-weight: 600;
 }
 
 p {
   color: var(--text-secondary);
+  line-height: 1.6; /* Ample line-height for readability */
 }
 
 a {
   color: var(--primary);
   text-decoration: none;
   transition: color 0.2s ease;
+  font-weight: 500;
 }
 
 a:hover {
@@ -373,17 +406,28 @@ a:hover {
   border: 1px solid var(--glass-border);
 }
 
-/* Gradients */
+/* Gradients - Robinhood Style */
 .gradient-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #00A004 100%);
 }
 
 .gradient-accent {
   background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
 }
 
+.gradient-success {
+  background: linear-gradient(135deg, #00C805 0%, #00D906 100%);
+}
+
 .text-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #00D906 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -394,55 +438,68 @@ a:hover {
   box-shadow: var(--shadow-glow);
 }
 
-/* Cards */
+/* Cards - Heavy Rounding, Soft Shadows */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 24px; /* Heavy rounding - rounded-3xl */
   padding: 24px;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-lg); /* Soft, diffused shadow */
 }
 
 .card:hover {
   background: var(--card-hover);
   border-color: var(--border-hover);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-xl);
+  transform: translateY(-2px); /* Subtle uplift */
 }
 
-/* Buttons */
+/* Buttons - Pill-Shaped with Micro-interactions */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 10px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 9999px; /* Full rounded - pill shape */
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  background: var(--primary); /* Solid Robinhood Green */
   color: white;
+  box-shadow: 0 2px 8px rgba(0, 200, 5, 0.15);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
+  background: var(--primary-light);
   box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: scale(0.95); /* Micro-interaction - scale down on click */
 }
 
 .btn-secondary {
   background: var(--surface);
   color: var(--text-primary);
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
 }
 
 .btn-secondary:hover {
   background: var(--surface-hover);
   border-color: var(--border-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+  transform: scale(0.95); /* Micro-interaction */
 }
 
 /* Focus Styles */
@@ -467,12 +524,12 @@ input,
 textarea,
 select {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 16px; /* Rounded-2xl */
+  padding: 14px 18px;
   font-size: 16px;
   color: var(--text-primary);
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: inherit;
 }
 
@@ -486,7 +543,8 @@ textarea:focus,
 select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 200, 5, 0.1);
+  background: var(--card);
 }
 
 input:disabled,
@@ -585,6 +643,7 @@ select:disabled {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -592,6 +651,7 @@ select:disabled {
 .line-clamp-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -654,5 +714,178 @@ html {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================
+   ROBINHOOD-ESQUE FINTECH UTILITIES
+   ============================================ */
+
+/* Finance Color Indicators */
+.text-up,
+.text-success-finance {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.text-down,
+.text-risk {
+  color: var(--error);
+  font-weight: 600;
+}
+
+.text-mpoints {
+  color: var(--mpoints);
+  font-weight: 700;
+}
+
+/* Pill Badges */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: rgba(0, 200, 5, 0.1);
+  color: var(--success);
+}
+
+.badge-error {
+  background: rgba(255, 90, 95, 0.1);
+  color: var(--error);
+}
+
+.badge-gold {
+  background: rgba(255, 215, 0, 0.15);
+  color: var(--mpoints);
+}
+
+/* Minimalist Chart Container */
+.chart-container {
+  background: var(--card);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.chart-container:hover {
+  box-shadow: var(--shadow-xl);
+}
+
+/* Generous Whitespace */
+.spacing-generous {
+  padding: 32px;
+}
+
+@media (min-width: 768px) {
+  .spacing-generous {
+    padding: 48px;
+  }
+}
+
+/* Micro-interaction Utilities */
+.interactive-scale {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-scale:active {
+  transform: scale(0.95);
+}
+
+.interactive-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xl);
+}
+
+/* Rounded Utilities - Heavy Rounding */
+.rounded-card {
+  border-radius: 24px;
+}
+
+.rounded-lg-custom {
+  border-radius: 20px;
+}
+
+.rounded-md-custom {
+  border-radius: 16px;
+}
+
+.rounded-pill {
+  border-radius: 9999px;
+}
+
+/* Background Patterns */
+.bg-soft-mint {
+  background-color: var(--background-soft);
+}
+
+/* Number Display - Finance Style */
+.number-display {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+  letter-spacing: -0.01em;
+}
+
+/* Stock Price Up/Down Indicators */
+.price-change-up::before {
+  content: '▲ ';
+  color: var(--success);
+}
+
+.price-change-down::before {
+  content: '▼ ';
+  color: var(--error);
+}
+
+/* ============================================
+   RESPONSIVE UTILITY CLASSES
+   ============================================ */
+.hidden {
+  display: none;
+}
+
+.hidden-sm {
+  display: none;
+}
+
+.hidden-md {
+  display: none;
+}
+
+/* Small screens and up (640px+) */
+@media (min-width: 640px) {
+  .hidden-sm {
+    display: block;
+  }
+  .show-sm-block {
+    display: block;
+  }
+  .show-sm-flex {
+    display: flex;
+  }
+}
+
+/* Medium screens and up (768px+) */
+@media (min-width: 768px) {
+  .hidden-md {
+    display: block;
+  }
+  .show-md-block {
+    display: block;
+  }
+  .show-md-flex {
+    display: flex;
+  }
+  .hide-md {
+    display: none;
   }
 }
