@@ -140,7 +140,7 @@ src/api/
 get_supabase_client()    # Supabase client singleton
 get_router()             # HybridRouter singleton
 get_retriever()          # ParallelRetriever singleton
-get_current_user()       # JWT authentication (TODO)
+get_current_user()       # JWT authentication (placeholder)
 ```
 
 **Lợi ích:**
@@ -189,6 +189,9 @@ async def process_query(
 - `query.py`: RAG query processing, route prediction, decomposition
 - `health.py`: Health check cho API và components
 - `authenticate/`: Authentication endpoints (login, register - TODO)
+- `market.py`: Market Tab endpoints (stack, analytics, chat)
+- `news.py`: News management
+- `interactions.py`: User interactions (swipes, likes)
 
 ---
 
@@ -207,6 +210,27 @@ async def process_query(
 ✅ Transform data giữa layers
 ✅ Reusable (CLI, workers, tests)
 ✅ No HTTP/database dependencies
+```
+
+**Ví dụ - services/market_service.py:**
+```python
+class MarketService:
+    async def chat_with_context(self, user_id, query):
+        # 1. Get cached context
+        context = await self.cache.get_context(user_id)
+        
+        # 2. If no cache, build from interests
+        if not context:
+            interests = await self.interaction_repo.find_approved(user_id)
+            context = self._build_context(interests)
+            
+        # 3. Process query with context
+        answer = await self._process_rag(query, context)
+        
+        # 4. Save history
+        await self.chat_repo.save_message(user_id, query, answer)
+        
+        return answer
 ```
 
 **Ví dụ - services/query_service.py:**
@@ -469,6 +493,19 @@ curl http://localhost:8000/api/health
 curl -X POST http://localhost:8000/api/query \
   -H "Content-Type: application/json" \
   -d '{"query": "ROE là gì?"}'
+
+# Market Endpoints
+## News Stack
+curl -H "x-user-id: test-user" http://localhost:8000/api/market/stack
+
+## Analytics
+curl http://localhost:8000/api/market/analytics?period=week
+
+## Context Chat
+curl -X POST http://localhost:8000/api/market/chat \
+  -H "x-user-id: test-user" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Phân tích thị trường", "use_interests": true}'
 
 # API docs
 http://localhost:8000/docs

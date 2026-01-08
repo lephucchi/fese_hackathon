@@ -37,6 +37,7 @@ NewsAnalyst/
 ### 1. Multi-Source News Scraping
 - Google Custom Search API integration
 - Configurable sources (CafeF, VNExpress, VietStock, etc.)
+- **Enhanced Extraction**: Uses `trafilatura` for robust content extraction (full text)
 - Date range filtering
 - Concurrent scraping with asyncio
 
@@ -47,20 +48,27 @@ NewsAnalyst/
 - Batch processing support
 - Returns: sentiment, confidence, scores
 
-### 3. Stock Ticker Detection
-- Pattern-based detection (e.g., VNM, HPG, VCB)
-- Context-aware confidence scoring
-- Database validation against `market_data` table
-- Proximity-based keyword matching
+### 3. Advanced Ticker Detection
+- **Multi-Strategy Detection**:
+  - **Regex**: 3-letter codes (e.g., VNM, HPG)
+  - **Company Names**: Maps "Vinamilk" → "VNM" using static dictionary (`COMPANY_NAME_MAPPINGS`)
+  - **Database Lookup**: Dynamic company mapping from DB
+- **Validation**: Strict verification against `market_data` table (Foreign Key compliance)
+- **Context Scoring**: Boosts confidence based on nearby keywords
+- **Market vs Macro**: Prioritizes stock tickers over macro indicators (e.g., GAP, GDP)
 
-### 4. Automated Scheduling
+### 4. Optimized Pipeline
+- **Early Deduplication**: Filters URLs against DB *before* content extraction to save resources
+- **Batch Processing**: Efficient batch handling for analysis and insertion
+- **Transaction Management**: Atomic database operations
+
+### 5. Automated Scheduling
 - APScheduler with AsyncIO support
 - Configurable intervals (4h, 6h, custom)
-- Cron-style triggers
 - Job persistence with SQLAlchemy
 - Manual trigger support
 
-### 5. Database Integration
+### 6. Database Integration
 - Supabase table: `news`, `news_stock_mapping`, `news_index`
 - Deduplication by URL and content hash
 - Bulk insert optimization
@@ -328,18 +336,22 @@ httpx>=0.24.0
 torch>=2.0.0
 transformers>=4.30.0
 python-dotenv>=1.0.0
+trafilatura>=1.8.0
+feedparser>=6.0.0
+lxml_html_clean>=0.1.0
+sqlalchemy>=2.0.0
 ```
 
 ## TODO / Future Enhancements
 
 - [ ] Add embedding generation (OpenAI/Google)
-- [ ] Implement content extraction (full article)
-- [ ] Add more news sources (RSS feeds)
+- [x] Implement content extraction (full article) -> Done via Trafilatura
+- [x] Add more news sources (RSS feeds) -> Configurable
 - [ ] Implement notification system (email/Slack)
 - [ ] Add metrics dashboard
 - [ ] Implement retry logic for failed jobs
-- [ ] Add company name → ticker mapping
-- [ ] Optimize batch processing
+- [x] Add company name → ticker mapping -> Done
+- [x] Optimize batch processing -> Deduplication batching added
 - [ ] Add unit tests
 - [ ] Add Docker support
 
