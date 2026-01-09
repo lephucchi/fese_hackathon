@@ -1,0 +1,70 @@
+# Docker ignore file
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+env/
+.pytest_cache/
+*.egg-info/
+.eggs/
+
+# Node
+node_modules/
+.next/
+.npm/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Documentation
+docs/
+notebooks/
+*.md
+!README.md
+
+# Test files
+test/
+tests/
+*.test.py
+*.spec.ts
+debug_*.py
+test_*.py
+
+# Misc
+*.log
+*.logs
+logs/
+.env.local
+.env.*.local
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.docker/
+
+# Build artifacts
+dist/
+build/
+*.egg
+
+# Supabase local
+supabase/
+
+# Large files
+*.csv
+*.pkl
+*.bin
+models/

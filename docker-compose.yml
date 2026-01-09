@@ -1,0 +1,121 @@
+# Multi-Index RAG Finance - Docker Compose
+# Services: Backend, NewsAnalyst Worker, Frontend, Redis
+
+version: '3.8'
+
+services:
+  # ==========================================================================
+  # Redis Cache
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: rag-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - rag-network
+
+  # ==========================================================================
+  # Backend API + RAG Pipeline
+  # ==========================================================================
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-backend
+    ports:
+      - "8000:8000"
+    environment:
+      # Redis
+      - REDIS_URL=redis://redis:6379
+      # Supabase (from .env)
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      # Google AI
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_CUSTOM_SEARCH_API_KEY=${GOOGLE_CUSTOM_SEARCH_API_KEY}
+      - GOOGLE_CUSTOM_SEARCH_ENGINE_ID=${GOOGLE_CUSTOM_SEARCH_ENGINE_ID}
+      # App settings
+      - LOG_LEVEL=INFO
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - rag-network
+
+  # ==========================================================================
+  # NewsAnalyst Worker (Scheduled)
+  # ==========================================================================
+  newsanalyst:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag-newsanalyst
+    command: [ "python", "-m", "src.functions.NewsAnalyst.main", "--mode", "scheduled" ]
+    environment:
+      # Redis
+      - REDIS_URL=redis://redis:6379
+      # Supabase
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      # Google AI for analysis
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      # Scheduler
+      - NEWS_SCRAPE_INTERVAL_HOURS=4
+    depends_on:
+      redis:
+        condition: service_healthy
+      backend:
+        condition: service_started
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - rag-network
+
+  # ==========================================================================
+  # Frontend (Next.js)
+  # ==========================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=http://backend:8000
+    container_name: rag-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - rag-network
+
+# ==========================================================================
+# Networks
+# ==========================================================================
+networks:
+  rag-network:
+    driver: bridge
+
+# ==========================================================================
+# Volumes
+# ==========================================================================
+volumes:
+  redis_data:
+    driver: local
