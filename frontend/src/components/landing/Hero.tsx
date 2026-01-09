@@ -10,9 +10,9 @@ interface HeroProps {
 
 export function Hero({ onGetStarted }: HeroProps) {
   return (
-    <section 
+    <section
       id="hero"
-      style={{ 
+      style={{
         paddingTop: '140px',
         paddingBottom: '80px',
         background: 'var(--background)',
@@ -37,11 +37,11 @@ export function Hero({ onGetStarted }: HeroProps) {
       <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
         <div style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}>
           {/* Badge */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            style={{ 
+            style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
@@ -63,7 +63,7 @@ export function Hero({ onGetStarted }: HeroProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            style={{ 
+            style={{
               fontSize: 'clamp(2.5rem, 6vw, 4rem)',
               fontWeight: 800,
               lineHeight: 1.1,
@@ -81,7 +81,7 @@ export function Hero({ onGetStarted }: HeroProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            style={{ 
+            style={{
               fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
               color: 'var(--text-secondary)',
               lineHeight: 1.6,
@@ -98,8 +98,8 @@ export function Hero({ onGetStarted }: HeroProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            style={{ 
-              display: 'flex', 
+            style={{
+              display: 'flex',
               gap: '16px',
               justifyContent: 'center',
               flexWrap: 'wrap',
@@ -109,12 +109,13 @@ export function Hero({ onGetStarted }: HeroProps) {
             <button
               onClick={onGetStarted}
               className="btn-primary interactive-scale"
-              style={{ 
+              style={{
                 padding: '16px 40px',
                 fontSize: '16px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                borderRadius: '9999px'
               }}
             >
               Dùng thử miễn phí
@@ -122,12 +123,13 @@ export function Hero({ onGetStarted }: HeroProps) {
             </button>
             <button
               className="btn-secondary interactive-scale"
-              style={{ 
-                padding: '16px 40px', 
+              style={{
+                padding: '16px 40px',
                 fontSize: '16px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                borderRadius: '9999px'
               }}
             >
               <Play size={18} />
@@ -140,7 +142,7 @@ export function Hero({ onGetStarted }: HeroProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            style={{ 
+            style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
               gap: '32px',
@@ -154,7 +156,7 @@ export function Hero({ onGetStarted }: HeroProps) {
               { value: '24/7', label: 'Trợ lý AI' }
             ].map((stat, i) => (
               <div key={i}>
-                <div style={{ 
+                <div style={{
                   fontSize: '2rem',
                   fontWeight: 800,
                   color: 'var(--primary)',
@@ -162,7 +164,7 @@ export function Hero({ onGetStarted }: HeroProps) {
                 }}>
                   {stat.value}
                 </div>
-                <div style={{ 
+                <div style={{
                   fontSize: '14px',
                   color: 'var(--text-tertiary)'
                 }}>
