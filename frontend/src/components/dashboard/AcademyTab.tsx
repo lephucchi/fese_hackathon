@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { Lock, Play, Coins, TrendingUp, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface VideoContent {
   id: number;
@@ -23,6 +24,7 @@ interface AcademyTabProps {
 }
 
 export function AcademyTab({ videos }: AcademyTabProps) {
+  const { t } = useLanguage();
   const [mPoints, setMPoints] = useState(650);
   const [unlockedVideos, setUnlockedVideos] = useState<Set<number>>(new Set());
   const [selectedVideo, setSelectedVideo] = useState<VideoContent | null>(null);
@@ -372,7 +374,6 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                       right: 0,
                       bottom: 0,
                       background: 'rgba(0, 0, 0, 0.5)',
-                      backdropFilter: 'blur(4px)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -522,7 +523,6 @@ export function AcademyTab({ videos }: AcademyTabProps) {
               right: 0,
               bottom: 0,
               background: 'rgba(0, 0, 0, 0.7)',
-              backdropFilter: 'blur(8px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

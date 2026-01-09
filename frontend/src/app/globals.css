@@ -241,6 +241,7 @@ h6 {
 h1 {
   font-size: 3rem; /* 48px */
   font-weight: 800; /* Heavy contrast */
+  text-transform: uppercase;
 }
 
 h2 {
@@ -401,8 +402,6 @@ a:hover {
 /* Glass Effect */
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
 }
 
@@ -464,7 +463,7 @@ a:hover {
   padding: 12px 28px;
   font-size: 15px;
   font-weight: 600;
-  border-radius: 9999px; /* Full rounded - pill shape */
+  border-radius: 14px; /* Moderate rounding */
   border: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);

@@ -89,7 +89,7 @@ export function ChatSidebar({
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.5)', zIndex: 40, backdropFilter: 'blur(4px)' }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.5)', zIndex: 40 }}
           onClick={onToggle}
         />
       )}

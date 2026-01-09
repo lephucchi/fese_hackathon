@@ -33,7 +33,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               position: 'fixed',
               inset: 0,
               background: 'rgba(0, 0, 0, 0.5)',
-              backdropFilter: 'blur(8px)',
               zIndex: 999,
               display: 'flex',
               alignItems: 'center',

@@ -4,12 +4,14 @@
  */
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Portfolio, SynthesisReport } from '@/types/dashboard.types';
 import { ArrowUp, ArrowDown, Edit2, Sparkles } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useDisclaimer } from '@/hooks/useDisclaimer';
+import { DisclaimerModal } from '@/components/common/DisclaimerModal';
 
 interface PersonalTabProps {
   readonly portfolio: Portfolio;
@@ -34,6 +36,16 @@ const COLORS: Record<string, string> = {
 
 export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabProps) {
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+  const [viewingInsights, setViewingInsights] = useState(false);
+  const { hasAccepted, isLoading: disclaimerLoading, acceptDisclaimer } = useDisclaimer();
+
+  // Check if user wants to view AI insights
+  useEffect(() => {
+    if (viewingInsights && !disclaimerLoading && !hasAccepted) {
+      setShowDisclaimer(true);
+    }
+  }, [viewingInsights, disclaimerLoading, hasAccepted]);
 
   // Prepare chart data
   const chartData = [
@@ -246,13 +258,67 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
       </div>
 
       {/* AI Synthesis Report */}
-      <div style={{
-        background: 'var(--card)',
-        borderRadius: '24px',
-        padding: '32px',
-        boxShadow: 'var(--shadow-fintech)',
-        borderLeft: '4px solid var(--primary)',
-      }}>
+      <div
+        style={{
+          background: 'var(--card)',
+          borderRadius: '24px',
+          padding: '32px',
+          boxShadow: 'var(--shadow-fintech)',
+          borderLeft: '4px solid var(--primary)',
+          cursor: hasAccepted ? 'default' : 'pointer',
+          transition: 'all 0.2s',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+        onClick={() => {
+          if (!hasAccepted) {
+            setViewingInsights(true);
+          }
+        }}
+        onMouseEnter={(e) => {
+          if (!hasAccepted) {
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 200, 5, 0.15)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.boxShadow = 'var(--shadow-fintech)';
+        }}
+      >
+        {/* Locked overlay if disclaimer not accepted */}
+        {!hasAccepted && (
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'rgba(255, 255, 255, 0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+            borderRadius: '24px'
+          }}>
+            <div style={{
+              textAlign: 'center',
+              padding: '2rem'
+            }}>
+              <Sparkles size={48} style={{ color: 'var(--primary)', margin: '0 auto 1rem' }} />
+              <p style={{
+                fontSize: '1.125rem',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                marginBottom: '0.5rem'
+              }}>
+                Click để xem AI Insights
+              </p>
+              <p style={{
+                fontSize: '0.875rem',
+                color: 'var(--text-secondary)'
+              }}>
+                Yêu cầu đồng ý điều khoản
+              </p>
+            </div>
+          </div>
+        )}
+
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -384,7 +450,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               <div style={{
                 fontSize: '14px',
                 fontWeight: 600,
-                color: '#92400E',
+                color: '#166534',
                 marginBottom: '4px',
               }}>
                 Khuyến nghị
@@ -392,7 +458,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               <div style={{
                 fontSize: '16px',
                 fontWeight: 600,
-                color: '#78350F',
+                color: '#14532d',
               }}>
                 {report.recommendation}
               </div>
@@ -441,7 +507,6 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               position: 'fixed',
               inset: 0,
               background: 'rgba(0, 0, 0, 0.5)',
-              backdropFilter: 'blur(8px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -527,27 +592,45 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                 gap: '12px',
               }}>
                 <button
+                  className="dark:bg-gray-700 dark:text-white"
                   style={{
                     flex: 1,
                     padding: '12px',
-                    borderRadius: '12px',
+                    borderRadius: '16px',
                     border: '1px solid var(--border)',
-                    background: 'white',
-                    color: 'var(--text-primary)',
+                    background: '#F3F4F6',
+                    color: '#1F2937',
                     fontSize: '15px',
                     fontWeight: 600,
                     cursor: 'pointer',
+                    transition: 'all 0.2s'
                   }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#E5E7EB'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#F3F4F6'}
                   onClick={() => setShowEditModal(false)}
                 >
                   Hủy
                 </button>
                 <button
-                  className="btn-primary"
                   style={{
                     flex: 1,
                     padding: '12px',
                     fontSize: '15px',
+                    fontWeight: 600,
+                    borderRadius: '16px',
+                    background: 'var(--primary)',
+                    color: 'white',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'scale(1.02)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-glow-green)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                   onClick={() => {
                     setShowEditModal(false);
@@ -561,6 +644,16 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Disclaimer Modal for AI Insights */}
+      <DisclaimerModal
+        isOpen={showDisclaimer}
+        onClose={() => setShowDisclaimer(false)}
+        onAccept={() => {
+          acceptDisclaimer();
+          setViewingInsights(false);
+        }}
+      />
     </div>
   );
 }
