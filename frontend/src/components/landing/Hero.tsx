@@ -3,12 +3,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, Play } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface HeroProps {
   onGetStarted: () => void;
 }
 
 export function Hero({ onGetStarted }: HeroProps) {
+  const { t } = useLanguage();
+
   return (
     <section
       id="hero"
@@ -30,7 +33,6 @@ export function Hero({ onGetStarted }: HeroProps) {
         height: '600px',
         background: 'radial-gradient(circle, rgba(0, 200, 5, 0.08) 0%, transparent 70%)',
         borderRadius: '50%',
-        filter: 'blur(60px)',
         pointerEvents: 'none'
       }} />
 
@@ -54,7 +56,7 @@ export function Hero({ onGetStarted }: HeroProps) {
           >
             <Sparkles size={16} color="var(--primary)" />
             <span style={{ color: 'var(--primary)', fontSize: '14px', fontWeight: 600 }}>
-              Trợ lý đầu tư AI thế hệ mới
+              {t('hero.badge')}
             </span>
           </motion.div>
 
