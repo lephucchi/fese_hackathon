@@ -186,6 +186,156 @@ class CacheService:
         except Exception as e:
             logger.error(f"Error extending TTL: {e}")
             return False
+    
+    # =========================================================================
+    # CHAT HISTORY METHODS - For conversation continuity
+    # =========================================================================
+    
+    async def add_chat_message(
+        self,
+        user_id: str,
+        role: str,
+        content: str,
+        max_messages: int = 20
+    ) -> bool:
+        """
+        Add a message to user's chat history.
+        
+        Args:
+            user_id: User UUID
+            role: 'user' or 'assistant'
+            content: Message content
+            max_messages: Maximum messages to keep
+            
+        Returns:
+            True if added successfully
+        """
+        if not self.is_connected:
+            return False
+        
+        try:
+            import time
+            key = self._get_history_key(user_id)
+            message = json.dumps({
+                "role": role,
+                "content": content,
+                "ts": time.time()
+            }, ensure_ascii=False)
+            
+            # Push to front (newest first)
+            self._client.lpush(key, message)
+            # Trim to max size
+            self._client.ltrim(key, 0, max_messages - 1)
+            # Set/extend TTL
+            self._client.expire(key, self.DEFAULT_TTL)
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error adding chat message: {e}")
+            return False
+    
+    async def get_chat_history(
+        self,
+        user_id: str,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Get recent chat history for conversation context.
+        
+        Args:
+            user_id: User UUID
+            limit: Number of recent messages to return
+            
+        Returns:
+            List of messages in chronological order (oldest first)
+        """
+        if not self.is_connected:
+            return []
+        
+        try:
+            key = self._get_history_key(user_id)
+            messages = self._client.lrange(key, 0, limit - 1)
+            
+            # Parse and reverse (oldest first for context)
+            parsed = [json.loads(m) for m in messages]
+            return parsed[::-1]
+            
+        except Exception as e:
+            logger.error(f"Error getting chat history: {e}")
+            return []
+    
+    # =========================================================================
+    # RETRIEVED IDS TRACKING - For incremental retrieval
+    # =========================================================================
+    
+    def _get_retrieved_key(self, user_id: str) -> str:
+        """Generate cache key for retrieved doc IDs."""
+        return f"chat:retrieved:{user_id}"
+    
+    async def get_retrieved_ids(self, user_id: str) -> set:
+        """
+        Get set of doc IDs already retrieved for this user session.
+        
+        Args:
+            user_id: User UUID
+            
+        Returns:
+            Set of doc IDs
+        """
+        if not self.is_connected:
+            return set()
+        
+        try:
+            key = self._get_retrieved_key(user_id)
+            ids = self._client.smembers(key)
+            return set(ids) if ids else set()
+            
+        except Exception as e:
+            logger.error(f"Error getting retrieved IDs: {e}")
+            return set()
+    
+    async def add_retrieved_ids(
+        self,
+        user_id: str,
+        doc_ids: List[str]
+    ) -> bool:
+        """
+        Add doc IDs to the retrieved set.
+        
+        Args:
+            user_id: User UUID
+            doc_ids: List of doc IDs to add
+            
+        Returns:
+            True if added successfully
+        """
+        if not self.is_connected or not doc_ids:
+            return False
+        
+        try:
+            key = self._get_retrieved_key(user_id)
+            self._client.sadd(key, *[str(id) for id in doc_ids])
+            self._client.expire(key, self.DEFAULT_TTL)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error adding retrieved IDs: {e}")
+            return False
+    
+    async def clear_retrieved_ids(self, user_id: str) -> bool:
+        """Clear retrieved IDs for a new conversation."""
+        if not self.is_connected:
+            return False
+        
+        try:
+            key = self._get_retrieved_key(user_id)
+            self._client.delete(key)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error clearing retrieved IDs: {e}")
+            return False
 
 
 # Singleton instance

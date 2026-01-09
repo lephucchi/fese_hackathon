@@ -23,6 +23,8 @@ class FallbackReason(str, Enum):
     TEMPORAL_QUERY = "TEMPORAL_QUERY"
     SUFFICIENT_COVERAGE = "SUFFICIENT_COVERAGE"
     FALLBACK_DISABLED = "FALLBACK_DISABLED"
+    TRY_NEWS_FIRST = "TRY_NEWS_FIRST"  # Try news DB before Google
+    LLM_REFUSAL = "LLM_REFUSAL"  # LLM couldn't answer from context
 
 
 # Keywords that ALWAYS require real-time data (today, right now)
@@ -57,6 +59,7 @@ class FallbackDecision:
     max_similarity_score: float
     doc_count: int
     details: Optional[str] = None
+    fallback_type: str = "GOOGLE"  # "NEWS_DB" or "GOOGLE"
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for state storage."""
@@ -66,6 +69,7 @@ class FallbackDecision:
             "max_similarity_score": self.max_similarity_score,
             "doc_count": self.doc_count,
             "details": self.details,
+            "fallback_type": self.fallback_type,
         }
 
 
@@ -150,16 +154,33 @@ class FallbackDecider:
         
         # PRIORITY 3: Low relevance scores
         if max_score < self.config.relevance_threshold:
+            # Check if news wasn't tried yet
+            news_tried = routes and "news" in routes
+            
+            if not news_tried:
+                logger.info(
+                    f"Low relevance ({max_score:.3f}) - try news first before Google"
+                )
+                return FallbackDecision(
+                    should_fallback=True,
+                    reason=FallbackReason.TRY_NEWS_FIRST,
+                    max_similarity_score=max_score,
+                    doc_count=doc_count,
+                    details=f"Low relevance - will try news index first",
+                    fallback_type="NEWS_DB"
+                )
+            
             logger.info(
                 f"Low relevance score ({max_score:.3f} < {self.config.relevance_threshold}) "
-                f"for query: {query[:50]}..."
+                f"for query: {query[:50]}... - falling back to Google"
             )
             return FallbackDecision(
                 should_fallback=True,
                 reason=FallbackReason.LOW_RELEVANCE_SCORE,
                 max_similarity_score=max_score,
                 doc_count=doc_count,
-                details=f"Max score {max_score:.3f} below threshold {self.config.relevance_threshold}"
+                details=f"Max score {max_score:.3f} below threshold {self.config.relevance_threshold}",
+                fallback_type="GOOGLE"
             )
         
         # PRIORITY 4: Weak temporal keywords with insufficient news coverage

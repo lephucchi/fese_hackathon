@@ -96,6 +96,8 @@ class MarketService:
         """
         Process chat query with user's interested news as context.
         
+        Now includes chat history for conversation continuity.
+        
         Args:
             user_id: User UUID
             query: User's query
@@ -104,10 +106,13 @@ class MarketService:
         Returns:
             Chat response with answer and context info
         """
-        # 1. Try to get cached context
+        # 1. Get chat history for conversation continuity
+        chat_history = await self.cache.get_chat_history(user_id, limit=6)
+        
+        # 2. Try to get cached news context
         cached_context = await self.cache.get_context(user_id)
         
-        # 2. Build context from user interests if needed
+        # 3. Build context from user interests if needed
         context_news = []
         if use_interests and not cached_context:
             # Get approved news IDs
@@ -115,7 +120,7 @@ class MarketService:
             
             if approved_ids:
                 # Fetch news with analyst content
-                context_news = await self.news_repo.find_by_ids(approved_ids[:10])  # Limit to 10
+                context_news = await self.news_repo.find_by_ids(approved_ids[:10])
                 
                 # Cache the context
                 context_data = {
@@ -133,13 +138,19 @@ class MarketService:
         elif cached_context:
             context_news = cached_context.get("news", [])
         
-        # 3. Build context string for RAG
-        context_str = self._build_context_string(context_news)
+        # 4. Build full context (chat history + news)
+        context_str = self._build_full_context(chat_history, context_news)
         
-        # 4. Process query (simplified - integrate with RAG pipeline later)
+        # 5. Save user query to chat history (before processing)
+        await self.cache.add_chat_message(user_id, "user", query)
+        
+        # 6. Process query with context (only decompose the query, not full context)
         answer = await self._process_with_context(query, context_str)
         
-        # 5. Save to chat history
+        # 7. Save assistant response to chat history
+        await self.cache.add_chat_message(user_id, "assistant", answer)
+        
+        # 8. Save to DB chat history
         import uuid
         message_id = str(uuid.uuid4())
         
@@ -156,15 +167,52 @@ class MarketService:
             message_id=message_id
         )
         
-        # 6. Extend cache TTL
+        # 9. Extend cache TTL
         await self.cache.extend_ttl(user_id)
         
         return {
             "answer": answer,
             "message_id": message_id,
             "context_used": len(context_news),
+            "history_used": len(chat_history),
             "cached": cached_context is not None
         }
+    
+    def _build_full_context(
+        self,
+        chat_history: List[Dict],
+        news_list: List[Dict]
+    ) -> str:
+        """
+        Build full context string including chat history and news.
+        
+        Args:
+            chat_history: Previous Q&A messages
+            news_list: Approved news context
+            
+        Returns:
+            Combined context string
+        """
+        parts = []
+        
+        # Add chat history if exists
+        if chat_history:
+            history_parts = []
+            for msg in chat_history:
+                role = "Người dùng" if msg.get("role") == "user" else "Trợ lý"
+                history_parts.append(f"{role}: {msg.get('content', '')}")
+            
+            parts.append("=== LỊCH SỬ TRÒ CHUYỆN ===")
+            parts.append("\n".join(history_parts))
+            parts.append("")
+        
+        # Add news context
+        news_str = self._build_context_string(news_list)
+        if news_str:
+            parts.append("=== TIN TỨC ĐÃ CHỌN ===")
+            parts.append(news_str)
+        
+        return "\n".join(parts)
     
     def _build_context_string(self, news_list: List[Dict]) -> str:
         """Build context string from news list."""
@@ -192,17 +240,64 @@ class MarketService:
     
     async def _process_with_context(self, query: str, context: str) -> str:
         """
-        Process query with context.
+        Process query with context using the RAG pipeline.
         
-        TODO: Integrate with actual RAG pipeline.
-        For now, return a placeholder response.
+        Augments the user query with their selected news context,
+        then calls the existing RAG pipeline for grounded answer generation.
+        
+        Args:
+            query: User's question
+            context: Formatted context string from approved news
+            
+        Returns:
+            Generated answer string
         """
-        if context:
-            return f"Dựa trên {context.count('[') } tin tức bạn quan tâm:\n\n" \
-                   f"Query của bạn: {query}\n\n" \
-                   f"[Placeholder - Integrate với RAG pipeline để có câu trả lời thực]"
-        else:
-            return f"Bạn chưa chọn tin tức nào. Hãy swipe phải các tin quan tâm trước."
+        try:
+            # Build augmented query with context
+            if context:
+                augmented_query = self._build_augmented_query(query, context)
+            else:
+                augmented_query = query
+            
+            # Call RAG pipeline
+            from src.pipeline import run_rag_pipeline_async
+            result = await run_rag_pipeline_async(augmented_query)
+            
+            answer = result.get("answer", "")
+            
+            # Add context note if we used interests
+            if context and answer:
+                context_count = context.count('[')
+                answer = f"📰 *Dựa trên {context_count} tin tức bạn quan tâm:*\n\n{answer}"
+            
+            return answer
+            
+        except Exception as e:
+            logger.error(f"RAG processing error: {e}", exc_info=True)
+            # Fallback response
+            if context:
+                return f"Đã xảy ra lỗi khi xử lý. Vui lòng thử lại.\nLỗi: {str(e)}"
+            else:
+                return "Bạn chưa chọn tin tức nào. Hãy swipe phải các tin quan tâm trước."
+    
+    def _build_augmented_query(self, query: str, context: str) -> str:
+        """
+        Build augmented query with context for RAG.
+        
+        Args:
+            query: Original user query
+            context: Formatted news context
+            
+        Returns:
+            Augmented query string
+        """
+        return f"""Dựa trên các tin tức tài chính sau đây mà người dùng đã chọn:
+
+{context}
+
+Câu hỏi của người dùng: {query}
+
+Hãy trả lời câu hỏi dựa trên context tin tức được cung cấp và kiến thức chung về thị trường tài chính Việt Nam. Nếu câu trả lời không thể tìm thấy trong context, hãy nói rõ và đưa ra thông tin chung."""
     
     async def get_chat_history(
         self,

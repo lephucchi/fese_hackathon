@@ -13,6 +13,45 @@ from .state import RAGState
 
 logger = logging.getLogger(__name__)
 
+# =============================================================================
+# LLM REFUSAL DETECTION - Patterns indicating LLM couldn't answer
+# =============================================================================
+LLM_REFUSAL_PATTERNS = [
+    "không thể đưa ra câu trả lời",
+    "không tìm thấy thông tin",
+    "không có đủ dữ liệu",
+    "không thể trả lời",
+    "tôi không có thông tin",
+    "mình chưa có thông tin",
+    "không có trong tài liệu",
+    "không được cung cấp",
+    "chưa có dữ liệu",
+    "không đủ thông tin để trả lời",
+    "i cannot answer",
+    "i don't have information",
+    "not found in the provided",
+]
+
+
+def should_retry_with_fallback(answer: str) -> bool:
+    """
+    Check if LLM refused to answer, indicating fallback should be triggered.
+    
+    Args:
+        answer: The generated answer text
+        
+    Returns:
+        True if answer indicates refusal/inability to answer
+    """
+    if not answer:
+        return True
+    
+    answer_lower = answer.lower()
+    for pattern in LLM_REFUSAL_PATTERNS:
+        if pattern.lower() in answer_lower:
+            return True
+    return False
+
 # Cached CAF instances
 _fact_extractor = None
 _answer_synthesizer = None
@@ -173,6 +212,13 @@ def synthesize_answer_node(state: RAGState) -> RAGState:
         logger.info(f"[OUTPUT] Answer Length: {len(answer)} chars")
         logger.info(f"[OUTPUT] Citations Used: {citations_used}")
         logger.info(f"[OUTPUT] Answer Preview: {_truncate(answer, 300)}")
+        
+        # Check for LLM refusal - trigger fallback if needed
+        if should_retry_with_fallback(answer):
+            logger.warning("[REFUSAL DETECTED] LLM indicated it cannot answer. Flagging for fallback.")
+            state["llm_refusal_detected"] = True
+            state["fallback_reason"] = "LLM_REFUSAL"
+            # Note: The pipeline graph should check this flag and route to fallback
         
     except Exception as e:
         logger.error(f"[ERROR] Answer synthesis failed: {e}")
