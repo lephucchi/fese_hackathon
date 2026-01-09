@@ -96,3 +96,5 @@ supabasePgvector_setup/
 *.bak
 !data/benchmark_queries.json
 docs
+
+node_modules/

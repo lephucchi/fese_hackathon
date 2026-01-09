@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { X, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -14,6 +14,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   if (!isOpen) return null;
 
@@ -159,8 +161,52 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   e.preventDefault();
                   // Handle auth
                 }}
-                style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
+                style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
               >
+                {/* Name Input - Only for signup */}
+                {activeTab === 'signup' && (
+                  <div>
+                    <label
+                      style={{
+                        display: 'block',
+                        marginBottom: '0.5rem',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        color: 'var(--text-primary)'
+                      }}
+                    >
+                      Họ và tên
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <User
+                        size={20}
+                        style={{
+                          position: 'absolute',
+                          left: '1rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: 'var(--text-tertiary)'
+                        }}
+                      />
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Nguyễn Văn A"
+                        style={{
+                          width: '100%',
+                          padding: '0.875rem 1rem 0.875rem 3rem',
+                          borderRadius: '12px',
+                          border: '1.5px solid var(--border)',
+                          background: 'var(--surface)',
+                          fontSize: '1rem',
+                          color: 'var(--text-primary)'
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
                 {/* Email Input */}
                 <div>
                   <label
@@ -261,6 +307,69 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </button>
                   </div>
                 </div>
+
+                {/* Confirm Password - Only for signup */}
+                {activeTab === 'signup' && (
+                  <div>
+                    <label
+                      style={{
+                        display: 'block',
+                        marginBottom: '0.5rem',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        color: 'var(--text-primary)'
+                      }}
+                    >
+                      Xác nhận mật khẩu
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <Lock
+                        size={20}
+                        style={{
+                          position: 'absolute',
+                          left: '1rem',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          color: 'var(--text-tertiary)'
+                        }}
+                      />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="••••••••"
+                        style={{
+                          width: '100%',
+                          padding: '0.875rem 1rem 0.875rem 3rem',
+                          borderRadius: '12px',
+                          border: '1.5px solid var(--border)',
+                          background: 'var(--surface)',
+                          fontSize: '1rem',
+                          color: 'var(--text-primary)'
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Forgot Password - Only for login */}
+                {activeTab === 'login' && (
+                  <div style={{ textAlign: 'right' }}>
+                    <button
+                      type="button"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'var(--primary)',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Quên mật khẩu?
+                    </button>
+                  </div>
+                )}
 
                 {/* Submit Button */}
                 <button

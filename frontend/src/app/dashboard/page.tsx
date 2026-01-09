@@ -6,7 +6,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { SwipeCardStack, NewsCard } from '@/components/dashboard/SwipeCardStack';
-import { Coins, User } from 'lucide-react';
+import { Navigation } from '@/components/shared/Navigation';
+import { Coins, MessageSquare, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
@@ -54,16 +55,20 @@ export default function DashboardPage() {
   const [mPoints, setMPoints] = useState(650);
   const [showEmptyState, setShowEmptyState] = useState(false);
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [pointsEarnedToday, setPointsEarnedToday] = useState(0);
 
   const handleSwipeRight = (card: NewsCard) => {
     setSavedCards([...savedCards, card]);
     setMPoints(mPoints + 2);
+    setPointsEarnedToday(pointsEarnedToday + 2);
     setShowPointsAnimation(true);
+    setCurrentCardIndex(currentCardIndex + 1);
     setTimeout(() => setShowPointsAnimation(false), 1000);
   };
 
   const handleSwipeLeft = (card: NewsCard) => {
-    // Just remove card, no points
+    setCurrentCardIndex(currentCardIndex + 1);
   };
 
   const handleStackEmpty = () => {
@@ -85,113 +90,93 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: 'var(--background)',
-      paddingTop: '5rem'
-    }}>
-      {/* Header with M-Points */}
-      <header style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        height: '5rem',
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid var(--border)',
-        zIndex: 100,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 1.5rem'
-      }}>
-        <h1 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: 800,
-          color: 'var(--text-primary)'
+    <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
+      <Navigation />
+      <main style={{ paddingTop: '80px', padding: '80px 1.5rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
+        {/* Progress Bar */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.75rem',
+          marginBottom: '1.5rem',
+          padding: '1rem',
+          background: 'var(--card)',
+          borderRadius: '12px',
+          border: '1px solid var(--border)'
         }}>
-          MacroInsight
-        </h1>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {/* M-Points Badge */}
-          <div className="badge-pill badge-gold" style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 1rem',
-            fontSize: '1rem',
-            fontWeight: 700,
-            position: 'relative'
-          }}>
-            <Coins size={20} />
-            <span className="number-display">{mPoints}</span>
-            
-            {/* Points Animation */}
-            <AnimatePresence>
-              {showPointsAnimation && (
-                <motion.div
-                  initial={{ opacity: 0, y: 0, scale: 1 }}
-                  animate={{ opacity: 1, y: -30, scale: 1.2 }}
-                  exit={{ opacity: 0 }}
-                  style={{
-                    position: 'absolute',
-                    top: '-1rem',
-                    right: '-1rem',
-                    color: 'var(--mpoints)',
-                    fontWeight: 800,
-                    fontSize: '1.25rem',
-                    pointerEvents: 'none'
-                  }}
-                >
-                  +2
-                </motion.div>
-              )}
-            </AnimatePresence>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Coins size={16} style={{ color: '#FFC107' }} />
+            <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#FFC107', position: 'relative' }}>
+              {mPoints}
+              <AnimatePresence>
+                {showPointsAnimation && (
+                  <motion.span
+                    initial={{ opacity: 0, y: 0 }}
+                    animate={{ opacity: 1, y: -20 }}
+                    exit={{ opacity: 0 }}
+                    style={{
+                      position: 'absolute',
+                      top: '-0.75rem',
+                      right: '-1.5rem',
+                      color: '#4ADE80',
+                      fontWeight: 800,
+                      fontSize: '0.75rem'
+                    }}
+                  >
+                    +2
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </span>
           </div>
-
-          {/* User Avatar */}
           <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            background: 'var(--primary)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white'
+            flex: 1,
+            height: '6px',
+            background: 'var(--surface)',
+            borderRadius: '3px',
+            overflow: 'hidden'
           }}>
-            <User size={20} />
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(currentCardIndex / mockNewsCards.length) * 100}%` }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              style={{
+                height: '100%',
+                background: 'linear-gradient(90deg, var(--primary) 0%, #4ADE80 100%)',
+                borderRadius: '3px'
+              }}
+            />
           </div>
+          <span style={{
+            fontSize: '0.75rem',
+            color: 'var(--text-tertiary)',
+            fontWeight: 600
+          }}>
+            {currentCardIndex}/{mockNewsCards.length}
+          </span>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main style={{ 
-        padding: '3rem 1.5rem',
-        maxWidth: '640px',
-        margin: '0 auto'
-      }}>
+        {/* Title */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h1 style={{
+            fontSize: '1.75rem',
+            fontWeight: 800,
+            color: 'var(--text-primary)',
+            marginBottom: '0.5rem'
+          }}>
+            The Morning Stack
+          </h1>
+          <p style={{
+            fontSize: '1rem',
+            color: 'var(--text-secondary)'
+          }}>
+            <Sparkles size={16} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+            Lướt để lọc tin tức quan trọng
+          </p>
+        </div>
+
         {!showEmptyState ? (
           <>
-            <h2 style={{
-              fontSize: '2rem',
-              fontWeight: 800,
-              marginBottom: '0.5rem',
-              textAlign: 'center',
-              color: 'var(--text-primary)'
-            }}>
-              The Morning Stack
-            </h2>
-            <p style={{
-              fontSize: '1rem',
-              marginBottom: '3rem',
-              textAlign: 'center',
-              color: 'var(--text-secondary)'
-            }}>
-              Lướt để lọc tin tức quan trọng
-            </p>
 
             <SwipeCardStack
               cards={cards}
@@ -204,86 +189,159 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            style={{ textAlign: 'center', padding: '3rem 1rem' }}
+            style={{ textAlign: 'center', padding: '2rem 0' }}
           >
+            {/* Completion Header */}
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, var(--primary) 0%, #4ADE80 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 1.5rem',
+                fontSize: '2.5rem',
+                boxShadow: '0 8px 32px rgba(0, 200, 5, 0.3)'
+              }}
+            >
+              🎉
+            </motion.div>
+
             <h2 style={{
-              fontSize: '2.5rem',
+              fontSize: '1.75rem',
               fontWeight: 800,
-              marginBottom: '1rem',
+              marginBottom: '0.5rem',
               color: 'var(--text-primary)'
             }}>
-              🎉 Hoàn thành!
+              Hoàn thành buổi sáng!
             </h2>
-            <p style={{
-              fontSize: '1.125rem',
-              marginBottom: '2rem',
-              color: 'var(--text-secondary)'
+
+            {/* Stats Summary */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '2rem',
+              marginTop: '1.5rem',
+              marginBottom: '2rem'
             }}>
-              Bạn đã lọc xong {mockNewsCards.length} tin tức
-            </p>
-
-            {/* Saved Articles List */}
-            <div style={{ marginTop: '3rem' }}>
-              <h3 style={{
-                fontSize: '1.5rem',
-                fontWeight: 700,
-                marginBottom: '1.5rem',
-                color: 'var(--text-primary)'
-              }}>
-                Tiêu điểm của tôi ({savedCards.length})
-              </h3>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {savedCards.map((card) => (
-                  <div
-                    key={card.id}
-                    className="card interactive-lift"
-                    style={{
-                      padding: '1.5rem',
-                      textAlign: 'left',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                      <span className="badge-pill" style={{ 
-                        background: 'var(--surface)',
-                        fontSize: '0.75rem'
-                      }}>
-                        {card.tag}
-                      </span>
-                    </div>
-                    <h4 style={{
-                      fontSize: '1.125rem',
-                      fontWeight: 700,
-                      color: 'var(--text-primary)'
-                    }}>
-                      {card.title}
-                    </h4>
-                  </div>
-                ))}
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 800,
+                  color: 'var(--primary)'
+                }}>
+                  {mockNewsCards.length}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                  Tin đã lọc
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 800,
+                  color: '#4ADE80'
+                }}>
+                  {savedCards.length}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                  Đã lưu
+                </div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 800,
+                  color: '#FFC107'
+                }}>
+                  +{pointsEarnedToday}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                  M-Points
+                </div>
               </div>
             </div>
 
-            {/* Chat Bar */}
-            <div style={{
-              position: 'fixed',
-              bottom: '2rem',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '90%',
-              maxWidth: '600px'
-            }}>
+            {/* Saved Articles List */}
+            {savedCards.length > 0 && (
+              <div style={{ marginTop: '2rem', textAlign: 'left' }}>
+                <h3 style={{
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  marginBottom: '1rem',
+                  color: 'var(--text-secondary)'
+                }}>
+                  📌 Tiêu điểm của bạn
+                </h3>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {savedCards.map((card, index) => (
+                    <motion.div
+                      key={card.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      style={{
+                        padding: '1rem',
+                        background: 'var(--card)',
+                        borderRadius: '12px',
+                        border: '1px solid var(--border)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginBottom: '0.5rem'
+                      }}>
+                        <span style={{
+                          fontSize: '0.625rem',
+                          padding: '0.25rem 0.5rem',
+                          background: 'var(--surface)',
+                          borderRadius: '4px',
+                          color: 'var(--text-tertiary)'
+                        }}>
+                          {card.tag}
+                        </span>
+                      </div>
+                      <h4 style={{
+                        fontSize: '0.9rem',
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                        lineHeight: 1.4
+                      }}>
+                        {card.title}
+                      </h4>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* CTA Button */}
+            <div style={{ marginTop: '2rem' }}>
               <Link href="/chat" style={{ textDecoration: 'none' }}>
                 <button
                   className="btn-primary interactive-scale"
                   style={{
-                    width: '100%',
                     padding: '1rem 2rem',
-                    fontSize: '1rem',
-                    fontWeight: 700
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    borderRadius: '9999px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
                   }}
                 >
-                  💬 Chat with AI về tiêu điểm
+                  <MessageSquare size={18} />
+                  Chat với AI về tiêu điểm
                 </button>
               </Link>
             </div>
