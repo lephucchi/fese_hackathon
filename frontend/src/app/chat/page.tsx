@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Message } from '@/types';
 import { useChatAPI } from '@/hooks/useChatAPI';
 import { useChatHistory } from '@/hooks/useChatHistory';
+import { useDisclaimer } from '@/hooks/useDisclaimer';
+import { DisclaimerModal } from '@/components/common/DisclaimerModal';
 import {
   ChatTopBar,
   ChatSidebar,
@@ -21,6 +23,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const { sendQuery, isLoading } = useChatAPI();
@@ -32,6 +35,14 @@ export default function ChatPage() {
     getChat,
     setActiveId 
   } = useChatHistory();
+  const { hasAccepted, isLoading: disclaimerLoading, acceptDisclaimer } = useDisclaimer();
+
+  // Show disclaimer on first load if not accepted
+  useEffect(() => {
+    if (!disclaimerLoading && !hasAccepted) {
+      setShowDisclaimer(true);
+    }
+  }, [disclaimerLoading, hasAccepted]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -183,6 +194,15 @@ export default function ChatPage() {
           </div>
         </main>
       </div>
+
+      {/* Disclaimer Modal */}
+      <DisclaimerModal
+        isOpen={showDisclaimer}
+        onClose={() => {
+          // Don't allow closing without accepting
+        }}
+        onAccept={acceptDisclaimer}
+      />
     </div>
   );
 }

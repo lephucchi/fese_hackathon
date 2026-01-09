@@ -10,6 +10,7 @@ import { Navigation } from '@/components/shared/Navigation';
 import { Coins, MessageSquare, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const mockNewsCards: NewsCard[] = [
   {
@@ -50,6 +51,7 @@ const mockNewsCards: NewsCard[] = [
 ];
 
 export default function DashboardPage() {
+  const { t } = useLanguage();
   const [cards, setCards] = useState<NewsCard[]>(mockNewsCards);
   const [savedCards, setSavedCards] = useState<NewsCard[]>([]);
   const [mPoints, setMPoints] = useState(650);

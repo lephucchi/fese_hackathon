@@ -2,21 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Moon, Sun, TrendingUp, BarChart3 } from 'lucide-react';
+import { Menu, X, Moon, Sun, BarChart3, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/hooks/useTheme';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   href: string;
 }
 
 const navItems: NavItem[] = [
-  { label: 'Home', href: '/' },
-  { label: 'Market', href: '/dashboard' },
-  { label: 'Personal', href: '/personal' },
-  { label: 'Education', href: '/education' },
+  { labelKey: 'nav.home', href: '/' },
+  { labelKey: 'nav.news', href: '/dashboard' },
+  { labelKey: 'nav.personal', href: '/personal' },
+  { labelKey: 'nav.education', href: '/education' },
+  { labelKey: 'nav.about', href: '/about' },
 ];
 
 interface NavigationProps {
@@ -27,6 +29,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, t } = useLanguage();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -47,8 +50,6 @@ export function Navigation({ onLoginClick }: NavigationProps) {
         zIndex: 50,
         transition: 'all 0.3s',
         background: 'var(--glass-bg)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
         borderBottom: '1px solid var(--border)',
       }}
     >
@@ -73,37 +74,63 @@ export function Navigation({ onLoginClick }: NavigationProps) {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            {/* Modern Logo with Gradient Icon */}
-            <div
-              style={{
-                width: '2.5rem',
-                height: '2.5rem',
-                borderRadius: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, var(--primary) 0%, #00a004 100%)',
-                boxShadow: '0 4px 12px rgba(0, 200, 5, 0.25)',
-                position: 'relative',
-                overflow: 'hidden'
-              }}
+            {/* AI Neural Network Logo */}
+            <svg
+              width="40" 
+              height="40" 
+              viewBox="0 0 40 40" 
+              style={{ position: 'relative' }}
             >
-              {/* Animated background glow */}
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent)',
-                opacity: 0.5
-              }} />
-              <TrendingUp
-                size={20}
-                style={{
-                  color: 'white',
-                  position: 'relative',
-                  strokeWidth: 2.5
-                }}
-              />
-            </div>
+              {/* Outer neural network nodes */}
+              <circle cx="20" cy="8" r="3" fill="#000" opacity="0.9" />
+              <circle cx="32" cy="20" r="3" fill="#000" opacity="0.9" />
+              <circle cx="20" cy="32" r="3" fill="#000" opacity="0.9" />
+              <circle cx="8" cy="20" r="3" fill="#000" opacity="0.9" />
+              
+              {/* Connecting lines */}
+              <line x1="20" y1="8" x2="20" y2="15" stroke="#00C805" strokeWidth="2" opacity="0.6" />
+              <line x1="32" y1="20" x2="25" y2="20" stroke="#00C805" strokeWidth="2" opacity="0.6" />
+              <line x1="20" y1="32" x2="20" y2="25" stroke="#00C805" strokeWidth="2" opacity="0.6" />
+              <line x1="8" y1="20" x2="15" y2="20" stroke="#00C805" strokeWidth="2" opacity="0.6" />
+              
+              {/* Diagonal connections */}
+              <line x1="20" y1="8" x2="28" y2="16" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
+              <line x1="32" y1="20" x2="24" y2="28" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
+              <line x1="20" y1="32" x2="12" y2="24" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
+              <line x1="8" y1="20" x2="16" y2="12" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
+              
+              {/* Central AI core with gradient */}
+              <defs>
+                <linearGradient id="coreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#00C805" />
+                  <stop offset="100%" stopColor="#00a004" />
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              
+              {/* Central pulsing core */}
+              <circle cx="20" cy="20" r="7" fill="url(#coreGradient)" filter="url(#glow)" />
+              
+              {/* Inner black circuit pattern */}
+              <path d="M 20 16 L 20 13" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
+              <path d="M 24 20 L 27 20" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
+              <path d="M 20 24 L 20 27" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
+              <path d="M 16 20 L 13 20" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
+              
+              {/* Data flow particles */}
+              <circle cx="18" cy="18" r="1.5" fill="#000" opacity="0.7">
+                <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="22" cy="22" r="1.5" fill="#000" opacity="0.7">
+                <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" />
+              </circle>
+            </svg>
             <span
               style={{
                 fontWeight: 700,
@@ -167,7 +194,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     />
                   )}
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               );
             })}
@@ -175,6 +202,39 @@ export function Navigation({ onLoginClick }: NavigationProps) {
 
           {/* Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            {/* Language Toggle */}
+            <button
+              onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 0.75rem',
+                borderRadius: '0.5rem',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                color: 'var(--text-secondary)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.borderColor = 'var(--primary)';
+                e.currentTarget.style.color = 'var(--primary)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.color = 'var(--text-secondary)';
+              }}
+              aria-label="Toggle language"
+            >
+              <Globe size={16} />
+              <span className="hidden-sm">{language === 'vi' ? 'EN' : 'VN'}</span>
+            </button>
+
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
@@ -207,6 +267,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                 onClick={onLoginClick}
                 className="interactive-scale hidden-sm"
                 style={{
+                  display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   padding: '0.625rem 1.5rem',
@@ -301,7 +362,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                     }}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 );
               })}

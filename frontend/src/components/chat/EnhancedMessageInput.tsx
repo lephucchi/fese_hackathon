@@ -107,7 +107,8 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
             placeholder="Ask about Vietnamese finance, legal matters, or market trends..."
             disabled={disabled}
             rows={1}
-            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', resize: 'none', minHeight: '24px', maxHeight: '150px', fontSize: 'clamp(0.875rem, 2vw, 1rem)', color: 'var(--text-primary)', lineHeight: 1.5 }}
+            className="dark:text-white text-gray-900"
+            style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', resize: 'none', minHeight: '24px', maxHeight: '150px', fontSize: 'clamp(0.875rem, 2vw, 1rem)', lineHeight: 1.5 }}
           />
 
           {/* Right Actions */}
