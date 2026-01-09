@@ -6,7 +6,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { SwipeCardStack, NewsCard } from '@/components/dashboard/SwipeCardStack';
-import { Coins, User, ChevronLeft, Home, TrendingUp, Briefcase, GraduationCap, MessageSquare, Sparkles } from 'lucide-react';
+import { Navigation } from '@/components/shared/Navigation';
+import { Coins, MessageSquare, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
@@ -89,125 +90,45 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--background)',
-      paddingTop: '5rem'
-    }}>
-      {/* Enhanced Header */}
-      <header style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid var(--border)',
-        zIndex: 100,
-        padding: '1rem 1.5rem'
-      }}>
-        {/* Top Row: Back, Title, Avatar */}
+    <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
+      <Navigation />
+      <main style={{ paddingTop: '80px', padding: '80px 1.5rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
+        {/* Progress Bar */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '0.75rem'
+          gap: '0.75rem',
+          marginBottom: '1.5rem',
+          padding: '1rem',
+          background: 'var(--card)',
+          borderRadius: '12px',
+          border: '1px solid var(--border)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Link
-              href="/"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '2.25rem',
-                height: '2.25rem',
-                borderRadius: '9999px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                color: 'var(--text-secondary)',
-                textDecoration: 'none',
-                transition: 'all 0.2s'
-              }}
-            >
-              <ChevronLeft size={18} />
-            </Link>
-            <div>
-              <p style={{
-                fontSize: '0.75rem',
-                color: 'var(--text-tertiary)',
-                marginBottom: '0.125rem'
-              }}>
-                Good morning! ☀️
-              </p>
-              <h1 style={{
-                fontSize: '1.25rem',
-                fontWeight: 700,
-                color: 'var(--text-primary)'
-              }}>
-                The Morning Stack
-              </h1>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            {/* M-Points Badge */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 1rem',
-              background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%)',
-              border: '1px solid rgba(255, 193, 7, 0.3)',
-              borderRadius: '9999px',
-              position: 'relative'
-            }}>
-              <Coins size={16} style={{ color: '#FFC107' }} />
-              <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#FFC107' }}>
-                {mPoints}
-              </span>
-
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Coins size={16} style={{ color: '#FFC107' }} />
+            <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#FFC107', position: 'relative' }}>
+              {mPoints}
               <AnimatePresence>
                 {showPointsAnimation && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 0, scale: 1 }}
-                    animate={{ opacity: 1, y: -25, scale: 1.1 }}
+                  <motion.span
+                    initial={{ opacity: 0, y: 0 }}
+                    animate={{ opacity: 1, y: -20 }}
                     exit={{ opacity: 0 }}
                     style={{
                       position: 'absolute',
-                      top: '-0.5rem',
-                      right: '-0.5rem',
+                      top: '-0.75rem',
+                      right: '-1.5rem',
                       color: '#4ADE80',
                       fontWeight: 800,
-                      fontSize: '0.875rem',
-                      pointerEvents: 'none'
+                      fontSize: '0.75rem'
                     }}
                   >
                     +2
-                  </motion.div>
+                  </motion.span>
                 )}
               </AnimatePresence>
-            </div>
-
-            {/* User Avatar */}
-            <div style={{
-              width: '2.25rem',
-              height: '2.25rem',
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--primary) 0%, #00a004 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              boxShadow: '0 2px 8px rgba(0, 200, 5, 0.3)'
-            }}>
-              <User size={16} />
-            </div>
+            </span>
           </div>
-        </div>
-
-        {/* Bottom Row: Progress Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{
             flex: 1,
             height: '6px',
@@ -229,34 +150,33 @@ export default function DashboardPage() {
           <span style={{
             fontSize: '0.75rem',
             color: 'var(--text-tertiary)',
-            fontWeight: 600,
-            minWidth: '3rem',
-            textAlign: 'right'
+            fontWeight: 600
           }}>
             {currentCardIndex}/{mockNewsCards.length}
           </span>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main style={{
-        padding: '2rem 1.5rem',
-        paddingTop: '7rem',
-        paddingBottom: '6rem',
-        maxWidth: '800px',
-        margin: '0 auto'
-      }}>
+        {/* Title */}
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <h1 style={{
+            fontSize: '1.75rem',
+            fontWeight: 800,
+            color: 'var(--text-primary)',
+            marginBottom: '0.5rem'
+          }}>
+            The Morning Stack
+          </h1>
+          <p style={{
+            fontSize: '1rem',
+            color: 'var(--text-secondary)'
+          }}>
+            <Sparkles size={16} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
+            Lướt để lọc tin tức quan trọng
+          </p>
+        </div>
+
         {!showEmptyState ? (
           <>
-            <p style={{
-              fontSize: '1rem',
-              marginBottom: '2rem',
-              textAlign: 'center',
-              color: 'var(--text-secondary)'
-            }}>
-              <Sparkles size={16} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-              Lướt để lọc tin tức quan trọng
-            </p>
 
             <SwipeCardStack
               cards={cards}
@@ -428,50 +348,6 @@ export default function DashboardPage() {
           </motion.div>
         )}
       </main>
-
-      {/* Bottom Navigation */}
-      <nav style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        height: '4rem',
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(12px)',
-        borderTop: '1px solid var(--border)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-around',
-        padding: '0 1rem',
-        zIndex: 100
-      }}>
-        {[
-          { icon: Home, label: 'Home', href: '/', active: false },
-          { icon: TrendingUp, label: 'Market', href: '/dashboard', active: true },
-          { icon: Briefcase, label: 'Personal', href: '/personal', active: false },
-          { icon: GraduationCap, label: 'Education', href: '/education', active: false },
-          { icon: MessageSquare, label: 'AI Chat', href: '/chat', active: false },
-        ].map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '0.25rem',
-              textDecoration: 'none',
-              color: item.active ? 'var(--primary)' : 'var(--text-tertiary)',
-              transition: 'all 0.2s'
-            }}
-          >
-            <item.icon size={20} />
-            <span style={{ fontSize: '0.625rem', fontWeight: 500 }}>
-              {item.label}
-            </span>
-          </Link>
-        ))}
-      </nav>
     </div>
   );
 }
