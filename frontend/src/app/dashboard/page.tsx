@@ -6,7 +6,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { SwipeCardStack, NewsCard } from '@/components/dashboard/SwipeCardStack';
-import { Coins, User } from 'lucide-react';
+import { Coins, User, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 
@@ -85,8 +85,8 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
+    <div style={{
+      minHeight: '100vh',
       background: 'var(--background)',
       paddingTop: '5rem'
     }}>
@@ -106,13 +106,45 @@ export default function DashboardPage() {
         justifyContent: 'space-between',
         padding: '0 1.5rem'
       }}>
-        <h1 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: 800,
-          color: 'var(--text-primary)'
-        }}>
-          MacroInsight
-        </h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          {/* Back Button */}
+          <Link
+            href="/"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '2.5rem',
+              height: '2.5rem',
+              borderRadius: '9999px',
+              background: 'var(--surface)',
+              border: '1px solid var(--border)',
+              color: 'var(--text-secondary)',
+              textDecoration: 'none',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--primary)';
+              e.currentTarget.style.color = 'white';
+              e.currentTarget.style.borderColor = 'var(--primary)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--surface)';
+              e.currentTarget.style.color = 'var(--text-secondary)';
+              e.currentTarget.style.borderColor = 'var(--border)';
+            }}
+          >
+            <ChevronLeft size={20} />
+          </Link>
+
+          <h1 style={{
+            fontSize: '1.5rem',
+            fontWeight: 800,
+            color: 'var(--text-primary)'
+          }}>
+            MacroInsight
+          </h1>
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {/* M-Points Badge */}
@@ -127,7 +159,7 @@ export default function DashboardPage() {
           }}>
             <Coins size={20} />
             <span className="number-display">{mPoints}</span>
-            
+
             {/* Points Animation */}
             <AnimatePresence>
               {showPointsAnimation && (
@@ -168,7 +200,7 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main style={{ 
+      <main style={{
         padding: '3rem 1.5rem',
         maxWidth: '640px',
         margin: '0 auto'
@@ -245,7 +277,7 @@ export default function DashboardPage() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                      <span className="badge-pill" style={{ 
+                      <span className="badge-pill" style={{
                         background: 'var(--surface)',
                         fontSize: '0.75rem'
                       }}>
