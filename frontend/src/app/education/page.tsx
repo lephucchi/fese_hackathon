@@ -12,6 +12,7 @@ export interface VideoContent {
   category: 'Basic' | 'Premium';
   duration: string;
   thumbnail?: string;
+  youtubeUrl?: string; // YouTube embed URL
 }
 
 // Mock data based on specification
@@ -19,96 +20,72 @@ const mockVideos: VideoContent[] = [
   // Recommended for You (Free)
   {
     id: 1,
-    titleKey: 'education.videos.steelCycle',
-    title: 'Chu kỳ ngành Thép',
+    titleKey: 'education.videos.economicsBasics',
+    title: 'Tất cả khái niệm kinh tế cơ bản trong 19 phút (bằng hoạt hình)',
     isLocked: false,
     points: 0,
     category: 'Basic',
-    duration: '12 mins',
-    thumbnail: '📊'
+    duration: '19 mins',
+    thumbnail: '📊',
+    youtubeUrl: 'https://www.youtube.com/embed/kijxOKaXjsk?si=JBnJcmDIw2VyBPZE'
   },
   {
     id: 2,
-    titleKey: 'education.videos.gdpImpact',
-    title: 'Hiểu về GDP và tác động thị trường',
+    titleKey: 'education.videos.moneyMarket',
+    title: 'Tất cả về thị trường tiền tệ trong 13 phút',
     isLocked: false,
     points: 0,
     category: 'Basic',
-    duration: '15 mins',
-    thumbnail: '📈'
+    duration: '13 mins',
+    thumbnail: '📈',
+    youtubeUrl: 'https://www.youtube.com/embed/zeAxHMloqyI?si=8Dn3m_pEWmPpVLNq'
   },
   {
     id: 3,
-    titleKey: 'education.videos.inflationInterest',
-    title: 'Lạm phát và Lãi suất: Mối quan hệ',
+    titleKey: 'education.videos.dexrpExplained',
+    title: 'Giải thích về sàn DeXRP trong 9 phút',
     isLocked: false,
     points: 0,
     category: 'Basic',
-    duration: '10 mins',
-    thumbnail: '💰'
+    duration: '9 mins',
+    thumbnail: '💰',
+    youtubeUrl: 'https://www.youtube.com/embed/vZygsjudk7Y?si=nhoChRkzPU3ipTcp'
   },
 
   // Premium Masterclass (Locked)
   {
     id: 4,
-    titleKey: 'education.videos.readingWhales',
-    title: 'Đọc vị Cá mập (Advanced)',
+    titleKey: 'education.videos.stockInvestingBasics',
+    title: 'Hướng Dẫn Đầu Tư Chứng Khoán Cơ Bản Từ A-Z (F0 phải biết)',
     isLocked: true,
     points: 500,
     category: 'Premium',
-    duration: '25 mins',
-    thumbnail: '🦈'
+    duration: '56 mins',
+    thumbnail: '📊',
+    youtubeUrl: 'https://www.youtube.com/embed/8c1rSMYAbIU?si=vRpcxDh7z8kU7WWE'
   },
   {
     id: 5,
-    titleKey: 'education.videos.cashFlowTechniques',
-    title: 'Kỹ thuật nhìn dòng tiền',
+    titleKey: 'education.videos.realEstateAnalysis',
+    title: 'Học Phân tích cổ phiếu ngành Bất động sản như một chuyên gia trong 10 ngày',
     isLocked: true,
     points: 500,
     category: 'Premium',
-    duration: '30 mins',
-    thumbnail: '💸'
+    duration: '45 mins',
+    thumbnail: '🏢',
+    youtubeUrl: 'https://www.youtube.com/embed/kwooO3qN4eY?si=QCkspn0oL8T8xB1z'
   },
   {
     id: 6,
-    titleKey: 'education.videos.f0Analysis',
-    title: 'Phân tích F0 chuyên sâu',
+    titleKey: 'education.videos.financialReports',
+    title: 'Hướng Dẫn Đọc Hiểu Báo Cáo Tài Chính Cho Nhà Đầu Tư F0 (Cực Dễ Hiểu)',
     isLocked: true,
     points: 300,
     category: 'Premium',
-    duration: '20 mins',
-    thumbnail: '🎯'
-  },
-  {
-    id: 7,
-    titleKey: 'education.videos.advancedTrading',
-    title: 'Chiến lược Trading nâng cao',
-    isLocked: true,
-    points: 700,
-    category: 'Premium',
-    duration: '35 mins',
-    thumbnail: '⚡'
-  },
-  {
-    id: 8,
-    titleKey: 'education.videos.readingFinancials',
-    title: 'Đọc báo cáo tài chính như Pro',
-    isLocked: true,
-    points: 400,
-    category: 'Premium',
-    duration: '28 mins',
-    thumbnail: '📑'
-  },
-  {
-    id: 9,
-    titleKey: 'education.videos.investorPsychology',
-    title: 'Tâm lý học nhà đầu tư',
-    isLocked: true,
-    points: 600,
-    category: 'Premium',
-    duration: '22 mins',
-    thumbnail: '🧠'
-  },
+    duration: '38 mins',
+    thumbnail: '📄',
+    youtubeUrl: 'https://www.youtube.com/embed/tPWVzRQHDZA?si=QMck1nmckCcnJjzo'
+  }
 ];
 
 export default function EducationPage() {
