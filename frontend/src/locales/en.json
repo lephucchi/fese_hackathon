@@ -172,13 +172,28 @@
     },
     "about": {
         "title": "About Us",
+        "intro": {
+            "title": "What is Macro Insight?",
+            "content": "Financial markets move fast and macro news can be overwhelming. The advantage is not reading more. It is understanding what matters and acting in time. Macro Insight is built to shorten the gap between news and decisions, turning scattered information into clear, real time insights for investors."
+        },
+        "howItHelps": {
+            "title": "How Macro Insight helps you",
+            "content": "Macro Insight is not a generic chatbot. It is a smart assistant that helps you do three things in one smooth flow: filter news, understand impact, and ask follow up questions when needed."
+        },
+        "features": {
+            "title": "Key Features",
+            "morning": "Each morning, you see only 10 important stories. You swipe to skip what you do not care about and save what matters.",
+            "analysis": "When you open a story, the system connects it to sectors and the stocks in your portfolio. It then tells you if the news is positive, negative, or neutral for your holdings, with a short explanation in three parts: cause, effect, and impact on the stocks you own.",
+            "chat": "If you still have questions, you can ask right there. The assistant already knows what story you are reading and what you hold, so the answer stays focused.",
+            "report": "In the portfolio section, the system combines the news you saved and produces a daily summary. It highlights what looks good, what risks to watch, and what to consider next."
+        },
         "mission": {
             "title": "Mission",
-            "content": "MacroInsight Agent is an intelligent financial assistant platform powered by advanced AI technology. We are committed to providing Vietnamese users with professional, user-friendly, and completely free financial analysis tools."
+            "content": "We focus on trusted data, objective analysis, and strong privacy for your portfolio. The goal is to reduce confusion and help investors make confident decisions in volatile markets."
         },
         "vision": {
             "title": "Vision",
-            "content": "To become the leading financial intelligence platform in Vietnam, helping millions of investors make smart decisions based on data and AI analysis."
+            "content": "To become a leading financial intelligence platform that helps investors access information more easily, serving as a valuable support for investment decision-making. At the same time, we aim to enhance knowledge and understanding for all investors using our platform."
         },
         "values": {
             "title": "Core Values",
@@ -190,15 +205,15 @@
             "title": "Legal & Compliance",
             "privacy": {
                 "title": "Privacy Policy",
-                "content": "We are committed to protecting your personal data. All collected information is encrypted and stored securely according to international standards."
+                "content": "Macro Insight is committed to protecting user privacy and personal data.\n\n• Data Collection: We collect necessary information such as email addresses, portfolio data (if you provide it), and usage data to improve service experience.\n\n• Security: All information is encrypted using SSL/TLS technology and stored on secure servers following international standards.\n\n• No Sharing: We do not sell, rent, or share your personal data with third parties for commercial purposes.\n\n• Portfolio Data: Your portfolio data is only used to analyze news impact and create personalized reports, and is not shared with anyone.\n\n• Your Rights: You have the right to request data deletion, edit personal information, or export your data at any time.\n\n• Cookies: We use cookies to improve user experience and analyze traffic. You can disable cookies in your browser, but some features may be affected."
             },
             "terms": {
                 "title": "Terms of Service",
-                "content": "By using MacroInsight Agent, you agree to comply with our terms and conditions. The service provides financial information for reference only."
+                "content": "By accessing and using Macro Insight, you agree to the following terms:\n\n• Service Nature: The service provides financial information and analysis for reference purposes only, not professional investment advice.\n\n• Age Requirement: You must be 18 years or older to use the service.\n\n• Account Security: You are responsible for maintaining the security of your account and password.\n\n• Prohibited Actions: Using the service for illegal purposes, spam, or distributing malware is strictly prohibited.\n\n• Intellectual Property: Content on the platform is the intellectual property of Macro Insight and may not be copied or distributed without permission.\n\n• Our Rights: We reserve the right to suspend or terminate accounts that violate these terms.\n\n• Disclaimer: The service is provided 'as is' and we do not guarantee 100% continuous operation or error-free performance.\n\n• Updates: We reserve the right to update these terms and will notify you via email or on the platform."
             },
             "disclaimer": {
                 "title": "Disclaimer",
-                "content": "Information on the platform is not investment advice. Users are responsible for their own financial decisions."
+                "content": "Macro Insight is a system designed to support financial market data and information analysis, providing users with objective, structured, and timely perspectives.\n\n• Not Investment Advice: All content, analysis, and results generated by the system do not constitute investment advice, buy-sell recommendations, or any form of financial performance guarantee.\n\n• Data Sources: Macro Insight's analyses are built on publicly available data, curated news sources, and artificial intelligence reasoning models.\n\n• Market Risks: Financial markets inherently carry risks and unpredictable volatility; therefore, the system does not guarantee absolute accuracy or the ability to predict future developments.\n\n• User Responsibility: Users bear full responsibility for any investment decisions or financial actions made based on information referenced from Macro Insight.\n\n• Recommendation: We recommend that users combine multiple independent information sources and, when necessary, consult licensed financial professionals before making important decisions.\n\n• Limitation of Liability: Although Macro Insight applies data source transparency mechanisms and analysis quality controls, we are not liable for any direct or indirect losses arising from the use or interpretation of information provided by the system."
             }
         },
         "team": {

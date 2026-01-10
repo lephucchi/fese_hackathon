@@ -171,14 +171,29 @@
         }
     },
     "about": {
-        "title": "Về chúng tôi",
+        "title": "About us",
+        "intro": {
+            "title": "Macro Insight là gì?",
+            "content": "Thị trường tài chính có quá nhiều tin vĩ mô và biến động nhanh. Lợi thế không phải là đọc thật nhiều, mà là hiểu đúng và phản ứng kịp thời. Macro Insight được tạo ra để rút ngắn khoảng cách giữa tin tức và quyết định, biến tin rời rạc thành phân tích rõ ràng theo thời gian thực cho nhà đầu tư."
+        },
+        "howItHelps": {
+            "title": "Cách Macro Insight hỗ trợ bạn",
+            "content": "Macro Insight không phải là một chatbot nói chung chung. Đây là một trợ lý giúp bạn làm ba việc liên tục trong một luồng: lọc tin, hiểu tác động, và hỏi thêm khi cần."
+        },
+        "features": {
+            "title": "Tính năng nổi bật",
+            "morning": "Mỗi sáng, bạn chỉ xem 10 tin quan trọng nhất. Bạn lướt để bỏ qua tin không liên quan và lưu lại tin đáng chú ý.",
+            "analysis": "Khi bạn mở một tin, hệ thống tự liên kết tin đó với ngành và các mã trong danh mục của bạn, rồi cho biết tin này tốt, xấu hay trung tính, kèm giải thích ngắn gọn theo ba phần: nguyên nhân, hậu quả và tác động lên mã bạn đang nắm giữ.",
+            "chat": "Nếu bạn còn thắc mắc, bạn có thể hỏi ngay trong màn hình đó. Trợ lý đã hiểu bạn đang đọc tin gì và bạn đang cầm mã nào, nên trả lời đi thẳng vào vấn đề.",
+            "report": "Ở phần tài sản, hệ thống tổng hợp các tin bạn đã lưu để viết một báo cáo ngắn mỗi ngày. Báo cáo cho bạn thấy điểm tích cực, rủi ro cần chú ý và gợi ý hành động tiếp theo."
+        },
         "mission": {
             "title": "Sứ mệnh",
-            "content": "MacroInsight Agent là nền tảng trợ lý tài chính thông minh được phát triển bởi công nghệ AI tiên tiến. Chúng tôi cam kết mang đến cho người dùng Việt Nam công cụ phân tích tài chính chuyên nghiệp, dễ sử dụng và hoàn toàn miễn phí."
+            "content": "Chúng tôi ưu tiên dữ liệu đáng tin, phân tích khách quan và bảo mật danh mục. Mục tiêu là giúp nhà đầu tư bớt rối, bớt sợ, và ra quyết định tự tin hơn."
         },
         "vision": {
             "title": "Tầm nhìn",
-            "content": "Trở thành nền tảng trí tuệ tài chính hàng đầu Việt Nam, giúp hàng triệu nhà đầu tư đưa ra quyết định thông minh dựa trên dữ liệu và phân tích AI."
+            "content": "Trở thành nền tảng trí tuệ tài chính giúp nhà đầu tư tiếp cận thông tin một cách dễ dàng hơn, từ đó trở thành một hỗ trợ đắc lực trong việc đưa ra quyết định cho các nhà đầu tư. Đồng thời giúp tăng hiểu biết cũng như kiến thức cho tất cả các nhà đầu tư sử dụng nền tảng."
         },
         "values": {
             "title": "Giá trị cốt lõi",
@@ -190,15 +205,15 @@
             "title": "Pháp lý & Tuân thủ",
             "privacy": {
                 "title": "Chính sách bảo mật",
-                "content": "Chúng tôi cam kết bảo vệ dữ liệu cá nhân của bạn. Mọi thông tin thu thập đều được mã hóa và lưu trữ an toàn theo tiêu chuẩn quốc tế."
+                "content": "Macro Insight cam kết bảo vệ quyền riêng tư và dữ liệu cá nhân của người dùng.\n\n• Thu thập dữ liệu: Chúng tôi thu thập thông tin cần thiết như địa chỉ email, danh mục đầu tư (nếu bạn cung cấp), và dữ liệu sử dụng để cải thiện trải nghiệm dịch vụ.\n\n• Bảo mật: Mọi thông tin được mã hóa bằng công nghệ SSL/TLS và lưu trữ trên máy chủ bảo mật theo tiêu chuẩn quốc tế.\n\n• Không chia sẻ: Chúng tôi không bán, cho thuê hoặc chia sẻ dữ liệu cá nhân của bạn với bên thứ ba vì mục đích thương mại.\n\n• Danh mục đầu tư: Dữ liệu danh mục đầu tư của bạn chỉ được sử dụng để phân tích tác động tin tức và tạo báo cáo cá nhân hóa, không được chia sẻ với bất kỳ ai.\n\n• Quyền của bạn: Bạn có quyền yêu cầu xóa dữ liệu, chỉnh sửa thông tin cá nhân hoặc xuất dữ liệu của mình bất cứ lúc nào.\n\n• Cookie: Chúng tôi sử dụng cookie để cải thiện trải nghiệm người dùng và phân tích lưu lượng truy cập. Bạn có thể tắt cookie trong trình duyệt nhưng một số tính năng có thể bị ảnh hưởng."
             },
             "terms": {
                 "title": "Điều khoản sử dụng",
-                "content": "Bằng cách sử dụng MacroInsight Agent, bạn đồng ý tuân thủ các điều khoản và điều kiện của chúng tôi. Dịch vụ cung cấp thông tin tài chính chỉ mang tính chất tham khảo."
+                "content": "Bằng cách truy cập và sử dụng Macro Insight, bạn đồng ý tuân thủ các điều khoản sau:\n\n• Tính chất dịch vụ: Dịch vụ cung cấp thông tin và phân tích tài chính chỉ mang tính chất tham khảo, không phải lời khuyên đầu tư chuyên nghiệp.\n\n• Độ tuổi: Bạn phải từ 18 tuổi trở lên để sử dụng dịch vụ.\n\n• Bảo mật tài khoản: Bạn chịu trách nhiệm bảo mật tài khoản và mật khẩu của mình.\n\n• Hành vi bị cấm: Nghiêm cấm sử dụng dịch vụ cho mục đích bất hợp pháp, spam, hoặc phát tán mã độc.\n\n• Sở hữu trí tuệ: Nội dung trên nền tảng thuộc sở hữu trí tuệ của Macro Insight, không được sao chép hoặc phân phối trái phép.\n\n• Quyền của chúng tôi: Chúng tôi có quyền tạm ngừng hoặc chấm dứt tài khoản vi phạm điều khoản.\n\n• Miễn trừ: Dịch vụ được cung cấp 'nguyên trạng' và chúng tôi không đảm bảo hoạt động liên tục 100% hoặc không có lỗi.\n\n• Cập nhật: Chúng tôi có quyền cập nhật điều khoản này và sẽ thông báo qua email hoặc trên nền tảng."
             },
             "disclaimer": {
                 "title": "Tuyên bố miễn trừ trách nhiệm",
-                "content": "Thông tin trên nền tảng không phải lời khuyên đầu tư. Người dùng tự chịu trách nhiệm với các quyết định tài chính của mình."
+                "content": "Macro Insight là một hệ thống hỗ trợ phân tích dữ liệu và thông tin thị trường tài chính, được thiết kế nhằm cung cấp góc nhìn khách quan, có cấu trúc và kịp thời cho người dùng.\n\n• Không phải lời khuyên đầu tư: Mọi nội dung, phân tích và kết quả được tạo ra bởi hệ thống không cấu thành lời khuyên đầu tư, khuyến nghị mua – bán, hay cam kết về hiệu quả tài chính dưới bất kỳ hình thức nào.\n\n• Nguồn dữ liệu: Các phân tích của Macro Insight được xây dựng dựa trên dữ liệu công khai, nguồn tin được chọn lọc và các mô hình suy luận trí tuệ nhân tạo.\n\n• Rủi ro thị trường: Thị trường tài chính luôn tiềm ẩn rủi ro và biến động khó lường; do đó, hệ thống không đảm bảo tính chính xác tuyệt đối hoặc khả năng dự đoán các diễn biến trong tương lai.\n\n• Trách nhiệm người dùng: Người dùng chịu hoàn toàn trách nhiệm đối với mọi quyết định đầu tư hoặc hành động tài chính được đưa ra dựa trên thông tin tham khảo từ Macro Insight.\n\n• Khuyến nghị: Chúng tôi khuyến nghị người dùng kết hợp nhiều nguồn thông tin độc lập và, khi cần thiết, tham vấn ý kiến từ các chuyên gia tài chính được cấp phép trước khi đưa ra quyết định quan trọng.\n\n• Giới hạn trách nhiệm: Mặc dù Macro Insight áp dụng các cơ chế minh bạch hóa nguồn dữ liệu và kiểm soát chất lượng phân tích, chúng tôi không chịu trách nhiệm đối với bất kỳ tổn thất trực tiếp hoặc gián tiếp nào phát sinh từ việc sử dụng hoặc diễn giải thông tin do hệ thống cung cấp."
             }
         },
         "team": {

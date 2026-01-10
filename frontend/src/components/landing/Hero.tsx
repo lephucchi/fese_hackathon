@@ -110,7 +110,7 @@ export function Hero({ onGetStarted }: HeroProps) {
               flexWrap: 'wrap',
               marginBottom: '48px',
               flexDirection: 'column',
-              alignItems: 'stretch',
+              alignItems: 'center',
               padding: '0 1rem'
             }}
             className="hero-cta-buttons"
@@ -124,8 +124,11 @@ export function Hero({ onGetStarted }: HeroProps) {
                 fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '8px',
-                borderRadius: '9999px'
+                borderRadius: '9999px',
+                width: '100%',
+                maxWidth: '320px'
               }}
             >
               {t('hero.ctaPrimary')}
@@ -140,8 +143,11 @@ export function Hero({ onGetStarted }: HeroProps) {
                 fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'center',
                 gap: '8px',
-                borderRadius: '9999px'
+                borderRadius: '9999px',
+                width: '100%',
+                maxWidth: '320px'
               }}
             >
               <Play size={18} />
@@ -155,11 +161,12 @@ export function Hero({ onGetStarted }: HeroProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
             style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-              gap: '32px',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: 'clamp(24px, 8vw, 64px)',
               maxWidth: '700px',
-              margin: '0 auto'
+              margin: '0 auto',
+              flexWrap: 'nowrap'
             }}
           >
             {[
@@ -167,18 +174,20 @@ export function Hero({ onGetStarted }: HeroProps) {
               { value: '10+', labelKey: 'hero.stats.accuracy' },
               { value: '24/7', labelKey: 'hero.stats.users' }
             ].map((stat, i) => (
-              <div key={i}>
+              <div key={i} style={{ textAlign: 'center' }}>
                 <div style={{
-                  fontSize: '2rem',
+                  fontSize: 'clamp(1.5rem, 5vw, 2rem)',
                   fontWeight: 800,
                   color: 'var(--primary)',
-                  marginBottom: '4px'
+                  marginBottom: '4px',
+                  whiteSpace: 'nowrap'
                 }}>
                   {stat.value}
                 </div>
                 <div style={{
-                  fontSize: '14px',
-                  color: 'var(--text-tertiary)'
+                  fontSize: 'clamp(11px, 3vw, 14px)',
+                  color: 'var(--text-tertiary)',
+                  whiteSpace: 'nowrap'
                 }}>
                   {t(stat.labelKey)}
                 </div>
