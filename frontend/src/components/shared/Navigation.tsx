@@ -286,26 +286,6 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                         zIndex: 100
                       }}
                     >
-                      <Link
-                        href="/personal"
-                        onClick={() => setShowUserMenu(false)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.75rem',
-                          padding: '0.75rem',
-                          borderRadius: '8px',
-                          textDecoration: 'none',
-                          color: 'var(--text-primary)',
-                          transition: 'background 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface)'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                      >
-                        <UserIcon size={18} />
-                        <span style={{ fontSize: '0.875rem' }}>Trang ca nhan</span>
-                      </Link>
-                      <div style={{ height: '1px', background: 'var(--border)', margin: '0.5rem 0' }} />
                       <button
                         onClick={handleLogout}
                         style={{
