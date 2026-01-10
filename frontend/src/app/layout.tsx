@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const inter = Inter({ 
+const inter = Inter({
   subsets: ["latin", "vietnamese"],
   variable: "--font-inter",
   display: "swap",
@@ -28,8 +28,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" suppressHydrationWarning>
-      <body 
-        className={`${inter.variable} antialiased font-sans`} 
+      <body
+        className={`${inter.variable} antialiased font-sans`}
         suppressHydrationWarning
         style={{ background: 'var(--background)', color: 'var(--foreground)', minHeight: '100vh' }}
       >

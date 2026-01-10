@@ -20,7 +20,7 @@ export function Hero({ onGetStarted }: HeroProps) {
         paddingBottom: '80px',
         background: 'var(--background)',
         position: 'relative',
-        overflow: 'hidden',
+        overflow: 'visible',
         width: '100%'
       }}
     >
@@ -68,10 +68,12 @@ export function Hero({ onGetStarted }: HeroProps) {
             style={{
               fontSize: 'clamp(2.5rem, 6vw, 4rem)',
               fontWeight: 800,
-              lineHeight: 1.1,
+              lineHeight: 1.3,
               marginBottom: '24px',
               letterSpacing: '-0.02em',
-              color: 'var(--text-primary)'
+              color: 'var(--text-primary)',
+              paddingTop: '0.1em',
+              overflow: 'visible'
             }}
           >
             Biến Thông Tin Vĩ Mô <br />
