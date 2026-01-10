@@ -24,7 +24,8 @@ class UserInteractionRepository(BaseRepository):
     
     async def create(self, user_id: str, news_id: str, action_type: str) -> Dict[str, Any]:
         """
-        Create a new interaction record.
+        Create a new interaction record or return existing one.
+        Uses upsert to prevent duplicates from race conditions.
         
         Args:
             user_id: UUID of user
@@ -32,7 +33,7 @@ class UserInteractionRepository(BaseRepository):
             action_type: Type of action (approve/reject)
             
         Returns:
-            Created interaction dict
+            Created or existing interaction dict
         """
         interaction_data = {
             "interaction_id": str(uuid.uuid4()),
@@ -41,8 +42,13 @@ class UserInteractionRepository(BaseRepository):
             "action_type": action_type
         }
         
+        # Use upsert with on_conflict to handle race conditions
+        # If (user_id, news_id) already exists, update action_type instead
         response = self.supabase.table(self.table_name)\
-            .insert(interaction_data)\
+            .upsert(
+                interaction_data,
+                on_conflict="user_id,news_id"
+            )\
             .execute()
         
         return response.data[0] if response.data else {}
