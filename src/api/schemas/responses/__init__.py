@@ -25,6 +25,12 @@ from .interaction import (
     InteractionResponse,
     UserInterestsResponse,
 )
+from .portfolio import (
+    PortfolioItem,
+    PortfolioListResponse,
+    PortfolioDetailResponse,
+    PortfolioDeleteResponse,
+)
 
 __all__ = [
     "QueryResponse",
@@ -51,6 +57,11 @@ __all__ = [
     # Interaction
     "InteractionResponse",
     "UserInterestsResponse",
+    # Portfolio
+    "PortfolioItem",
+    "PortfolioListResponse",
+    "PortfolioDetailResponse",
+    "PortfolioDeleteResponse",
 ]
 
 
