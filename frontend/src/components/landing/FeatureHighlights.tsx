@@ -29,7 +29,7 @@ export function FeatureHighlights() {
       <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 1.5rem)' }}>
         {/* Section Header */}
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <div style={{ 
+          <div style={{
             display: 'inline-block',
             padding: '8px 20px',
             background: 'rgba(0, 200, 5, 0.1)',
@@ -40,14 +40,14 @@ export function FeatureHighlights() {
               {t('features.badge')}
             </span>
           </div>
-          <h2 style={{ 
+          <h2 style={{
             fontSize: 'clamp(2rem, 4vw, 2.5rem)',
             fontWeight: 800,
             marginBottom: '16px'
           }}>
             {t('features.title')}
           </h2>
-          <p style={{ 
+          <p style={{
             fontSize: '1.125rem',
             color: 'var(--text-secondary)',
             maxWidth: '600px',
@@ -58,11 +58,13 @@ export function FeatureHighlights() {
         </div>
 
         {/* Features Grid */}
-        <div style={{ 
+        <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: 'clamp(20px, 4vw, 32px)'
-        }}>
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: 'clamp(16px, 4vw, 32px)'
+        }}
+          className="features-grid"
+        >
           {featureKeys.map((feature, i) => (
             <motion.div
               key={i}
@@ -71,11 +73,11 @@ export function FeatureHighlights() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               className="card interactive-lift"
-              style={{ 
+              style={{
                 padding: 'clamp(20px, 4vw, 32px)'
               }}
             >
-              <div style={{ 
+              <div style={{
                 width: '56px',
                 height: '56px',
                 borderRadius: '16px',

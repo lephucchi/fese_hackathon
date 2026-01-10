@@ -928,7 +928,7 @@ html {
   .show-sm-flex {
     display: flex;
   }
-  
+
   /* Hero CTA buttons horizontal on tablet+ */
   .hero-cta-buttons {
     flex-direction: row !important;
@@ -966,9 +966,11 @@ html {
   .hide-md {
     display: none !important;
   }
+
   .hide-mobile {
     display: block !important;
   }
+
   .hidden-sm {
     display: block !important;
   }
@@ -979,28 +981,28 @@ html {
   h1 {
     font-size: 2rem;
   }
-  
+
   h2 {
     font-size: 1.75rem;
   }
-  
+
   h3 {
     font-size: 1.5rem;
   }
-  
+
   /* Ensure mobile padding for all content */
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
+
   /* Mobile-friendly cards */
   .chart-container,
   .card-responsive {
     padding: 16px;
     border-radius: 16px;
   }
-  
+
   /* Stack elements vertically on mobile */
   .stack-mobile {
     flex-direction: column;
@@ -1019,11 +1021,11 @@ html {
   .mobile-stack {
     flex-direction: column !important;
   }
-  
+
   .mobile-full-width {
     width: 100% !important;
   }
-  
+
   .mobile-center {
     justify-content: center !important;
     align-items: center !important;
@@ -1042,5 +1044,240 @@ img {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ============================================
+   ENHANCED RESPONSIVE UTILITIES
+   ============================================ */
+
+/* Safe grid that won't overflow on mobile */
+.grid-responsive {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* Card responsive padding */
+.card-responsive {
+  padding: 1rem;
+  border-radius: 16px;
+}
+
+@media (min-width: 640px) {
+  .card-responsive {
+    padding: 1.5rem;
+    border-radius: 20px;
+  }
+}
+
+@media (min-width: 768px) {
+  .card-responsive {
+    padding: 2rem;
+    border-radius: 24px;
+  }
+}
+
+/* Text responsive utilities */
+.text-responsive-sm {
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+
+.text-responsive-base {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.text-responsive-lg {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+}
+
+.text-responsive-xl {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+}
+
+.text-responsive-2xl {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+.text-responsive-3xl {
+  font-size: clamp(1.875rem, 6vw, 3rem);
+}
+
+/* Gap responsive utilities */
+.gap-responsive-sm {
+  gap: clamp(0.5rem, 2vw, 1rem);
+}
+
+.gap-responsive {
+  gap: clamp(1rem, 3vw, 1.5rem);
+}
+
+.gap-responsive-lg {
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+/* Padding responsive utilities */
+.p-responsive-sm {
+  padding: clamp(0.5rem, 2vw, 1rem);
+}
+
+.p-responsive {
+  padding: clamp(1rem, 3vw, 2rem);
+}
+
+.p-responsive-lg {
+  padding: clamp(1.5rem, 5vw, 3rem);
+}
+
+.px-responsive {
+  padding-left: clamp(1rem, 4vw, 2rem);
+  padding-right: clamp(1rem, 4vw, 2rem);
+}
+
+.py-responsive {
+  padding-top: clamp(2rem, 6vw, 4rem);
+  padding-bottom: clamp(2rem, 6vw, 4rem);
+}
+
+/* Mobile-first visibility */
+.desktop-only {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .desktop-only {
+    display: block !important;
+  }
+
+  .desktop-only-flex {
+    display: flex !important;
+  }
+
+  .desktop-only-grid {
+    display: grid !important;
+  }
+}
+
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Flex direction responsive */
+.flex-col-mobile {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 640px) {
+  .flex-col-mobile {
+    flex-direction: row;
+  }
+}
+
+/* Width responsive utilities */
+.w-full-mobile {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .w-full-mobile {
+    width: auto;
+  }
+}
+
+/* Navigation responsive adjustments */
+@media (max-width: 767px) {
+  .nav-responsive {
+    padding: 0.75rem 1rem;
+  }
+
+  .nav-logo-text {
+    font-size: 1rem;
+  }
+
+  .nav-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Section spacing responsive */
+.section-responsive {
+  padding-top: clamp(3rem, 8vw, 6rem);
+  padding-bottom: clamp(3rem, 8vw, 6rem);
+}
+
+/* Modal responsive */
+@media (max-width: 640px) {
+  .modal-responsive {
+    width: calc(100% - 2rem);
+    max-height: calc(100vh - 4rem);
+    margin: 1rem;
+    border-radius: 16px;
+  }
+}
+
+/* Touch-friendly interactive elements */
+@media (hover: none) and (pointer: coarse) {
+  .interactive-scale:active {
+    transform: scale(0.98);
+  }
+
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  a,
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Safe area for notched devices */
+@supports (padding: max(0px)) {
+  .safe-area-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}
+
+/* Features Grid Responsive */
+.features-grid {
+  grid-template-columns: 1fr !important;
+}
+
+@media (min-width: 640px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
   }
 }

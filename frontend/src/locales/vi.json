@@ -9,8 +9,9 @@
     },
     "hero": {
         "badge": "AI-Powered Financial Intelligence",
-        "title": "Biến Thông Tin Vĩ Mô",
-        "titleHighlight": "Thành Quyết Định Đầu Tư",
+        "titleLine1": "Biến Thông Tin",
+        "titleLine2": "Vĩ Mô Thành",
+        "titleHighlight": "Quyết Định Đầu Tư",
         "subtitle": "Không còn bị ngợp trong biển tin tức hỗn độn. MacroInsight giúp bạn lọc, phân tích và hiểu tác động của tin tức vĩ mô đến danh mục đầu tư chỉ trong vài giây.",
         "ctaPrimary": "Dùng thử miễn phí",
         "ctaSecondary": "Xem demo",
@@ -52,6 +53,8 @@
     "howItWorks": {
         "title": "Cách hoạt động",
         "subtitle": "Ba bước đơn giản để nắm bắt thị trường mỗi ngày",
+        "badge": "Quy trình đơn giản",
+        "stepPrefix": "Bước",
         "step1": {
             "number": "01",
             "title": "Lọc tin nhanh",
@@ -97,6 +100,21 @@
                 "Ưu tiên hỗ trợ"
             ],
             "cta": "Nâng cấp Pro"
+        },
+        "business": {
+            "tag": "Doanh nghiệp",
+            "name": "Doanh nghiệp",
+            "price": "2.999.000đ",
+            "period": "/tháng",
+            "features": [
+                "Tất cả tính năng Pro",
+                "Truy cập API nâng cao",
+                "Quản lý tài khoản riêng",
+                "Báo cáo tùy chỉnh",
+                "Cộng tác nhóm",
+                "Hỗ trợ ưu tiên 24/7"
+            ],
+            "cta": "Liên hệ Sales"
         }
     },
     "footer": {
@@ -198,7 +216,7 @@
         "history": "Lịch sử trò chuyện",
         "placeholder": "Hỏi về cổ phiếu, xu hướng thị trường, chiến lược đầu tư...",
         "send": "Gửi",
-        "thinking": "AI đang suy nghĩ...",
+        "thinkingStatus": "AI đang suy nghĩ...",
         "emptyState": {
             "title": "Multi-Index RAG",
             "subtitle": "Hỏi về tài chính, pháp lý hoặc thị trường Việt Nam",
@@ -309,7 +327,7 @@
             "title": "Danh mục của tôi",
             "allocation": "Phân bổ danh mục",
             "buyingPower": "Sức mua",
-            "totalValue": "Tổng giá trị",
+            "totalValueLabel": "Tổng giá trị",
             "todayChange": "Thay đổi hôm nay",
             "totalReturn": "Tổng lợi nhuận",
             "positions": "Danh mục",
