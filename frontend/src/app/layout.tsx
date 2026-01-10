@@ -11,11 +11,16 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Multi-Index RAG | Vietnamese Financial & Legal AI",
+  title: "MacroInsight",
   description: "Semantic-Router Retrieval-Augmented Generation for Vietnamese Financial & Legal Data. Intelligent query routing and evidence-based answers.",
   keywords: ["RAG", "Vietnam", "Finance", "Legal", "AI", "LangGraph", "Supabase", "Gemini"],
+  icons: {
+    icon: '/logo_new-removebg-preview-nobg.svg',
+    shortcut: '/logo_new-removebg-preview-nobg.svg',
+    apple: '/logo_new-removebg-preview-nobg.svg',
+  },
   openGraph: {
-    title: "Multi-Index RAG",
+    title: "MacroInsight",
     description: "Knowledge router powered by RAG for Vietnamese financial and legal research",
     type: "website",
   },

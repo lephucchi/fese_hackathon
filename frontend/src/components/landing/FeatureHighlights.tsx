@@ -3,57 +3,30 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Target, BarChart3, Sparkles, Award, BookOpen } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const features = [
-  {
-    icon: Zap,
-    title: 'Swipe để lọc tin',
-    description: 'Vuốt trái để bỏ qua, vuốt phải để lưu. Chỉ mất 1 phút để hoàn tất bản tin sáng với 10 tin quan trọng nhất.',
-    color: '#00C805'
-  },
-  {
-    icon: Target,
-    title: 'Phân tích cá nhân hóa',
-    description: 'AI tự động phân tích tác động của tin tức đến chính danh mục đầu tư của bạn với nhãn màu trực quan.',
-    color: '#FFD700'
-  },
-  {
-    icon: BarChart3,
-    title: 'Báo cáo tổng hợp',
-    description: 'Nhận bản phân tích tổng quan hàng ngày về sức khỏe danh mục, rủi ro và cơ hội từ tin tức.',
-    color: '#FF9F1C'
-  },
-  {
-    icon: Sparkles,
-    title: 'Chat thông minh',
-    description: 'Hỏi đáp với AI về bất kỳ tin tức nào. Hệ thống tự động hiểu ngữ cảnh và đưa ra câu trả lời có căn cứ.',
-    color: '#00C805'
-  },
-  {
-    icon: Award,
-    title: 'Tích điểm M-Point',
-    description: 'Nhận điểm thưởng khi đọc tin và học kiến thức. Đổi điểm để mở khóa nội dung cao cấp.',
-    color: '#FFD700'
-  },
-  {
-    icon: BookOpen,
-    title: 'Học viện tài chính',
-    description: 'Nội dung học được đề xuất thông minh dựa trên sở thích của bạn. Học mà không thấy nhàm chán.',
-    color: '#FF9F1C'
-  }
+const featureKeys = [
+  { icon: Zap, key: 'swipe', color: '#00C805' },
+  { icon: Target, key: 'analysis', color: '#FFD700' },
+  { icon: BarChart3, key: 'report', color: '#FF9F1C' },
+  { icon: Sparkles, key: 'chat', color: '#00C805' },
+  { icon: Award, key: 'mpoint', color: '#FFD700' },
+  { icon: BookOpen, key: 'academy', color: '#FF9F1C' }
 ];
 
 export function FeatureHighlights() {
+  const { t } = useLanguage();
+
   return (
     <section
       id="features"
       style={{
-        padding: '80px 0',
+        padding: 'clamp(40px, 8vw, 80px) 0',
         background: 'var(--background-soft)',
         width: '100%'
       }}
     >
-      <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
+      <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 1.5rem)' }}>
         {/* Section Header */}
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>
           <div style={{ 
@@ -64,7 +37,7 @@ export function FeatureHighlights() {
             marginBottom: '16px'
           }}>
             <span style={{ color: 'var(--primary)', fontSize: '14px', fontWeight: 600 }}>
-              TÍNH NĂNG NỔI BẬT
+              {t('features.badge')}
             </span>
           </div>
           <h2 style={{ 
@@ -72,7 +45,7 @@ export function FeatureHighlights() {
             fontWeight: 800,
             marginBottom: '16px'
           }}>
-            Trải nghiệm All-in-One
+            {t('features.title')}
           </h2>
           <p style={{ 
             fontSize: '1.125rem',
@@ -80,17 +53,17 @@ export function FeatureHighlights() {
             maxWidth: '600px',
             margin: '0 auto'
           }}>
-            Một nền tảng duy nhất để lọc tin, phân tích tác động và học kiến thức đầu tư
+            {t('features.subtitle')}
           </p>
         </div>
 
         {/* Features Grid */}
         <div style={{ 
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '32px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 'clamp(20px, 4vw, 32px)'
         }}>
-          {features.map((feature, i) => (
+          {featureKeys.map((feature, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 30 }}
@@ -99,7 +72,7 @@ export function FeatureHighlights() {
               transition={{ delay: i * 0.1 }}
               className="card interactive-lift"
               style={{ 
-                padding: '32px'
+                padding: 'clamp(20px, 4vw, 32px)'
               }}
             >
               <div style={{ 
@@ -124,7 +97,7 @@ export function FeatureHighlights() {
                   color: 'var(--text-primary)'
                 }}
               >
-                {feature.title}
+                {t(`features.${feature.key}.title`)}
               </h3>
 
               <p
@@ -134,7 +107,7 @@ export function FeatureHighlights() {
                   color: 'var(--text-secondary)'
                 }}
               >
-                {feature.description}
+                {t(`features.${feature.key}.description`)}
               </p>
             </motion.div>
           ))}
