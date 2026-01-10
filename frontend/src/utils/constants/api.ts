@@ -3,7 +3,13 @@
  * Centralized API configuration
  */
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// Validate API URL is set - NO FALLBACK
+const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+if (!apiUrl) {
+  console.error('FATAL: NEXT_PUBLIC_API_URL environment variable is not set!');
+}
+
+export const API_BASE_URL = apiUrl || '';
 
 export const API_ENDPOINTS = {
     // Auth

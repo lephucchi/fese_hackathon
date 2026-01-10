@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Activity, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '@/utils/constants/api';
 
 interface HealthStatus {
   status: 'checking' | 'healthy' | 'degraded' | 'unhealthy';
@@ -19,7 +18,7 @@ export function APIStatus() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-        const response = await fetch(`${API_URL}/api/health`, {
+        const response = await fetch(`${API_BASE_URL}/api/health`, {
           signal: controller.signal,
         });
 

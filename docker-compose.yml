@@ -32,19 +32,13 @@ services:
     container_name: rag-backend
     ports:
       - "127.0.0.1:8000:8000"
+    env_file:
+      - .env
     environment:
-      # Redis
+      # Redis (override for Docker network)
       - REDIS_URL=redis://redis:6379
-      # Supabase (from .env)
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
-      # Google AI
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - GOOGLE_CUSTOM_SEARCH_API_KEY=${GOOGLE_CUSTOM_SEARCH_API_KEY}
-      - GOOGLE_CUSTOM_SEARCH_ENGINE_ID=${GOOGLE_CUSTOM_SEARCH_ENGINE_ID}
-      # App settings
-      - LOG_LEVEL=INFO
+      # Override log level if needed
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
     depends_on:
       redis:
         condition: service_healthy
@@ -63,14 +57,11 @@ services:
       dockerfile: Dockerfile
     container_name: rag-newsanalyst
     command: [ "python", "-m", "src.functions.NewsAnalyst.main", "--mode", "scheduled" ]
+    env_file:
+      - .env
     environment:
-      # Redis
+      # Redis (override for Docker network)
       - REDIS_URL=redis://redis:6379
-      # Supabase
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      # Google AI for analysis
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
       # Scheduler
       - NEWS_SCRAPE_INTERVAL_HOURS=4
     depends_on:
@@ -92,12 +83,12 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=https://macroinsight.me/api
+        - NEXT_PUBLIC_API_URL=https://macroinsight.me
     container_name: rag-frontend
     ports:
       - "127.0.0.1:3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=https://macroinsight.me/api
+      - NEXT_PUBLIC_API_URL=https://macroinsight.me
       - NODE_ENV=production
     depends_on:
       - backend
