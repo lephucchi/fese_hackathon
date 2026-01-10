@@ -173,10 +173,16 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
 
     // Record interaction to backend
     const recordInteraction = async (newsId: string, actionType: 'SWIPE_RIGHT' | 'SWIPE_LEFT') => {
-        if (!user || !isAuthenticated) return;
+        console.log('[recordInteraction] Called with:', { newsId, actionType, user: user?.user_id, isAuthenticated });
+
+        if (!user || !isAuthenticated) {
+            console.warn('[recordInteraction] Skipping - not authenticated:', { user, isAuthenticated });
+            return;
+        }
 
         try {
-            await fetch(`${API_BASE_URL}/api/interactions`, {
+            console.log('[recordInteraction] Sending to API:', `${API_BASE_URL}/api/interactions`);
+            const response = await fetch(`${API_BASE_URL}/api/interactions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -188,6 +194,12 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
                     action_type: actionType,
                 }),
             });
+
+            console.log('[recordInteraction] Response:', response.status, response.statusText);
+            if (!response.ok) {
+                const errorData = await response.text();
+                console.error('[recordInteraction] API Error:', errorData);
+            }
         } catch (err) {
             console.error('Error recording interaction:', err);
         }
