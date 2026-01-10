@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Personal Tab Component - Profile, Portfolio & Macro Alignment
  * Responsibility: Display user profile, portfolio with macro news impact analysis
  */
@@ -11,12 +11,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useDisclaimer } from '@/hooks/useDisclaimer';
 import { DisclaimerModal } from '@/components/common/DisclaimerModal';
-<<<<<<< HEAD
 import { useAuth } from '@/hooks/useAuth';
-import { PortfolioCard } from './PortfolioCard';
-=======
 import { useLanguage } from '@/contexts/LanguageContext';
->>>>>>> main
+import { PortfolioCard } from './PortfolioCard';
 
 interface PersonalTabProps {
   readonly report: SynthesisReport;
@@ -50,23 +47,8 @@ const TIER_CONFIG: Record<number, { name: string; color: string; bgColor: string
   },
 };
 
-<<<<<<< HEAD
 export function PersonalTab({ report }: PersonalTabProps) {
-=======
-// Chart colors - Green theme matching primary color
-const COLORS: Record<string, string> = {
-  HPG: '#00C805',  // Primary Green
-  SSI: '#00A004',  // Dark Green
-  VCB: '#33D433',  // Light Green
-  VHM: '#10B981',  // Emerald
-  VNM: '#059669',  // Teal
-  Cash: '#9CA3AF', // Gray
-};
-
-export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabProps) {
   const { t } = useLanguage();
-  const [showEditModal, setShowEditModal] = useState(false);
->>>>>>> main
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [viewingInsights, setViewingInsights] = useState(false);
   const { hasAccepted, isLoading: disclaimerLoading, acceptDisclaimer } = useDisclaimer();
@@ -88,8 +70,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
       margin: '0 auto',
       padding: 'clamp(20px, 4vw, 40px) clamp(12px, 3vw, 24px)',
     }}>
-<<<<<<< HEAD
-      {/* Profile Card - NEW */}
+      {/* Profile Card */}
       {isAuthenticated && user && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -116,142 +97,6 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
             pointerEvents: 'none',
           }} />
 
-=======
-      {/* Header - Total Asset Value */}
-      <div style={{
-        textAlign: 'center',
-        marginBottom: '48px',
-      }}>
-        <div style={{
-          fontSize: 'clamp(2rem, 6vw, 3.75rem)',
-          fontWeight: 800,
-          letterSpacing: '-0.03em',
-          color: 'var(--text-primary)',
-          marginBottom: '12px',
-          lineHeight: 1,
-          wordBreak: 'break-word'
-        }}>
-          {formatVND(portfolio.totalValue)} ₫
-        </div>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '6px',
-          fontSize: 'clamp(1rem, 3vw, 1.5rem)',
-          fontWeight: 600,
-          color: portfolio.todayProfitLossPercent >= 0 ? '#10B981' : '#EF4444',
-          flexWrap: 'wrap'
-        }}>
-          {portfolio.todayProfitLossPercent >= 0 ? (
-            <ArrowUp size={28} strokeWidth={3} />
-          ) : (
-            <ArrowDown size={28} strokeWidth={3} />
-          )}
-          <span>
-            {portfolio.todayProfitLossPercent >= 0 ? '+' : ''}{formatVND(dailyChangeAmount)} ({portfolio.todayProfitLossPercent >= 0 ? '+' : ''}{portfolio.todayProfitLossPercent.toFixed(2)}%)
-          </span>
-        </div>
-      </div>
-
-      {/* Donut Chart Section */}
-      <div style={{
-        background: 'var(--card)',
-        borderRadius: 'clamp(16px, 3vw, 24px)',
-        padding: 'clamp(16px, 4vw, 32px)',
-        boxShadow: 'var(--shadow-fintech)',
-        marginBottom: 'clamp(16px, 3vw, 32px)',
-      }}>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '24px',
-        }}>
-          <h2 style={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-          }}>
-            {t('personal.portfolio.allocation')}
-          </h2>
-          <button
-            onClick={() => setShowEditModal(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              borderRadius: '12px',
-              border: '1px solid var(--border)',
-              background: 'var(--card)',
-              color: 'var(--text-primary)',
-              fontSize: '14px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--surface)';
-              e.currentTarget.style.borderColor = 'var(--primary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--card)';
-              e.currentTarget.style.borderColor = 'var(--border)';
-            }}
-          >
-            <Edit2 size={16} />
-            {t('personal.portfolio.edit')}
-          </button>
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: 'clamp(24px, 5vw, 48px)',
-          alignItems: 'center',
-        }}
-        className="chart-layout">
-          {/* Donut Chart */}
-          <div style={{ position: 'relative', height: 'clamp(250px, 50vw, 350px)', minHeight: '250px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={80}
-                  outerRadius={140}
-                  paddingAngle={3}
-                  dataKey="value"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[entry.name] || '#9CA3AF'} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            
-            {/* Center Label */}
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              textAlign: 'center',
-            }}>
-              <div style={{
-                fontSize: '14px',
-                color: 'var(--text-secondary)',
-                marginBottom: '4px',
-              }}>
-                {t('personal.portfolio.buyingPower')}
-              </div>
-            </div>
-          </div>
-
-          {/* Legend */}
->>>>>>> main
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -265,7 +110,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               color: 'var(--text-primary)',
               margin: 0,
             }}>
-              Hồ sơ cá nhân
+              {t('personal.profile.title')}
             </h2>
           </div>
 
@@ -376,14 +221,14 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}>
-                    Họ
+                    {t('personal.profile.firstName')}
                   </div>
                   <div style={{
                     fontSize: '1.125rem',
                     fontWeight: 600,
                     color: 'var(--text-primary)',
                   }}>
-                    {user.first_name || '—'}
+                    {user.first_name || ''}
                   </div>
                 </div>
 
@@ -397,14 +242,14 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                     textTransform: 'uppercase',
                     letterSpacing: '0.05em',
                   }}>
-                    Tên
+                    {t('personal.profile.lastName')}
                   </div>
                   <div style={{
                     fontSize: '1.125rem',
                     fontWeight: 600,
                     color: 'var(--text-primary)',
                   }}>
-                    {user.last_name || '—'}
+                    {user.last_name || ''}
                   </div>
                 </div>
               </div>
@@ -419,7 +264,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                 }}>
-                  Tên hiển thị
+                  {t('personal.profile.displayName')}
                 </div>
                 <div style={{
                   fontSize: '1.25rem',
@@ -574,7 +419,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               alignItems: 'center',
               gap: '8px',
             }}>
-              🟢 {t('personal.report.positive')}
+              {t('personal.report.positive')}
             </h3>
             <ul style={{
               listStyle: 'none',
@@ -597,7 +442,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                     border: '1px solid rgba(0, 200, 5, 0.2)',
                   }}
                 >
-                  • {positive}
+                  {positive}
                 </li>
               ))}
             </ul>
@@ -614,7 +459,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               alignItems: 'center',
               gap: '8px',
             }}>
-              🔴 {t('personal.report.negative')}
+              {t('personal.report.negative')}
             </h3>
             <ul style={{
               listStyle: 'none',
@@ -637,50 +482,13 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                     border: '1px solid rgba(255, 90, 95, 0.2)',
                   }}
                 >
-                  • {negative}
+                  {negative}
                 </li>
               ))}
             </ul>
           </div>
         </div>
-<<<<<<< HEAD
       </motion.div>
-=======
-
-        {/* Recommendation */}
-        <div style={{
-          padding: '20px 24px',
-          background: 'rgba(0, 200, 5, 0.08)',
-          borderRadius: '16px',
-          borderLeft: '4px solid var(--primary)',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '12px',
-          }}>
-            <span style={{ fontSize: '24px' }}>💡</span>
-            <div>
-              <div style={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#166534',
-                marginBottom: '4px',
-              }}>
-                {t('personal.report.recommendations')}
-              </div>
-              <div style={{
-                fontSize: '16px',
-                fontWeight: 600,
-                color: '#14532d',
-              }}>
-                {report.aiRecommendations[0] || t('personal.report.noRecommendation')}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
->>>>>>> main
 
       {/* Floating Action Button */}
       <Link href="/chat" style={{ textDecoration: 'none' }}>
@@ -711,159 +519,6 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
         </motion.button>
       </Link>
 
-<<<<<<< HEAD
-=======
-      {/* Edit Portfolio Modal */}
-      <AnimatePresence>
-        {showEditModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 9999,
-              padding: '16px',
-            }}
-            onClick={() => setShowEditModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                background: 'var(--card)',
-                borderRadius: '24px',
-                padding: '32px',
-                maxWidth: '600px',
-                width: '100%',
-                maxHeight: '80vh',
-                overflow: 'auto',
-              }}
-            >
-              <h2 style={{
-                fontSize: '1.5rem',
-                fontWeight: 700,
-                marginBottom: '24px',
-                color: 'var(--text-primary)',
-              }}>
-                {t('personal.editModal.title')}
-              </h2>
-
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                marginBottom: '24px',
-              }}>
-                {portfolio.positions.map((position) => (
-                  <div
-                    key={position.symbol}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      padding: '16px',
-                      background: 'var(--surface)',
-                      borderRadius: '12px',
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        fontSize: '16px',
-                        fontWeight: 600,
-                        color: 'var(--text-primary)',
-                      }}>
-                        {position.symbol}
-                      </div>
-                      <div style={{
-                        fontSize: '14px',
-                        color: 'var(--text-secondary)',
-                      }}>
-                        {t('personal.editModal.quantity')}: {position.quantity}
-                      </div>
-                    </div>
-                    <input
-                      type="number"
-                      placeholder={t('personal.editModal.quantity') as string}
-                      defaultValue={position.quantity}
-                      style={{
-                        width: '120px',
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border)',
-                        fontSize: '14px',
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div style={{
-                display: 'flex',
-                gap: '12px',
-              }}>
-                <button
-                  className="dark:bg-gray-700 dark:text-white"
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    borderRadius: '16px',
-                    border: '1px solid var(--border)',
-                    background: '#F3F4F6',
-                    color: '#1F2937',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#E5E7EB'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#F3F4F6'}
-                  onClick={() => setShowEditModal(false)}
-                >
-                  {t('personal.editModal.cancel')}
-                </button>
-                <button
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    borderRadius: '16px',
-                    background: 'var(--primary)',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.02)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-glow-green)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                  onClick={() => {
-                    setShowEditModal(false);
-                    // Save logic here
-                  }}
-                >
-                  {t('personal.editModal.save')}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
->>>>>>> main
       {/* Disclaimer Modal for AI Insights */}
       <DisclaimerModal
         isOpen={showDisclaimer}

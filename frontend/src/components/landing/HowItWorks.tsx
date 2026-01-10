@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -17,17 +17,10 @@ export function HowItWorks() {
   ];
 
   return (
-<<<<<<< HEAD
-    <section
-      id="how-it-works"
-      style={{
-        padding: '80px 0',
-=======
     <section 
       id="how-it-works" 
       style={{ 
         padding: 'clamp(40px, 8vw, 80px) 0',
->>>>>>> main
         background: 'var(--background)'
       }}
     >

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { motion } from 'framer-motion';
@@ -68,20 +68,11 @@ export function Hero({ onGetStarted }: HeroProps) {
             style={{
               fontSize: 'clamp(1.75rem, 5vw, 4rem)',
               fontWeight: 800,
-<<<<<<< HEAD
-              lineHeight: 1.3,
-              marginBottom: '24px',
-              letterSpacing: '-0.02em',
-              color: 'var(--text-primary)',
-              paddingTop: '0.1em',
-              overflow: 'visible'
-=======
               lineHeight: 1.15,
               marginBottom: '20px',
               letterSpacing: '-0.02em',
               color: 'var(--text-primary)',
               padding: '0 0.5rem'
->>>>>>> main
             }}
           >
             {t('hero.title')} <br />

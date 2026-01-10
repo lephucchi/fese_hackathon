@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -57,14 +57,8 @@ export function Navigation({ onLoginClick }: NavigationProps) {
         right: 0,
         zIndex: 50,
         transition: 'all 0.3s',
-<<<<<<< HEAD
-        background: 'var(--card)',
-        borderBottom: '1px solid var(--border)',
-        boxShadow: scrolled ? 'var(--shadow-md)' : 'none',
-=======
         background: '#181D2A',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
->>>>>>> main
       }}
     >
       <nav style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(0.75rem, 2vw, 1rem)', overflow: 'hidden' }}>
@@ -89,65 +83,6 @@ export function Navigation({ onLoginClick }: NavigationProps) {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-<<<<<<< HEAD
-            {/* AI Neural Network Logo */}
-            <svg
-              width="40"
-              height="40"
-              viewBox="0 0 40 40"
-              style={{ position: 'relative' }}
-            >
-              {/* Outer neural network nodes */}
-              <circle cx="20" cy="8" r="3" fill="#000" opacity="0.9" />
-              <circle cx="32" cy="20" r="3" fill="#000" opacity="0.9" />
-              <circle cx="20" cy="32" r="3" fill="#000" opacity="0.9" />
-              <circle cx="8" cy="20" r="3" fill="#000" opacity="0.9" />
-
-              {/* Connecting lines */}
-              <line x1="20" y1="8" x2="20" y2="15" stroke="#00C805" strokeWidth="2" opacity="0.6" />
-              <line x1="32" y1="20" x2="25" y2="20" stroke="#00C805" strokeWidth="2" opacity="0.6" />
-              <line x1="20" y1="32" x2="20" y2="25" stroke="#00C805" strokeWidth="2" opacity="0.6" />
-              <line x1="8" y1="20" x2="15" y2="20" stroke="#00C805" strokeWidth="2" opacity="0.6" />
-
-              {/* Diagonal connections */}
-              <line x1="20" y1="8" x2="28" y2="16" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
-              <line x1="32" y1="20" x2="24" y2="28" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
-              <line x1="20" y1="32" x2="12" y2="24" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
-              <line x1="8" y1="20" x2="16" y2="12" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
-
-              {/* Central AI core with gradient */}
-              <defs>
-                <linearGradient id="coreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#00C805" />
-                  <stop offset="100%" stopColor="#00a004" />
-                </linearGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                  <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
-
-              {/* Central pulsing core */}
-              <circle cx="20" cy="20" r="7" fill="url(#coreGradient)" filter="url(#glow)" />
-
-              {/* Inner black circuit pattern */}
-              <path d="M 20 16 L 20 13" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
-              <path d="M 24 20 L 27 20" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
-              <path d="M 20 24 L 20 27" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
-              <path d="M 16 20 L 13 20" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
-
-              {/* Data flow particles */}
-              <circle cx="18" cy="18" r="1.5" fill="#000" opacity="0.7">
-                <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
-              </circle>
-              <circle cx="22" cy="22" r="1.5" fill="#000" opacity="0.7">
-                <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" />
-              </circle>
-            </svg>
-=======
             {/* MacroInsight Logo */}
             <img
               src="/logo_new-removebg-preview-nobg.svg"
@@ -156,7 +91,6 @@ export function Navigation({ onLoginClick }: NavigationProps) {
               height={44}
               style={{ position: 'relative', flexShrink: 0 }}
             />
->>>>>>> main
             <span
               style={{
                 fontWeight: 700,
@@ -202,7 +136,6 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                     }
                   }}
                 >
-                  {/* Bubble Background for Active Tab */}
                   {isActive && (
                     <motion.div
                       layoutId="navBubble"
@@ -334,7 +267,6 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                   <span>{user.display_name || user.email.split('@')[0]}</span>
                 </button>
 
-                {/* User Dropdown Menu */}
                 <AnimatePresence>
                   {showUserMenu && (
                     <motion.div
@@ -371,7 +303,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                       >
                         <UserIcon size={18} />
-                        <span style={{ fontSize: '0.875rem' }}>Trang cá nhân</span>
+                        <span style={{ fontSize: '0.875rem' }}>Trang ca nhan</span>
                       </Link>
                       <div style={{ height: '1px', background: 'var(--border)', margin: '0.5rem 0' }} />
                       <button
@@ -394,7 +326,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                       >
                         <LogOut size={18} />
-                        <span>Đăng xuất</span>
+                        <span>Dang xuat</span>
                       </button>
                     </motion.div>
                   )}
@@ -431,7 +363,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                   e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 200, 5, 0.2)';
                 }}
               >
-                Đăng nhập
+                Dang nhap
               </button>
             ) : null}
 

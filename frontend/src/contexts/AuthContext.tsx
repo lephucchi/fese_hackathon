@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
@@ -40,11 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
-  // Define refreshToken first as it's used by checkAuth
   const refreshToken = useCallback(async (): Promise<boolean> => {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
 
       const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
         method: 'POST',
@@ -60,12 +59,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       return true;
     } catch {
-      // Network error, timeout, or backend offline - silently fail
       return false;
     }
   }, []);
 
-  // Check if user is already logged in on mount
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -83,61 +80,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, [refreshToken]);
 
-  // Auto-refresh token every 14 minutes (token expires in 15 min)
   useEffect(() => {
     if (!user) return;
 
     const interval = setInterval(() => {
       refreshToken();
-    }, 14 * 60 * 1000); // 14 minutes
+    }, 14 * 60 * 1000);
 
     return () => clearInterval(interval);
-<<<<<<< HEAD
-  }, [user]);
-
-  const fetchCurrentUser = useCallback(async (): Promise<User | null> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/users/me`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        return null;
-      }
-
-      const userData = await response.json();
-      return userData;
-    } catch (error) {
-      console.error('Fetch user error:', error);
-      return null;
-    }
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      // Try to refresh token to check if user is logged in
-      const success = await refreshToken();
-      if (success) {
-        // Token refreshed, now fetch user info
-        const userData = await fetchCurrentUser();
-        if (userData) {
-          setUser(userData);
-        } else {
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-=======
   }, [user, refreshToken]);
->>>>>>> main
 
   const login = useCallback(async (email: string, password: string) => {
     try {
@@ -157,12 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       setUser(data.user);
-<<<<<<< HEAD
-
-      // Redirect to dashboard
-=======
       
->>>>>>> main
       router.push('/dashboard');
     } catch (error) {
       throw error;
@@ -199,12 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       setUser(data.user);
-<<<<<<< HEAD
-
-      // Redirect to dashboard
-=======
       
->>>>>>> main
       router.push('/dashboard');
     } catch (error) {
       throw error;
@@ -218,7 +159,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         credentials: 'include',
       });
     } catch {
-      // Ignore logout errors
     } finally {
       setUser(null);
       router.push('/');
