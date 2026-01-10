@@ -381,7 +381,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                   e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 200, 5, 0.2)';
                 }}
               >
-                Dang nhap
+                {t('auth.signup')} / {t('auth.login')}
               </button>
             ) : null}
 
