@@ -5,35 +5,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Portfolio, SynthesisReport } from '@/types/dashboard.types';
-import { ArrowUp, ArrowDown, Edit2, Sparkles, User, Mail, Shield, Crown, Star, Zap } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { SynthesisReport } from '@/types/dashboard.types';
+import { Sparkles, User, Mail, Shield, Crown, Star, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useDisclaimer } from '@/hooks/useDisclaimer';
 import { DisclaimerModal } from '@/components/common/DisclaimerModal';
 import { useAuth } from '@/hooks/useAuth';
+import { PortfolioCard } from './PortfolioCard';
 
 interface PersonalTabProps {
-  readonly portfolio: Portfolio;
   readonly report: SynthesisReport;
-  readonly onEditPortfolio: () => void;
 }
-
-// Format currency helper
-const formatVND = (amount: number): string => {
-  return new Intl.NumberFormat('vi-VN').format(amount);
-};
-
-// Chart colors - Green theme matching primary color
-const COLORS: Record<string, string> = {
-  HPG: '#00C805',  // Primary Green
-  SSI: '#00A004',  // Dark Green
-  VCB: '#33D433',  // Light Green
-  VHM: '#10B981',  // Emerald
-  VNM: '#059669',  // Teal
-  Cash: '#9CA3AF', // Gray
-};
 
 // Tier configuration
 const TIER_CONFIG: Record<number, { name: string; color: string; bgColor: string; icon: React.ReactNode }> = {
@@ -63,8 +46,7 @@ const TIER_CONFIG: Record<number, { name: string; color: string; bgColor: string
   },
 };
 
-export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabProps) {
-  const [showEditModal, setShowEditModal] = useState(false);
+export function PersonalTab({ report }: PersonalTabProps) {
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [viewingInsights, setViewingInsights] = useState(false);
   const { hasAccepted, isLoading: disclaimerLoading, acceptDisclaimer } = useDisclaimer();
@@ -76,15 +58,6 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
       setShowDisclaimer(true);
     }
   }, [viewingInsights, disclaimerLoading, hasAccepted]);
-
-  // Prepare chart data
-  const chartData = portfolio.positions.map(p => ({
-    name: p.symbol,
-    value: p.currentPrice * p.quantity,
-    allocation: ((p.currentPrice * p.quantity) / portfolio.totalValue) * 100,
-  }));
-
-  const dailyChangeAmount = portfolio.todayProfitLoss;
 
   // Get tier info
   const tierInfo = user?.role?.role_id ? TIER_CONFIG[user.role.role_id] : TIER_CONFIG[1];
@@ -333,206 +306,8 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
         </motion.div>
       )}
 
-      {/* Header - Total Asset Value */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        style={{
-          textAlign: 'center',
-          marginBottom: '48px',
-        }}
-      >
-        <div style={{
-          fontSize: '0.875rem',
-          fontWeight: 500,
-          color: 'var(--text-secondary)',
-          marginBottom: '8px',
-          textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-        }}>
-          Tổng giá trị tài sản
-        </div>
-        <div style={{
-          fontSize: '3.75rem',
-          fontWeight: 800,
-          letterSpacing: '-0.03em',
-          color: 'var(--text-primary)',
-          marginBottom: '12px',
-          lineHeight: 1,
-        }}>
-          {formatVND(portfolio.totalValue)} ₫
-        </div>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
-          fontSize: '1.5rem',
-          fontWeight: 600,
-          color: portfolio.todayProfitLossPercent >= 0 ? '#10B981' : '#EF4444',
-        }}>
-          {portfolio.todayProfitLossPercent >= 0 ? (
-            <ArrowUp size={28} strokeWidth={3} />
-          ) : (
-            <ArrowDown size={28} strokeWidth={3} />
-          )}
-          <span>
-            {portfolio.todayProfitLossPercent >= 0 ? '+' : ''}{formatVND(dailyChangeAmount)} ({portfolio.todayProfitLossPercent >= 0 ? '+' : ''}{portfolio.todayProfitLossPercent.toFixed(2)}%)
-          </span>
-        </div>
-      </motion.div>
-
-      {/* Donut Chart Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        style={{
-          background: 'var(--card)',
-          borderRadius: '24px',
-          padding: '32px',
-          boxShadow: 'var(--shadow-fintech)',
-          marginBottom: '32px',
-        }}
-      >
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '24px',
-        }}>
-          <h2 style={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: 'var(--text-primary)',
-          }}>
-            Phân bổ danh mục
-          </h2>
-          <button
-            onClick={() => setShowEditModal(true)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '10px 20px',
-              borderRadius: '12px',
-              border: '1px solid var(--border)',
-              background: 'var(--card)',
-              color: 'var(--text-primary)',
-              fontSize: '14px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--surface)';
-              e.currentTarget.style.borderColor = 'var(--primary)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--card)';
-              e.currentTarget.style.borderColor = 'var(--border)';
-            }}
-          >
-            <Edit2 size={16} />
-            Chỉnh sửa
-          </button>
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr auto',
-          gap: '48px',
-          alignItems: 'center',
-        }}>
-          {/* Donut Chart */}
-          <div style={{ position: 'relative', height: '350px' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={80}
-                  outerRadius={140}
-                  paddingAngle={3}
-                  dataKey="value"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[entry.name] || '#9CA3AF'} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-
-            {/* Center Label */}
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              textAlign: 'center',
-            }}>
-              <div style={{
-                fontSize: '14px',
-                color: 'var(--text-secondary)',
-                marginBottom: '4px',
-              }}>
-                Sức mua
-              </div>
-            </div>
-          </div>
-
-          {/* Legend */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
-          }}>
-            {chartData.map((item) => (
-              <div
-                key={item.name}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                }}
-              >
-                <div
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    borderRadius: '4px',
-                    background: COLORS[item.name] || '#9CA3AF',
-                  }}
-                />
-                <div style={{ flex: 1 }}>
-                  <div style={{
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    color: 'var(--text-primary)',
-                  }}>
-                    {item.name}
-                  </div>
-                  <div style={{
-                    fontSize: '13px',
-                    color: 'var(--text-secondary)',
-                  }}>
-                    {formatVND(item.value)} ₫
-                  </div>
-                </div>
-                <div style={{
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  color: 'var(--text-secondary)',
-                }}>
-                  {item.allocation.toFixed(1)}%
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
+      {/* Portfolio Card - Uses real API */}
+      <PortfolioCard />
 
       {/* AI Synthesis Report */}
       <motion.div
@@ -741,156 +516,6 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           Hỏi AI về Danh mục
         </motion.button>
       </Link>
-
-      {/* Edit Portfolio Modal */}
-      <AnimatePresence>
-        {showEditModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(0, 0, 0, 0.5)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 9999,
-              padding: '16px',
-            }}
-            onClick={() => setShowEditModal(false)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                background: 'var(--card)',
-                borderRadius: '24px',
-                padding: '32px',
-                maxWidth: '600px',
-                width: '100%',
-                maxHeight: '80vh',
-                overflow: 'auto',
-              }}
-            >
-              <h2 style={{
-                fontSize: '1.5rem',
-                fontWeight: 700,
-                marginBottom: '24px',
-                color: 'var(--text-primary)',
-              }}>
-                Cập nhật danh mục
-              </h2>
-
-              <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                marginBottom: '24px',
-              }}>
-                {portfolio.positions.map((position) => (
-                  <div
-                    key={position.symbol}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '16px',
-                      padding: '16px',
-                      background: 'var(--surface)',
-                      borderRadius: '12px',
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        fontSize: '16px',
-                        fontWeight: 600,
-                        color: 'var(--text-primary)',
-                      }}>
-                        {position.symbol}
-                      </div>
-                      <div style={{
-                        fontSize: '14px',
-                        color: 'var(--text-secondary)',
-                      }}>
-                        Số lượng: {position.quantity}
-                      </div>
-                    </div>
-                    <input
-                      type="number"
-                      placeholder="Số lượng"
-                      defaultValue={position.quantity}
-                      style={{
-                        width: '120px',
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border)',
-                        fontSize: '14px',
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div style={{
-                display: 'flex',
-                gap: '12px',
-              }}>
-                <button
-                  className="dark:bg-gray-700 dark:text-white"
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    borderRadius: '16px',
-                    border: '1px solid var(--border)',
-                    background: '#F3F4F6',
-                    color: '#1F2937',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#E5E7EB'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#F3F4F6'}
-                  onClick={() => setShowEditModal(false)}
-                >
-                  Hủy
-                </button>
-                <button
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    fontSize: '15px',
-                    fontWeight: 600,
-                    borderRadius: '16px',
-                    background: 'var(--primary)',
-                    color: 'white',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.02)';
-                    e.currentTarget.style.boxShadow = 'var(--shadow-glow-green)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                  onClick={() => {
-                    setShowEditModal(false);
-                    // Save logic here
-                  }}
-                >
-                  Lưu danh mục
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Disclaimer Modal for AI Insights */}
       <DisclaimerModal

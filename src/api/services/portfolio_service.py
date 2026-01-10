@@ -104,7 +104,7 @@ class PortfolioService:
         data = {
             "user_id": user_id,
             "ticker": ticker.upper(),
-            "volume": volume,
+            "volume": int(volume),  # Convert to int for database
             "avg_buy_price": avg_buy_price
         }
         
@@ -152,7 +152,7 @@ class PortfolioService:
         # Filter only allowed fields
         update_data = {}
         if "volume" in data and data["volume"] is not None:
-            update_data["volume"] = data["volume"]
+            update_data["volume"] = int(data["volume"])  # Convert to int
         if "avg_buy_price" in data and data["avg_buy_price"] is not None:
             update_data["avg_buy_price"] = data["avg_buy_price"]
         
