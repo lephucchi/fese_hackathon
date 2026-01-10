@@ -4,6 +4,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle, Brain, Database, Sparkles, Search } from 'lucide-react';
 import { ThinkingStep } from '@/hooks/useContextChatStream';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ThinkingProcessProps {
   steps: ThinkingStep[];
@@ -29,6 +30,8 @@ const stepColors: Record<string, string> = {
 };
 
 export function ThinkingProcess({ steps, isActive }: ThinkingProcessProps) {
+  const { t } = useLanguage();
+  
   if (steps.length === 0 && !isActive) return null;
 
   return (
@@ -53,7 +56,7 @@ export function ThinkingProcess({ steps, isActive }: ThinkingProcessProps) {
           }}
         />
         <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-          AI đang suy nghĩ...
+          {t('chat.thinking.title')}
         </span>
       </div>
 

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, MessageSquare, Trash2, X, Menu, Zap } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ChatHistoryItem {
   id: string;
@@ -73,6 +74,8 @@ export function ChatSidebar({
   onSelectChat,
   onDeleteChat,
 }: ChatSidebarProps) {
+  const { t } = useLanguage();
+  
   return (
     <>
       {/* Mobile Toggle Button */}
@@ -117,7 +120,7 @@ export function ChatSidebar({
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
             <Plus size={20} />
-            New Chat
+            {t('chat.newChat')}
           </button>
         </div>
 
@@ -125,7 +128,7 @@ export function ChatSidebar({
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 0.75rem 1rem 0.75rem' }}>
           <div style={{ marginBottom: '0.75rem', padding: '0 0.5rem' }}>
             <span style={{ fontSize: '0.75rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-tertiary)' }}>
-              Recent Chats
+              {t('chat.recentChats')}
             </span>
           </div>
 
@@ -133,7 +136,7 @@ export function ChatSidebar({
             <div style={{ padding: '2rem 1rem', textAlign: 'center' }}>
               <MessageSquare size={28} style={{ color: 'var(--text-tertiary)', opacity: 0.3, margin: '0 auto 0.5rem auto' }} />
               <p style={{ fontSize: '0.875rem', color: 'var(--text-tertiary)' }}>
-                No conversations yet
+                {t('chat.noConversations')}
               </p>
             </div>
           ) : (
@@ -157,13 +160,13 @@ export function ChatSidebar({
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div style={{ width: '0.5rem', height: '0.5rem', borderRadius: '9999px', background: '#10b981', animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' }} />
               <span style={{ fontSize: '0.75rem', fontWeight: 500, color: 'var(--text-secondary)' }}>
-                System Ready
+                {t('chat.systemReady')}
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
               <Zap size={12} style={{ color: 'var(--text-tertiary)' }} />
               <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                4 Indices
+                4 {t('chat.indices')}
               </span>
             </div>
           </div>

@@ -36,8 +36,8 @@ export function Hero({ onGetStarted }: HeroProps) {
         pointerEvents: 'none'
       }} />
 
-      <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
-        <div style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}>
+      <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1rem' }}>
+        <div style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto', padding: '0 0.5rem' }}>
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -66,16 +66,17 @@ export function Hero({ onGetStarted }: HeroProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             style={{
-              fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              fontSize: 'clamp(1.75rem, 5vw, 4rem)',
               fontWeight: 800,
-              lineHeight: 1.1,
-              marginBottom: '24px',
+              lineHeight: 1.15,
+              marginBottom: '20px',
               letterSpacing: '-0.02em',
-              color: 'var(--text-primary)'
+              color: 'var(--text-primary)',
+              padding: '0 0.5rem'
             }}
           >
-            Biến Thông Tin Vĩ Mô <br />
-            Thành <span className="text-gradient">Quyết Định Đầu Tư</span>
+            {t('hero.title')} <br />
+            <span className="text-gradient">{t('hero.titleHighlight')}</span>
           </motion.h1>
 
           {/* Subheading */}
@@ -84,15 +85,16 @@ export function Hero({ onGetStarted }: HeroProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             style={{
-              fontSize: 'clamp(1.125rem, 2vw, 1.375rem)',
+              fontSize: 'clamp(1rem, 2vw, 1.25rem)',
               color: 'var(--text-secondary)',
               lineHeight: 1.6,
-              marginBottom: '40px',
+              marginBottom: '32px',
               maxWidth: '700px',
-              margin: '0 auto 40px'
+              margin: '0 auto 32px',
+              padding: '0 0.5rem'
             }}
           >
-            Không còn bị ngợp trong biển tin tức hỗn độn. MacroInsight giúp bạn lọc, phân tích và hiểu tác động của tin tức vĩ mô đến danh mục đầu tư chỉ trong vài giây.
+            {t('hero.subtitle')}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -102,11 +104,15 @@ export function Hero({ onGetStarted }: HeroProps) {
             transition={{ duration: 0.5, delay: 0.3 }}
             style={{
               display: 'flex',
-              gap: '16px',
+              gap: '12px',
               justifyContent: 'center',
               flexWrap: 'wrap',
-              marginBottom: '60px'
+              marginBottom: '48px',
+              flexDirection: 'column',
+              alignItems: 'stretch',
+              padding: '0 1rem'
             }}
+            className="hero-cta-buttons"
           >
             <button
               onClick={onGetStarted}
@@ -120,7 +126,7 @@ export function Hero({ onGetStarted }: HeroProps) {
                 borderRadius: '9999px'
               }}
             >
-              Dùng thử miễn phí
+              {t('hero.ctaPrimary')}
               <ArrowRight size={20} />
             </button>
             <button
@@ -135,7 +141,7 @@ export function Hero({ onGetStarted }: HeroProps) {
               }}
             >
               <Play size={18} />
-              Xem demo
+              {t('hero.ctaSecondary')}
             </button>
           </motion.div>
 
@@ -153,9 +159,9 @@ export function Hero({ onGetStarted }: HeroProps) {
             }}
           >
             {[
-              { value: '2 phút', label: 'Cập nhật sáng' },
-              { value: '10 tin', label: 'Lọc tự động' },
-              { value: '24/7', label: 'Trợ lý AI' }
+              { value: '2 min', labelKey: 'hero.stats.saved' },
+              { value: '10+', labelKey: 'hero.stats.accuracy' },
+              { value: '24/7', labelKey: 'hero.stats.users' }
             ].map((stat, i) => (
               <div key={i}>
                 <div style={{
@@ -170,7 +176,7 @@ export function Hero({ onGetStarted }: HeroProps) {
                   fontSize: '14px',
                   color: 'var(--text-tertiary)'
                 }}>
-                  {stat.label}
+                  {t(stat.labelKey)}
                 </div>
               </div>
             ))}

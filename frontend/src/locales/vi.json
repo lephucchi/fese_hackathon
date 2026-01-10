@@ -9,10 +9,11 @@
     },
     "hero": {
         "badge": "AI-Powered Financial Intelligence",
-        "title": "TRỢ LÝ TÀI CHÍNH THÔNG MINH VỚI AI",
-        "subtitle": "Phân tích tin tức tài chính, dự báo xu hướng thị trường, và tối ưu hóa danh mục đầu tư của bạn với công nghệ AI tiên tiến",
-        "ctaPrimary": "Bắt đầu miễn phí",
-        "ctaSecondary": "Xem Demo",
+        "title": "Biến Thông Tin Vĩ Mô",
+        "titleHighlight": "Thành Quyết Định Đầu Tư",
+        "subtitle": "Không còn bị ngợp trong biển tin tức hỗn độn. MacroInsight giúp bạn lọc, phân tích và hiểu tác động của tin tức vĩ mô đến danh mục đầu tư chỉ trong vài giây.",
+        "ctaPrimary": "Dùng thử miễn phí",
+        "ctaSecondary": "Xem demo",
         "stats": {
             "users": "Người dùng",
             "accuracy": "Độ chính xác",
@@ -20,63 +21,80 @@
         }
     },
     "features": {
-        "title": "Tính năng nổi bật",
-        "subtitle": "Công nghệ AI tiên tiến giúp bạn đầu tư thông minh hơn",
-        "news": {
-            "title": "Phân tích tin tức thông minh",
-            "description": "AI tổng hợp và phân tích hàng ngàn bài báo tài chính, giúp bạn nắm bắt thông tin quan trọng ngay lập tức"
+        "badge": "TÍNH NĂNG NỔI BẬT",
+        "title": "Trải nghiệm All-in-One",
+        "subtitle": "Một nền tảng duy nhất để lọc tin, phân tích tác động và học kiến thức đầu tư",
+        "swipe": {
+            "title": "Swipe để lọc tin",
+            "description": "Vuốt trái để bỏ qua, vuốt phải để lưu. Chỉ mất 1 phút để hoàn tất bản tin sáng với 10 tin quan trọng nhất."
         },
-        "portfolio": {
-            "title": "Quản lý danh mục đầu tư",
-            "description": "Theo dõi và tối ưu hóa danh mục của bạn với các đề xuất được cá nhân hóa từ AI"
+        "analysis": {
+            "title": "Phân tích cá nhân hóa",
+            "description": "AI tự động phân tích tác động của tin tức đến chính danh mục đầu tư của bạn với nhãn màu trực quan."
         },
-        "learning": {
-            "title": "Học tập gamification",
-            "description": "Tích lũy M-Points, mở khóa nội dung premium và nâng cao kiến thức tài chính của bạn"
+        "report": {
+            "title": "Báo cáo tổng hợp",
+            "description": "Nhận bản phân tích tổng quan hàng ngày về sức khỏe danh mục, rủi ro và cơ hội từ tin tức."
+        },
+        "chat": {
+            "title": "Chat thông minh",
+            "description": "Hỏi đáp với AI về bất kỳ tin tức nào. Hệ thống tự động hiểu ngữ cảnh và đưa ra câu trả lời có căn cứ."
+        },
+        "mpoint": {
+            "title": "Tích điểm M-Point",
+            "description": "Nhận điểm thưởng khi đọc tin và học kiến thức. Đổi điểm để mở khóa nội dung cao cấp."
+        },
+        "academy": {
+            "title": "Học viện tài chính",
+            "description": "Nội dung học được đề xuất thông minh dựa trên sở thích của bạn. Học mà không thấy nhàm chán."
         }
     },
     "howItWorks": {
         "title": "Cách hoạt động",
-        "subtitle": "Quy trình đơn giản, hiệu quả cao",
+        "subtitle": "Ba bước đơn giản để nắm bắt thị trường mỗi ngày",
         "step1": {
-            "title": "Thu thập dữ liệu",
-            "description": "AI thu thập tin tức từ nguồn uy tín"
+            "number": "01",
+            "title": "Lọc tin nhanh",
+            "description": "Mở app vào buổi sáng. Vuốt qua 10 tin quan trọng nhất. Chỉ mất 2 phút."
         },
         "step2": {
-            "title": "Phân tích & Tổng hợp",
-            "description": "Xử lý ngôn ngữ tự nhiên phân tích sentiment"
+            "number": "02",
+            "title": "Xem tác động",
+            "description": "AI phân tích ngay tác động của tin tức đến danh mục của bạn với nhãn màu rõ ràng."
         },
         "step3": {
-            "title": "Đề xuất thông minh",
-            "description": "Cá nhân hóa chiến lược đầu tư cho bạn"
+            "number": "03",
+            "title": "Ra quyết định",
+            "description": "Chat với AI để hiểu sâu. Nhận báo cáo tổng hợp và khuyến nghị hành động."
         }
     },
     "pricing": {
         "title": "Gói dịch vụ",
-        "subtitle": "Lựa chọn phù hợp với nhu cầu của bạn",
+        "subtitle": "Chọn gói phù hợp với nhu cầu đầu tư của bạn",
+        "popular": "PHỔ BIẾN NHẤT",
         "free": {
             "name": "Miễn phí",
             "price": "0đ",
-            "period": "mãi mãi",
+            "period": "/tháng",
             "features": [
-                "Tin tức cơ bản hàng ngày",
-                "3 phân tích AI/tuần",
-                "Truy cập học viện cơ bản",
-                "Hỗ trợ cộng đồng"
+                "Lọc 10 tin mỗi ngày",
+                "Phân tích tác động cơ bản",
+                "Chat AI (giới hạn)",
+                "Nội dung học miễn phí"
             ],
-            "cta": "Bắt đầu ngay"
+            "cta": "Bắt đầu"
         },
         "pro": {
             "name": "Pro",
-            "price": "299,000đ",
-            "period": "tháng",
-            "popular": "Phổ biến nhất",
+            "price": "299.000đ",
+            "period": "/tháng",
             "features": [
-                "Tin tức & phân tích không giới hạn",
-                "Quản lý danh mục đầu tư",
-                "Học viện Premium (M-Points)",
-                "Hỗ trợ ưu tiên",
-                "Tín hiệu đầu tư thời gian thực"
+                "Lọc không giới hạn",
+                "Phân tích chuyên sâu",
+                "Chat AI không giới hạn",
+                "Báo cáo tổng hợp hàng ngày",
+                "Toàn bộ video cao cấp",
+                "Ưu tiên hỗ trợ"
             ],
             "cta": "Nâng cấp Pro"
         }
@@ -106,7 +124,33 @@
         "play": "Phát",
         "unlockSuccess": "Mở khóa thành công!",
         "unlockMessage": "Bạn vừa mở khóa",
-        "enjoyLearning": "Chúc bạn học tập vui vẻ!"
+        "enjoyLearning": "Chúc bạn học tập vui vẻ!",
+        "mPointsBalance": "Số dư M-Points",
+        "levelProgress": "Tiến độ lên cấp",
+        "pointsToNext": "điểm đến Level",
+        "recommended": "Dành riêng cho bạn",
+        "recommendedDesc": "Các khóa học miễn phí được AI gợi ý dựa trên sở thích của bạn",
+        "premium": "Premium Masterclass",
+        "premiumDesc": "Khóa học nâng cao - mở khóa bằng M-Points",
+        "unlockWith": "Mở khóa với",
+        "watchNow": "Xem ngay",
+        "duration": "Thời lượng",
+        "category": "Danh mục",
+        "unlockConfirm": "Bạn có chắc muốn mở khóa khóa học này?",
+        "insufficientPoints": "Không đủ M-Points",
+        "earnMore": "Kiếm thêm điểm bằng cách đọc tin tức và hoàn thành hoạt động",
+        "balanceAfter": "Số dư sau",
+        "videos": {
+            "steelCycle": "Chu kỳ ngành Thép",
+            "gdpImpact": "Hiểu về GDP và tác động thị trường",
+            "inflationInterest": "Lạm phát và Lãi suất: Mối quan hệ",
+            "readingWhales": "Đọc vị Cá mập (Advanced)",
+            "cashFlowTechniques": "Kỹ thuật nhìn dòng tiền",
+            "f0Analysis": "Phân tích F0 chuyên sâu",
+            "advancedTrading": "Chiến lược Trading nâng cao",
+            "readingFinancials": "Đọc báo cáo tài chính như Pro",
+            "investorPsychology": "Tâm lý học nhà đầu tư"
+        }
     },
     "about": {
         "title": "Về chúng tôi",
@@ -143,5 +187,168 @@
             "title": "Đội ngũ phát triển",
             "subtitle": "Những con người đằng sau MacroInsight Agent"
         }
+    },
+    "chat": {
+        "title": "Trợ lý Tài chính AI",
+        "newChat": "Cuộc trò chuyện mới",
+        "recentChats": "Chat gần đây",
+        "noConversations": "Chưa có cuộc trò chuyện nào",
+        "systemReady": "Hệ thống sẵn sàng",
+        "indices": "Chỉ mục",
+        "history": "Lịch sử trò chuyện",
+        "placeholder": "Hỏi về cổ phiếu, xu hướng thị trường, chiến lược đầu tư...",
+        "send": "Gửi",
+        "thinking": "AI đang suy nghĩ...",
+        "emptyState": {
+            "title": "Multi-Index RAG",
+            "subtitle": "Hỏi về tài chính, pháp lý hoặc thị trường Việt Nam",
+            "categories": {
+                "terminology": "Thuật ngữ",
+                "finance": "Tài chính",
+                "legal": "Pháp lý",
+                "news": "Tin tức"
+            },
+            "examples": {
+                "terminology": ["ROE là gì?", "EPS được tính như thế nào?"],
+                "finance": ["Báo cáo tài chính VNM", "Lợi nhuận FPT năm nay"],
+                "legal": ["Điều 10 Luật Doanh nghiệp", "Quy định công ty cổ phần"],
+                "news": ["Tin VN-Index hôm nay", "Thị trường chứng khoán"]
+            }
+        },
+        "suggestions": {
+            "title": "Gợi ý câu hỏi",
+            "market": "Thị trường hôm nay như thế nào?",
+            "stock": "Phân tích cổ phiếu HPG",
+            "portfolio": "Làm sao để đa dạng hóa danh mục?"
+        },
+        "disclaimer": {
+            "title": "Tuyên bố miễn trừ trách nhiệm",
+            "content": "Trợ lý AI này cung cấp thông tin tài chính chỉ để tham khảo. Đây không phải là lời khuyên đầu tư. Vui lòng tự nghiên cứu trước khi đưa ra bất kỳ quyết định đầu tư nào.",
+            "accept": "Tôi đã hiểu",
+            "dontShowAgain": "Không hiển thị lại"
+        },
+        "error": {
+            "network": "Lỗi mạng. Vui lòng thử lại.",
+            "server": "Lỗi máy chủ. Vui lòng thử lại sau."
+        },
+        "input": {
+            "placeholder": "Hỏi về tài chính, pháp lý hoặc thị trường Việt Nam...",
+            "attachFile": "Đính kèm tệp (Sắp có)",
+            "emoji": "Biểu tượng cảm xúc (Sắp có)",
+            "enterToSend": "để gửi",
+            "shiftEnter": "cho dòng mới",
+            "aiReady": "AI Sẵn sàng",
+            "modes": {
+                "fast": "Nhanh",
+                "fastDesc": "Trả lời nhanh",
+                "standard": "Chuẩn",
+                "standardDesc": "Chất lượng cân bằng",
+                "deep": "Sâu",
+                "deepDesc": "Phân tích chi tiết"
+            }
+        },
+        "thinking": {
+            "title": "AI đang suy nghĩ..."
+        }
+    },
+    "dashboard": {
+        "title": "Tin tức Thị trường",
+        "subtitle": "Vuốt để lọc tin tức quan trọng với bạn",
+        "loading": "Đang tải tin tức...",
+        "error": "Lỗi tải tin tức",
+        "retry": "Thử lại",
+        "noMore": "Hết tin tức",
+        "refresh": "Làm mới",
+        "saved": "Đã lưu",
+        "skip": "Bỏ qua",
+        "swipeRight": "Vuốt phải để lưu",
+        "swipeLeft": "Vuốt trái để bỏ qua",
+        "mPoints": "M-Points",
+        "earnedToday": "Kiếm được hôm nay",
+        "completion": {
+            "title": "Hoàn thành!",
+            "subtitle": "Bạn đã xem hết tin tức hôm nay",
+            "savedCount": "Tin đã lưu",
+            "pointsEarned": "Điểm kiếm được",
+            "comeback": "Quay lại ngày mai để xem thêm tin tức"
+        },
+        "sentiment": {
+            "positive": "Tích cực",
+            "negative": "Tiêu cực",
+            "neutral": "Trung lập"
+        }
+    },
+    "personal": {
+        "title": "Trang cá nhân",
+        "portfolio": {
+            "title": "Danh mục của tôi",
+            "allocation": "Phân bổ danh mục",
+            "buyingPower": "Sức mua",
+            "totalValue": "Tổng giá trị",
+            "todayChange": "Thay đổi hôm nay",
+            "totalReturn": "Tổng lợi nhuận",
+            "positions": "Danh mục",
+            "symbol": "Mã CK",
+            "quantity": "Số lượng",
+            "avgPrice": "Giá TB",
+            "currentPrice": "Giá hiện tại",
+            "profitLoss": "Lãi/Lỗ",
+            "edit": "Chỉnh sửa",
+            "empty": "Chưa có vị thế nào"
+        },
+        "report": {
+            "title": "Góc nhìn AI hôm nay",
+            "overview": "Tổng quan Thị trường",
+            "positive": "Tích cực",
+            "negative": "Rủi ro",
+            "recommendations": "Khuyến nghị",
+            "noRecommendation": "Không có khuyến nghị",
+            "clickToView": "Click để xem AI Insights",
+            "requiresAgreement": "Yêu cầu đồng ý điều khoản",
+            "askAI": "Hỏi AI về Danh mục"
+        },
+        "interests": {
+            "title": "Quan tâm của tôi",
+            "watchlist": "Danh sách theo dõi",
+            "sectors": "Ngành",
+            "addStock": "Thêm mã CK",
+            "remove": "Xóa"
+        },
+        "editModal": {
+            "title": "Cập nhật danh mục",
+            "close": "Đóng",
+            "save": "Lưu danh mục",
+            "cancel": "Hủy",
+            "quantity": "Số lượng"
+        }
+    },
+    "common": {
+        "loading": "Đang tải...",
+        "error": "Đã xảy ra lỗi",
+        "retry": "Thử lại",
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "delete": "Xóa",
+        "edit": "Sửa",
+        "close": "Đóng",
+        "confirm": "Xác nhận",
+        "search": "Tìm kiếm",
+        "noData": "Không có dữ liệu",
+        "seeMore": "Xem thêm",
+        "seeLess": "Thu gọn",
+        "currency": "VND"
+    },
+    "auth": {
+        "login": "Đăng nhập",
+        "logout": "Đăng xuất",
+        "signup": "Đăng ký",
+        "email": "Email",
+        "password": "Mật khẩu",
+        "forgotPassword": "Quên mật khẩu?",
+        "noAccount": "Chưa có tài khoản?",
+        "hasAccount": "Đã có tài khoản?",
+        "loginSuccess": "Đăng nhập thành công",
+        "logoutSuccess": "Đăng xuất thành công",
+        "loginError": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin."
     }
 }

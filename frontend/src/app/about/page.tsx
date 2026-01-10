@@ -15,18 +15,18 @@ export default function AboutPage() {
   };
 
   return (
-    <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--background)', minHeight: '100vh', width: '100%' }}>
       <Navigation />
-      <main style={{ paddingTop: '80px', paddingBottom: '2rem' }}>
-        <div className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 1.5rem' }}>
+      <main style={{ paddingTop: 'clamp(80px, 15vh, 100px)', paddingBottom: 'clamp(1rem, 3vw, 2rem)' }}>
+        <div className="container" style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 1.5rem)' }}>
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            style={{ textAlign: 'center', marginBottom: '64px' }}
+            style={{ textAlign: 'center', marginBottom: 'clamp(32px, 8vw, 64px)' }}
           >
             <h1 style={{
-              fontSize: '3rem',
+              fontSize: 'clamp(2rem, 5vw, 3rem)',
               fontWeight: 800,
               marginBottom: '1rem',
               background: 'linear-gradient(135deg, var(--primary) 0%, #00D906 100%)',

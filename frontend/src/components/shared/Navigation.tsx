@@ -57,12 +57,12 @@ export function Navigation({ onLoginClick }: NavigationProps) {
         right: 0,
         zIndex: 50,
         transition: 'all 0.3s',
-        background: 'var(--glass-bg)',
-        borderBottom: '1px solid var(--border)',
+        background: '#181D2A',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
       }}
     >
-      <nav style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '0 1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '4rem' }}>
+      <nav style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(0.75rem, 2vw, 1rem)', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '4rem', gap: '0.5rem', overflow: 'hidden' }}>
           {/* Logo */}
           <Link
             href="/"
@@ -71,7 +71,8 @@ export function Navigation({ onLoginClick }: NavigationProps) {
               alignItems: 'center',
               gap: '0.5rem',
               textDecoration: 'none',
-              transition: 'all 0.2s'
+              transition: 'all 0.2s',
+              flexShrink: 0
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.opacity = '0.9';
@@ -82,81 +83,30 @@ export function Navigation({ onLoginClick }: NavigationProps) {
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
-            {/* AI Neural Network Logo */}
-            <svg
-              width="40" 
-              height="40" 
-              viewBox="0 0 40 40" 
-              style={{ position: 'relative' }}
-            >
-              {/* Outer neural network nodes */}
-              <circle cx="20" cy="8" r="3" fill="#000" opacity="0.9" />
-              <circle cx="32" cy="20" r="3" fill="#000" opacity="0.9" />
-              <circle cx="20" cy="32" r="3" fill="#000" opacity="0.9" />
-              <circle cx="8" cy="20" r="3" fill="#000" opacity="0.9" />
-              
-              {/* Connecting lines */}
-              <line x1="20" y1="8" x2="20" y2="15" stroke="#00C805" strokeWidth="2" opacity="0.6" />
-              <line x1="32" y1="20" x2="25" y2="20" stroke="#00C805" strokeWidth="2" opacity="0.6" />
-              <line x1="20" y1="32" x2="20" y2="25" stroke="#00C805" strokeWidth="2" opacity="0.6" />
-              <line x1="8" y1="20" x2="15" y2="20" stroke="#00C805" strokeWidth="2" opacity="0.6" />
-              
-              {/* Diagonal connections */}
-              <line x1="20" y1="8" x2="28" y2="16" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
-              <line x1="32" y1="20" x2="24" y2="28" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
-              <line x1="20" y1="32" x2="12" y2="24" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
-              <line x1="8" y1="20" x2="16" y2="12" stroke="#00C805" strokeWidth="1.5" opacity="0.4" />
-              
-              {/* Central AI core with gradient */}
-              <defs>
-                <linearGradient id="coreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#00C805" />
-                  <stop offset="100%" stopColor="#00a004" />
-                </linearGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              
-              {/* Central pulsing core */}
-              <circle cx="20" cy="20" r="7" fill="url(#coreGradient)" filter="url(#glow)" />
-              
-              {/* Inner black circuit pattern */}
-              <path d="M 20 16 L 20 13" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
-              <path d="M 24 20 L 27 20" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
-              <path d="M 20 24 L 20 27" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
-              <path d="M 16 20 L 13 20" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.8" />
-              
-              {/* Data flow particles */}
-              <circle cx="18" cy="18" r="1.5" fill="#000" opacity="0.7">
-                <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
-              </circle>
-              <circle cx="22" cy="22" r="1.5" fill="#000" opacity="0.7">
-                <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite" />
-              </circle>
-            </svg>
+            {/* MacroInsight Logo */}
+            <img
+              src="/logo_new-removebg-preview-nobg.svg"
+              alt="MacroInsight Logo"
+              width={44}
+              height={44}
+              style={{ position: 'relative', flexShrink: 0 }}
+            />
             <span
               style={{
                 fontWeight: 700,
-                fontSize: '1.25rem',
-                background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                letterSpacing: '-0.02em'
+                fontSize: 'clamp(0.875rem, 3.5vw, 1.25rem)',
+                color: '#FFFFFF',
+                letterSpacing: '-0.02em',
+                fontFamily: 'var(--font-inter), system-ui, -apple-system, sans-serif',
+                whiteSpace: 'nowrap'
               }}
-              className="hidden-sm"
             >
               MacroInsight
             </span>
           </Link>
 
           {/* Desktop Nav */}
-          <div style={{ alignItems: 'center', gap: '0.5rem' }} className="show-md-flex">
+          <div style={{ alignItems: 'center', gap: '0.5rem', flexShrink: 1, minWidth: 0 }} className="show-md-flex">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
 
@@ -167,7 +117,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                   style={{
                     fontSize: '0.875rem',
                     fontWeight: isActive ? 600 : 500,
-                    color: isActive ? 'var(--primary)' : 'var(--text-secondary)',
+                    color: isActive ? 'var(--primary)' : '#FFFFFF',
                     textDecoration: 'none',
                     transition: 'color 0.2s',
                     position: 'relative',
@@ -177,12 +127,12 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                   }}
                   onMouseEnter={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.color = 'var(--text-primary)';
+                      e.currentTarget.style.color = 'var(--primary)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isActive) {
-                      e.currentTarget.style.color = 'var(--text-secondary)';
+                      e.currentTarget.style.color = '#FFFFFF';
                     }
                   }}
                 >
@@ -209,23 +159,27 @@ export function Navigation({ onLoginClick }: NavigationProps) {
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(0.375rem, 1.5vw, 0.75rem)', flexShrink: 0 }}>
             {/* Language Toggle */}
             <button
               onClick={() => setLanguage(language === 'vi' ? 'en' : 'vi')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 0.75rem',
+                gap: '0.375rem',
+                padding: '0.5rem 0.625rem',
                 borderRadius: '0.5rem',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                fontSize: '0.875rem',
+                fontSize: '0.75rem',
                 fontWeight: 600,
-                color: 'var(--text-secondary)'
+                color: '#FFFFFF',
+                minWidth: '2.5rem',
+                justifyContent: 'center',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'scale(1.05)';
@@ -234,13 +188,13 @@ export function Navigation({ onLoginClick }: NavigationProps) {
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.borderColor = 'var(--border)';
-                e.currentTarget.style.color = 'var(--text-secondary)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.color = '#FFFFFF';
               }}
               aria-label="Toggle language"
             >
-              <Globe size={16} />
-              <span className="hidden-sm">{language === 'vi' ? 'EN' : 'VN'}</span>
+              <Globe size={14} />
+              <span>{language === 'vi' ? 'EN' : 'VN'}</span>
             </button>
 
             {/* Theme Toggle */}
@@ -253,28 +207,29 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 cursor: 'pointer',
-                transition: 'transform 0.2s'
+                transition: 'transform 0.2s',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
               aria-label="Toggle theme"
             >
               {theme === 'light' ? (
-                <Moon size={18} style={{ color: 'var(--text-secondary)' }} />
+                <Moon size={16} style={{ color: '#FFFFFF' }} />
               ) : (
-                <Sun size={18} style={{ color: 'var(--text-secondary)' }} />
+                <Sun size={16} style={{ color: '#FFFFFF' }} />
               )}
             </button>
 
             {/* User Menu or Login Button - Desktop */}
             {isAuthenticated && user ? (
-              <div style={{ position: 'relative' }}>
+              <div style={{ position: 'relative' }} className="hide-mobile">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="interactive-scale hidden-sm"
+                  className="interactive-scale"
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -283,9 +238,9 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                     borderRadius: '9999px',
                     fontSize: '0.875rem',
                     fontWeight: 600,
-                    color: 'var(--text-primary)',
-                    background: 'var(--surface)',
-                    border: '1px solid var(--border)',
+                    color: '#FFFFFF',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
@@ -293,7 +248,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                     e.currentTarget.style.borderColor = 'var(--primary)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--border)';
+                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                   }}
                 >
                   <div style={{
@@ -382,12 +337,12 @@ export function Navigation({ onLoginClick }: NavigationProps) {
             ) : onLoginClick ? (
               <button
                 onClick={onLoginClick}
-                className="interactive-scale hidden-sm"
+                className="interactive-scale hide-mobile"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  padding: '0.625rem 1.5rem',
+                  padding: '0.625rem 1.25rem',
                   borderRadius: '9999px',
                   fontSize: '0.875rem',
                   fontWeight: 600,
@@ -397,7 +352,9 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                   textDecoration: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-1px)';
@@ -422,10 +379,11 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                 borderRadius: '0.5rem',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
+                background: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
                 cursor: 'pointer',
-                transition: 'transform 0.2s'
+                transition: 'transform 0.2s',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
               onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -433,9 +391,9 @@ export function Navigation({ onLoginClick }: NavigationProps) {
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
-                <X size={20} style={{ color: 'var(--text-primary)' }} />
+                <X size={18} style={{ color: '#FFFFFF' }} />
               ) : (
-                <Menu size={20} style={{ color: 'var(--text-primary)' }} />
+                <Menu size={18} style={{ color: '#FFFFFF' }} />
               )}
             </button>
           </div>
@@ -452,8 +410,8 @@ export function Navigation({ onLoginClick }: NavigationProps) {
             className="hide-md"
             style={{
               overflow: 'hidden',
-              background: 'var(--background)',
-              borderBottom: '1px solid var(--border)'
+              background: '#181D2A',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
             }}
           >
             <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>

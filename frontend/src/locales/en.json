@@ -9,10 +9,11 @@
     },
     "hero": {
         "badge": "AI-Powered Financial Intelligence",
-        "title": "SMART FINANCIAL ASSISTANT WITH AI",
-        "subtitle": "Analyze financial news, predict market trends, and optimize your investment portfolio with advanced AI technology",
-        "ctaPrimary": "Get Started Free",
-        "ctaSecondary": "View Demo",
+        "title": "Transform Macro Information",
+        "titleHighlight": "Into Investment Decisions",
+        "subtitle": "No more drowning in chaotic news. MacroInsight helps you filter, analyze and understand the impact of macro news on your portfolio in seconds.",
+        "ctaPrimary": "Try Free",
+        "ctaSecondary": "Watch Demo",
         "stats": {
             "users": "Users",
             "accuracy": "Accuracy",
@@ -20,63 +21,80 @@
         }
     },
     "features": {
-        "title": "Key Features",
-        "subtitle": "Advanced AI technology helps you invest smarter",
-        "news": {
-            "title": "Smart News Analysis",
-            "description": "AI aggregates and analyzes thousands of financial articles, helping you grasp important information instantly"
+        "badge": "KEY FEATURES",
+        "title": "All-in-One Experience",
+        "subtitle": "A single platform to filter news, analyze impact and learn investment knowledge",
+        "swipe": {
+            "title": "Swipe to Filter",
+            "description": "Swipe left to skip, swipe right to save. Only 1 minute to complete morning news with 10 most important articles."
         },
-        "portfolio": {
-            "title": "Portfolio Management",
-            "description": "Track and optimize your portfolio with personalized AI recommendations"
+        "analysis": {
+            "title": "Personalized Analysis",
+            "description": "AI automatically analyzes news impact on your portfolio with intuitive color labels."
         },
-        "learning": {
-            "title": "Gamified Learning",
-            "description": "Earn M-Points, unlock premium content and enhance your financial knowledge"
+        "report": {
+            "title": "Summary Report",
+            "description": "Receive daily overview analysis on portfolio health, risks and opportunities from news."
+        },
+        "chat": {
+            "title": "Smart Chat",
+            "description": "Q&A with AI about any news. System automatically understands context and provides evidence-based answers."
+        },
+        "mpoint": {
+            "title": "Earn M-Points",
+            "description": "Get reward points when reading news and learning. Exchange points to unlock premium content."
+        },
+        "academy": {
+            "title": "Finance Academy",
+            "description": "Learning content intelligently recommended based on your interests. Learn without boredom."
         }
     },
     "howItWorks": {
         "title": "How It Works",
-        "subtitle": "Simple process, high efficiency",
+        "subtitle": "Three simple steps to grasp the market every day",
         "step1": {
-            "title": "Data Collection",
-            "description": "AI collects news from trusted sources"
+            "number": "01",
+            "title": "Quick Filter",
+            "description": "Open the app in the morning. Swipe through 10 most important news. Only takes 2 minutes."
         },
         "step2": {
-            "title": "Analysis & Synthesis",
-            "description": "NLP analyzes sentiment and trends"
+            "number": "02",
+            "title": "View Impact",
+            "description": "AI immediately analyzes news impact on your portfolio with clear color labels."
         },
         "step3": {
-            "title": "Smart Recommendations",
-            "description": "Personalized investment strategies for you"
+            "number": "03",
+            "title": "Make Decision",
+            "description": "Chat with AI for deeper understanding. Receive summary report and action recommendations."
         }
     },
     "pricing": {
         "title": "Pricing Plans",
-        "subtitle": "Choose the right plan for your needs",
+        "subtitle": "Choose the plan that fits your investment needs",
+        "popular": "MOST POPULAR",
         "free": {
             "name": "Free",
             "price": "$0",
-            "period": "forever",
+            "period": "/month",
             "features": [
-                "Daily basic news",
-                "3 AI analyses/week",
-                "Basic academy access",
-                "Community support"
+                "Filter 10 news per day",
+                "Basic impact analysis",
+                "AI Chat (limited)",
+                "Free learning content"
             ],
             "cta": "Get Started"
         },
         "pro": {
             "name": "Pro",
             "price": "$12",
-            "period": "month",
-            "popular": "Most Popular",
+            "period": "/month",
             "features": [
-                "Unlimited news & analysis",
-                "Portfolio management",
-                "Premium Academy (M-Points)",
-                "Priority support",
-                "Real-time trading signals"
+                "Unlimited filtering",
+                "Deep analysis",
+                "Unlimited AI Chat",
+                "Daily summary report",
+                "All premium videos",
+                "Priority support"
             ],
             "cta": "Upgrade to Pro"
         }
@@ -106,7 +124,33 @@
         "play": "Play",
         "unlockSuccess": "Unlock Successful!",
         "unlockMessage": "You just unlocked",
-        "enjoyLearning": "Enjoy your learning!"
+        "enjoyLearning": "Enjoy your learning!",
+        "mPointsBalance": "M-Points Balance",
+        "levelProgress": "Level Progress",
+        "pointsToNext": "points to Level",
+        "recommended": "Recommended for You",
+        "recommendedDesc": "Free courses recommended by AI based on your interests",
+        "premium": "Premium Masterclass",
+        "premiumDesc": "Advanced courses - unlock with M-Points",
+        "unlockWith": "Unlock with",
+        "watchNow": "Watch Now",
+        "duration": "Duration",
+        "category": "Category",
+        "unlockConfirm": "Are you sure you want to unlock this course?",
+        "insufficientPoints": "Insufficient M-Points",
+        "earnMore": "Earn more points by reading news and completing activities",
+        "balanceAfter": "Balance after",
+        "videos": {
+            "steelCycle": "Steel Industry Cycle",
+            "gdpImpact": "Understanding GDP and Market Impact",
+            "inflationInterest": "Inflation and Interest Rates: The Relationship",
+            "readingWhales": "Reading Whales (Advanced)",
+            "cashFlowTechniques": "Cash Flow Analysis Techniques",
+            "f0Analysis": "Deep F0 Analysis",
+            "advancedTrading": "Advanced Trading Strategies",
+            "readingFinancials": "Reading Financial Reports Like a Pro",
+            "investorPsychology": "Investor Psychology"
+        }
     },
     "about": {
         "title": "About Us",
@@ -143,5 +187,168 @@
             "title": "Development Team",
             "subtitle": "The people behind MacroInsight Agent"
         }
+    },
+    "chat": {
+        "title": "AI Financial Assistant",
+        "newChat": "New Chat",
+        "recentChats": "Recent Chats",
+        "noConversations": "No conversations yet",
+        "systemReady": "System Ready",
+        "indices": "Indices",
+        "history": "Chat History",
+        "placeholder": "Ask about stocks, market trends, investment strategies...",
+        "send": "Send",
+        "thinking": "AI is thinking...",
+        "emptyState": {
+            "title": "Multi-Index RAG",
+            "subtitle": "Ask about finance, legal or Vietnam market",
+            "categories": {
+                "terminology": "Terminology",
+                "finance": "Finance",
+                "legal": "Legal",
+                "news": "News"
+            },
+            "examples": {
+                "terminology": ["What is ROE?", "How is EPS calculated?"],
+                "finance": ["VNM financial report", "FPT profit this year"],
+                "legal": ["Article 10 Enterprise Law", "Joint stock company regulations"],
+                "news": ["VN-Index news today", "Stock market"]
+            }
+        },
+        "suggestions": {
+            "title": "Suggested Questions",
+            "market": "How is the market today?",
+            "stock": "Analyze HPG stock",
+            "portfolio": "How to diversify my portfolio?"
+        },
+        "disclaimer": {
+            "title": "Disclaimer",
+            "content": "This AI assistant provides financial information for reference only. It is not investment advice. Please do your own research before making any investment decisions.",
+            "accept": "I Understand",
+            "dontShowAgain": "Don't show again"
+        },
+        "error": {
+            "network": "Network error. Please try again.",
+            "server": "Server error. Please try again later."
+        },
+        "input": {
+            "placeholder": "Ask about Vietnamese finance, legal matters, or market trends...",
+            "attachFile": "Attach file (Coming soon)",
+            "emoji": "Emoji (Coming soon)",
+            "enterToSend": "to send",
+            "shiftEnter": "for new line",
+            "aiReady": "AI Ready",
+            "modes": {
+                "fast": "Fast",
+                "fastDesc": "Quick answers",
+                "standard": "Standard",
+                "standardDesc": "Balanced quality",
+                "deep": "Deep",
+                "deepDesc": "Detailed analysis"
+            }
+        },
+        "thinking": {
+            "title": "AI is thinking..."
+        }
+    },
+    "dashboard": {
+        "title": "Market News",
+        "subtitle": "Swipe to filter news that matters to you",
+        "loading": "Loading news...",
+        "error": "Error loading news",
+        "retry": "Retry",
+        "noMore": "No more news",
+        "refresh": "Refresh",
+        "saved": "Saved",
+        "skip": "Skip",
+        "swipeRight": "Swipe right to save",
+        "swipeLeft": "Swipe left to skip",
+        "mPoints": "M-Points",
+        "earnedToday": "Earned today",
+        "completion": {
+            "title": "All Done!",
+            "subtitle": "You've reviewed all news for today",
+            "savedCount": "News saved",
+            "pointsEarned": "Points earned",
+            "comeback": "Come back tomorrow for more news"
+        },
+        "sentiment": {
+            "positive": "Positive",
+            "negative": "Negative",
+            "neutral": "Neutral"
+        }
+    },
+    "personal": {
+        "title": "Personal Dashboard",
+        "portfolio": {
+            "title": "My Portfolio",
+            "allocation": "Portfolio Allocation",
+            "buyingPower": "Buying Power",
+            "totalValue": "Total Value",
+            "todayChange": "Today's Change",
+            "totalReturn": "Total Return",
+            "positions": "Positions",
+            "symbol": "Symbol",
+            "quantity": "Quantity",
+            "avgPrice": "Avg. Price",
+            "currentPrice": "Current Price",
+            "profitLoss": "P/L",
+            "edit": "Edit",
+            "empty": "No positions yet"
+        },
+        "report": {
+            "title": "AI Insights Today",
+            "overview": "Market Overview",
+            "positive": "Positive",
+            "negative": "Risk",
+            "recommendations": "Recommendation",
+            "noRecommendation": "No recommendation",
+            "clickToView": "Click to view AI Insights",
+            "requiresAgreement": "Requires agreement to terms",
+            "askAI": "Ask AI about Portfolio"
+        },
+        "interests": {
+            "title": "My Interests",
+            "watchlist": "Watchlist",
+            "sectors": "Sectors",
+            "addStock": "Add Stock",
+            "remove": "Remove"
+        },
+        "editModal": {
+            "title": "Update Portfolio",
+            "close": "Close",
+            "save": "Save Portfolio",
+            "cancel": "Cancel",
+            "quantity": "Quantity"
+        }
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "retry": "Retry",
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "close": "Close",
+        "confirm": "Confirm",
+        "search": "Search",
+        "noData": "No data available",
+        "seeMore": "See more",
+        "seeLess": "See less",
+        "currency": "VND"
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "signup": "Sign Up",
+        "email": "Email",
+        "password": "Password",
+        "forgotPassword": "Forgot Password?",
+        "noAccount": "Don't have an account?",
+        "hasAccount": "Already have an account?",
+        "loginSuccess": "Login successful",
+        "logoutSuccess": "Logout successful",
+        "loginError": "Login failed. Please check your credentials."
     }
 }
