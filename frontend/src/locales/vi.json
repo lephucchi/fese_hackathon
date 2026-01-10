@@ -209,10 +209,22 @@
                 "news": "Tin tức"
             },
             "examples": {
-                "terminology": ["ROE là gì?", "EPS được tính như thế nào?"],
-                "finance": ["Báo cáo tài chính VNM", "Lợi nhuận FPT năm nay"],
-                "legal": ["Điều 10 Luật Doanh nghiệp", "Quy định công ty cổ phần"],
-                "news": ["Tin VN-Index hôm nay", "Thị trường chứng khoán"]
+                "terminology": [
+                    "ROE là gì?",
+                    "EPS được tính như thế nào?"
+                ],
+                "finance": [
+                    "Báo cáo tài chính VNM",
+                    "Lợi nhuận FPT năm nay"
+                ],
+                "legal": [
+                    "Điều 10 Luật Doanh nghiệp",
+                    "Quy định công ty cổ phần"
+                ],
+                "news": [
+                    "Tin VN-Index hôm nay",
+                    "Thị trường chứng khoán"
+                ]
             }
         },
         "suggestions": {
@@ -280,6 +292,19 @@
     },
     "personal": {
         "title": "Trang cá nhân",
+        "profile": {
+            "title": "Hồ sơ cá nhân",
+            "firstName": "Họ",
+            "lastName": "Tên",
+            "displayName": "Tên hiển thị",
+            "email": "Email"
+        },
+        "tiers": {
+            "normal": "Thường",
+            "pro": "Pro",
+            "business": "Doanh nghiệp",
+            "admin": "Quản trị"
+        },
         "portfolio": {
             "title": "Danh mục của tôi",
             "allocation": "Phân bổ danh mục",
@@ -294,7 +319,16 @@
             "currentPrice": "Giá hiện tại",
             "profitLoss": "Lãi/Lỗ",
             "edit": "Chỉnh sửa",
-            "empty": "Chưa có vị thế nào"
+            "empty": "Chưa có vị thế nào",
+            "loading": "Đang tải danh mục...",
+            "addTicker": "Thêm mã",
+            "close": "Đóng",
+            "totalValue": "Tổng giá trị danh mục",
+            "tickers": "mã",
+            "emptyTitle": "Chưa có danh mục đầu tư",
+            "emptyDesc": "Thêm các mã cổ phiếu để theo dõi danh mục của bạn",
+            "addFirstTicker": "Thêm mã đầu tiên",
+            "confirmDelete": "Xác nhận xóa {ticker} khỏi danh mục?"
         },
         "report": {
             "title": "Góc nhìn AI hôm nay",

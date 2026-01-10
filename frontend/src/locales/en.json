@@ -209,10 +209,22 @@
                 "news": "News"
             },
             "examples": {
-                "terminology": ["What is ROE?", "How is EPS calculated?"],
-                "finance": ["VNM financial report", "FPT profit this year"],
-                "legal": ["Article 10 Enterprise Law", "Joint stock company regulations"],
-                "news": ["VN-Index news today", "Stock market"]
+                "terminology": [
+                    "What is ROE?",
+                    "How is EPS calculated?"
+                ],
+                "finance": [
+                    "VNM financial report",
+                    "FPT profit this year"
+                ],
+                "legal": [
+                    "Article 10 Enterprise Law",
+                    "Joint stock company regulations"
+                ],
+                "news": [
+                    "VN-Index news today",
+                    "Stock market"
+                ]
             }
         },
         "suggestions": {
@@ -280,6 +292,19 @@
     },
     "personal": {
         "title": "Personal Dashboard",
+        "profile": {
+            "title": "My Profile",
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "displayName": "Display Name",
+            "email": "Email"
+        },
+        "tiers": {
+            "normal": "Normal",
+            "pro": "Pro",
+            "business": "Business",
+            "admin": "Admin"
+        },
         "portfolio": {
             "title": "My Portfolio",
             "allocation": "Portfolio Allocation",
@@ -294,7 +319,16 @@
             "currentPrice": "Current Price",
             "profitLoss": "P/L",
             "edit": "Edit",
-            "empty": "No positions yet"
+            "empty": "No positions yet",
+            "loading": "Loading portfolio...",
+            "addTicker": "Add Ticker",
+            "close": "Close",
+            "totalValue": "Total Portfolio Value",
+            "tickers": "tickers",
+            "emptyTitle": "No investment portfolio yet",
+            "emptyDesc": "Add stock tickers to track your portfolio",
+            "addFirstTicker": "Add first ticker",
+            "confirmDelete": "Are you sure you want to remove {ticker} from portfolio?"
         },
         "report": {
             "title": "AI Insights Today",

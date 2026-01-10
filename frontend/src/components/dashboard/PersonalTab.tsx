@@ -20,27 +20,27 @@ interface PersonalTabProps {
 }
 
 // Tier configuration
-const TIER_CONFIG: Record<number, { name: string; color: string; bgColor: string; icon: React.ReactNode }> = {
+const TIER_CONFIG: Record<number, { nameKey: string; color: string; bgColor: string; icon: React.ReactNode }> = {
   1: {
-    name: 'Normal',
+    nameKey: 'personal.tiers.normal',
     color: '#6B7280',
     bgColor: 'rgba(107, 114, 128, 0.1)',
     icon: <User size={14} />
   },
   2: {
-    name: 'Pro',
+    nameKey: 'personal.tiers.pro',
     color: '#3B82F6',
     bgColor: 'rgba(59, 130, 246, 0.1)',
     icon: <Star size={14} />
   },
   3: {
-    name: 'Business',
+    nameKey: 'personal.tiers.business',
     color: '#8B5CF6',
     bgColor: 'rgba(139, 92, 246, 0.1)',
     icon: <Zap size={14} />
   },
   4: {
-    name: 'Admin',
+    nameKey: 'personal.tiers.admin',
     color: '#F59E0B',
     bgColor: 'rgba(245, 158, 11, 0.1)',
     icon: <Crown size={14} />
@@ -194,7 +194,7 @@ export function PersonalTab({ report }: PersonalTabProps) {
                   fontWeight: 600,
                   color: tierInfo.color,
                 }}>
-                  {tierInfo.name}
+                  {t(tierInfo.nameKey)}
                 </span>
               </div>
             </div>
@@ -289,7 +289,7 @@ export function PersonalTab({ report }: PersonalTabProps) {
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                 }}>
-                  Email
+                  {t('personal.profile.email')}
                 </div>
                 <div style={{
                   fontSize: '1rem',

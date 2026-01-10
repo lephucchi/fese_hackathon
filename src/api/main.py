@@ -187,6 +187,6 @@ if __name__ == "__main__":
         port=port,
         reload=True
     )
-    console.log("API started on http://{}:{}/docs".format(host, port))
-    console.log("API started on http://{}:{}/docs".format(host, port))
+    print("API started on http://{}:{}/docs".format(host, port))
+    print("API started on http://{}:{}/docs".format(host, port))
     
