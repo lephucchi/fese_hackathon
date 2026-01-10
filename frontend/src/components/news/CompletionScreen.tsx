@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare, RefreshCw, TrendingUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface CompletionScreenProps {
     totalCards: number;
@@ -19,6 +20,7 @@ export function CompletionScreen({
     onRefresh,
 }: CompletionScreenProps) {
     const router = useRouter();
+    const isMobile = useIsMobile();
 
     return (
         <motion.div
@@ -49,7 +51,7 @@ export function CompletionScreen({
 
             <h2
                 style={{
-                    fontSize: '1.75rem',
+                    fontSize: isMobile ? '1.5rem' : '1.75rem',
                     fontWeight: 800,
                     marginBottom: '0.5rem',
                     color: 'var(--text-primary)',
@@ -73,7 +75,7 @@ export function CompletionScreen({
                 style={{
                     display: 'flex',
                     justifyContent: 'center',
-                    gap: '2rem',
+                    gap: isMobile ? '1.5rem' : '2rem',
                     marginBottom: '2rem',
                 }}
             >
@@ -128,8 +130,8 @@ export function CompletionScreen({
                         onClick={() => router.push('/chat?mode=context')}
                         className="interactive-scale"
                         style={{
-                            padding: '1rem 2rem',
-                            fontSize: '1rem',
+                            padding: isMobile ? '0.875rem 1.5rem' : '1rem 2rem',
+                            fontSize: isMobile ? '0.9375rem' : '1rem',
                             fontWeight: 600,
                             borderRadius: '12px',
                             border: 'none',
@@ -144,7 +146,7 @@ export function CompletionScreen({
                         }}
                     >
                         <MessageSquare size={20} />
-                        💬 Chat với {savedCount} tin đã chọn
+                        💬 {isMobile ? 'Chat với AI' : `Chat với ${savedCount} tin đã chọn`}
                     </button>
                 )}
 
@@ -152,8 +154,8 @@ export function CompletionScreen({
                     onClick={onRefresh}
                     className="interactive-scale"
                     style={{
-                        padding: '1rem 2rem',
-                        fontSize: '1rem',
+                        padding: isMobile ? '0.875rem 1.5rem' : '1rem 2rem',
+                        fontSize: isMobile ? '0.9375rem' : '1rem',
                         fontWeight: 600,
                         borderRadius: '12px',
                         border: '1.5px solid var(--border)',

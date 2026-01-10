@@ -13,6 +13,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from '
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNewsSwipe, NewsSwipeItem } from '@/hooks/useNewsSwipe';
 import { useSavedNews, SavedNewsItem } from '@/hooks/useSavedNews';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Minus, ExternalLink, Tag } from 'lucide-react';
@@ -111,7 +112,7 @@ function NewsSwipeCard({
         margin: '0 auto',
         width: '100%',
         maxWidth: '420px',
-        height: '520px',
+        height: '100%',
         background: 'var(--card)',
         borderRadius: '24px',
         boxShadow: isTop ? 'var(--shadow-xl)' : 'var(--shadow-lg)',
@@ -164,7 +165,7 @@ function NewsSwipeCard({
 
           {/* Card Content */}
           <div style={{
-            padding: '1.5rem',
+            padding: 'clamp(1rem, 4vw, 1.5rem)',
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
@@ -235,7 +236,7 @@ function NewsSwipeCard({
 
             {/* Title */}
             <h3 style={{
-              fontSize: '1.25rem',
+              fontSize: 'clamp(1.1rem, 4vw, 1.25rem)',
               fontWeight: 700,
               marginBottom: '0.75rem',
               lineHeight: 1.3,
@@ -328,6 +329,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { stack, loading, error, remaining, swipeRight, swipeLeft, refetch, savedCount, total } = useNewsSwipe(20);
   const { savedNews, loading: savedLoading, total: savedTotal, addOptimisticNews } = useSavedNews();
+  const isMobile = useIsMobile();
 
   const [mPoints, setMPoints] = useState(650);
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
@@ -479,16 +481,16 @@ export default function DashboardPage() {
     <div style={{ background: 'var(--background)', minHeight: '100vh', width: '100%' }}>
       <Navigation />
       <main style={{
-        paddingTop: 'clamp(80px, 15vh, 100px)',
-        padding: 'clamp(80px, 15vh, 100px) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 2rem)',
+        paddingTop: isMobile ? '80px' : 'clamp(80px, 15vh, 100px)',
+        padding: `${isMobile ? '80px' : 'clamp(80px, 15vh, 100px)'} clamp(12px, 3vw, 1.5rem) clamp(1rem, 3vw, 2rem)`,
         maxWidth: '900px',
         margin: '0 auto',
         width: '100%'
       }}>
         {/* Progress & Stats Bar */}
         <div style={{
-          marginBottom: 'clamp(1.5rem, 4vw, 2.5rem)',
-          padding: 'clamp(1rem, 3vw, 1.5rem)',
+          marginBottom: isMobile ? '1.5rem' : 'clamp(1.5rem, 4vw, 2.5rem)',
+          padding: isMobile ? '1rem' : 'clamp(1rem, 3vw, 1.5rem)',
           background: 'var(--card)',
           borderRadius: '20px',
           border: '1px solid var(--border)',
@@ -498,7 +500,13 @@ export default function DashboardPage() {
           gap: '1rem'
         }}>
           {/* Top Row: Points & Counts */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+            gap: isMobile ? '12px' : '0'
+          }}>
             {/* Left: Points */}
             <div style={{
               display: 'flex',
@@ -507,7 +515,8 @@ export default function DashboardPage() {
               background: 'rgba(255, 193, 7, 0.1)',
               padding: '6px 12px',
               borderRadius: '20px',
-              border: '1px solid rgba(255, 193, 7, 0.2)'
+              border: '1px solid rgba(255, 193, 7, 0.2)',
+              order: isMobile ? 1 : 0
             }}>
               <Coins size={16} style={{ color: '#FFB800' }} />
               <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#FFB800', position: 'relative' }}>
@@ -535,17 +544,23 @@ export default function DashboardPage() {
             </div>
 
             {/* Right: Symmetrical Stats */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: isMobile ? '0.75rem' : '1rem',
+              order: isMobile ? 2 : 0,
+              width: isMobile ? 'auto' : 'auto'
+            }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '2px' }}>Bỏ qua</div>
-                <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--error)' }}>
+                <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '2px' }}>Bỏ qua</div>
+                <div style={{ fontSize: isMobile ? '1rem' : '1.125rem', fontWeight: 800, color: 'var(--error)' }}>
                   {(total - remaining) - savedCount}
                 </div>
               </div>
-              <div style={{ width: '1px', height: '20px', background: 'var(--border)' }} />
+              <div style={{ width: '1px', height: '16px', background: 'var(--border)' }} />
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '2px' }}>Đã lưu</div>
-                <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--primary)' }}>
+                <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '2px' }}>Đã lưu</div>
+                <div style={{ fontSize: isMobile ? '1rem' : '1.125rem', fontWeight: 800, color: 'var(--primary)' }}>
                   {savedCount}
                 </div>
               </div>
@@ -586,9 +601,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Title */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '1.5rem' : '2rem' }}>
           <h1 style={{
-            fontSize: '1.75rem',
+            fontSize: isMobile ? '1.5rem' : '1.75rem',
             fontWeight: 800,
             color: 'var(--text-primary)',
             marginBottom: '0.5rem'
@@ -596,11 +611,12 @@ export default function DashboardPage() {
             Tin tức Tài chính
           </h1>
           <p style={{
-            fontSize: '1rem',
-            color: 'var(--text-secondary)'
+            fontSize: isMobile ? '0.875rem' : '1rem',
+            color: 'var(--text-secondary)',
+            lineHeight: 1.4
           }}>
             <Sparkles size={16} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-            Lướt để lọc tin tức quan trọng • {total} tin mới nhất
+            {isMobile ? 'Lướt để lọc tin quan trọng' : 'Lướt để lọc tin tức quan trọng'} • {total} tin mới nhất
           </p>
         </div>
 
@@ -614,42 +630,77 @@ export default function DashboardPage() {
         ) : (
           <div style={{
             display: 'flex',
+            flexDirection: isMobile ? 'column-reverse' : 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '1.5rem',
-            width: '100%'
+            gap: isMobile ? '24px' : '1.5rem',
+            width: '100%',
+            position: 'relative'
           }}>
-            {/* Left Button - Skip */}
-            {/* Left Button - Skip */}
-            <motion.button
-              whileHover={{ scale: 1.1, backgroundColor: 'var(--error)', color: '#fff' }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => handleButtonClick('left')}
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                border: '2px solid var(--error)',
-                background: 'var(--card)',
-                color: 'var(--error)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 8px 16px rgba(231, 76, 60, 0.2)',
-                transition: 'box-shadow 0.2s, background-color 0.2s, color 0.2s',
-                flexShrink: 0
-              }}
-            >
-              <ChevronLeft size={32} strokeWidth={2.5} />
-            </motion.button>
+            {/* Button container for mobile */}
+            <div style={{
+              display: 'flex',
+              gap: '40px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: isMobile ? '12px' : '0'
+            }}>
+              {/* Left Button - Skip */}
+              <motion.button
+                whileHover={{ scale: 1.1, backgroundColor: 'var(--error)', color: '#fff' }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => handleButtonClick('left')}
+                style={{
+                  width: isMobile ? '56px' : '64px',
+                  height: isMobile ? '56px' : '64px',
+                  borderRadius: '50%',
+                  border: '2px solid var(--error)',
+                  background: 'var(--card)',
+                  color: 'var(--error)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 8px 16px rgba(231, 76, 60, 0.2)',
+                  transition: 'box-shadow 0.2s, background-color 0.2s, color 0.2s',
+                  flexShrink: 0
+                }}
+              >
+                <ChevronLeft size={isMobile ? 28 : 32} strokeWidth={2.5} />
+              </motion.button>
+
+              {isMobile && (
+                <motion.button
+                  whileHover={{ scale: 1.1, boxShadow: '0 12px 32px rgba(0, 200, 5, 0.4)' }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleButtonClick('right')}
+                  style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    background: 'var(--primary)',
+                    color: 'white',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 8px 24px rgba(0, 200, 5, 0.3)',
+                    transition: 'all 0.2s',
+                    flexShrink: 0
+                  }}
+                >
+                  <ChevronRight size={28} strokeWidth={2.5} />
+                </motion.button>
+              )}
+            </div>
 
             {/* Card Stack */}
             <div style={{
               position: 'relative',
               width: '100%',
               maxWidth: '420px',
-              height: '550px' // Fixed height for stack
+              height: isMobile ? '480px' : '550px' // Responsive height
             }}>
               {/* Background cards */}
               {stack.slice(1, 3).map((news, index) => (
@@ -682,30 +733,30 @@ export default function DashboardPage() {
               </AnimatePresence>
             </div>
 
-            {/* Right Button - Save */}
-            {/* Right Button - Save */}
-            <motion.button
-              whileHover={{ scale: 1.1, boxShadow: '0 12px 32px rgba(0, 200, 5, 0.4)' }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => handleButtonClick('right')}
-              style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                border: 'none',
-                background: 'var(--primary)',
-                color: 'white',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 8px 24px rgba(0, 200, 5, 0.3)',
-                transition: 'all 0.2s',
-                flexShrink: 0
-              }}
-            >
-              <ChevronRight size={32} strokeWidth={2.5} />
-            </motion.button>
+            {!isMobile && (
+              <motion.button
+                whileHover={{ scale: 1.1, boxShadow: '0 12px 32px rgba(0, 200, 5, 0.4)' }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => handleButtonClick('right')}
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: 'var(--primary)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 8px 24px rgba(0, 200, 5, 0.3)',
+                  transition: 'all 0.2s',
+                  flexShrink: 0
+                }}
+              >
+                <ChevronRight size={32} strokeWidth={2.5} />
+              </motion.button>
+            )}
           </div>
         )}
       </main>
@@ -738,12 +789,13 @@ export default function DashboardPage() {
               onClick={(e) => e.stopPropagation()}
               style={{
                 background: 'var(--card)',
-                borderRadius: '24px',
+                borderRadius: isMobile ? '24px 24px 0 0' : '24px',
                 maxWidth: '600px',
                 width: '100%',
-                maxHeight: '85vh',
+                maxHeight: isMobile ? '92vh' : '85vh',
                 overflow: 'hidden',
-                position: 'relative',
+                position: isMobile ? 'absolute' : 'relative',
+                bottom: isMobile ? 0 : 'auto',
                 boxShadow: 'var(--shadow-xl)'
               }}
             >
@@ -782,7 +834,11 @@ export default function DashboardPage() {
               </button>
 
               {/* Modal Content */}
-              <div style={{ padding: '2rem', overflow: 'auto', maxHeight: '85vh' }}>
+              <div style={{
+                padding: isMobile ? '1.5rem' : '2rem',
+                overflow: 'auto',
+                maxHeight: isMobile ? 'calc(92vh - 20px)' : '85vh'
+              }}>
                 {/* Sentiment Badge */}
                 <div style={{
                   display: 'inline-flex',
@@ -905,6 +961,7 @@ export default function DashboardPage() {
                 {/* Action Buttons */}
                 <div style={{
                   display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
                   gap: '1rem',
                   paddingTop: '1rem',
                   borderTop: '1px solid var(--border)'
@@ -917,6 +974,7 @@ export default function DashboardPage() {
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
                         gap: '0.5rem',
                         padding: '0.75rem 1.5rem',
                         background: 'var(--primary)',
