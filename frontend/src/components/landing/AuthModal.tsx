@@ -114,7 +114,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '1rem'
+              padding: 'clamp(0.5rem, 3vw, 1rem)'
             }}
           >
             {/* Modal */}
@@ -125,10 +125,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               onClick={(e) => e.stopPropagation()}
               style={{
                 background: 'var(--card)',
-                borderRadius: '24px',
-                padding: '3rem',
+                borderRadius: 'clamp(16px, 3vw, 24px)',
+                padding: 'clamp(1.5rem, 4vw, 3rem)',
                 maxWidth: '480px',
                 width: '100%',
+                maxHeight: '90vh',
+                overflowY: 'auto',
                 boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)',
                 border: '1px solid var(--border)',
                 position: 'relative'
@@ -139,8 +141,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 onClick={onClose}
                 style={{
                   position: 'absolute',
-                  top: '1.5rem',
-                  right: '1.5rem',
+                  top: 'clamp(0.75rem, 2vw, 1.5rem)',
+                  right: 'clamp(0.75rem, 2vw, 1.5rem)',
                   background: 'transparent',
                   border: 'none',
                   cursor: 'pointer',
@@ -162,9 +164,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               {/* Logo/Title */}
               <h2
                 style={{
-                  fontSize: '2rem',
+                  fontSize: 'clamp(1.5rem, 5vw, 2rem)',
                   fontWeight: 800,
-                  marginBottom: '0.5rem',
+                  marginBottom: '0.25rem',
                   color: 'var(--text-primary)',
                   textAlign: 'center'
                 }}
@@ -173,10 +175,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </h2>
               <p
                 style={{
-                  fontSize: '1rem',
+                  fontSize: 'clamp(0.75rem, 2.5vw, 1rem)',
                   color: 'var(--text-secondary)',
                   textAlign: 'center',
-                  marginBottom: '2rem'
+                  marginBottom: 'clamp(1rem, 3vw, 2rem)'
                 }}
               >
                 Đầu tư thông minh hơn mỗi ngày
@@ -186,10 +188,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <div
                 style={{
                   display: 'flex',
-                  gap: '0.5rem',
-                  marginBottom: '2rem',
+                  gap: '0.25rem',
+                  marginBottom: 'clamp(1rem, 3vw, 2rem)',
                   background: 'var(--surface)',
-                  padding: '0.5rem',
+                  padding: 'clamp(0.25rem, 1vw, 0.5rem)',
                   borderRadius: '12px'
                 }}
               >
@@ -200,12 +202,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   }}
                   style={{
                     flex: 1,
-                    padding: '0.75rem',
+                    padding: 'clamp(0.5rem, 2vw, 0.75rem)',
                     borderRadius: '8px',
                     border: 'none',
                     cursor: 'pointer',
                     fontWeight: 600,
-                    fontSize: '1rem',
+                    fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
                     background: activeTab === 'login' ? 'var(--card)' : 'transparent',
                     color: activeTab === 'login' ? 'var(--text-primary)' : 'var(--text-secondary)',
                     boxShadow: activeTab === 'login' ? 'var(--shadow-md)' : 'none',
@@ -221,12 +223,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   }}
                   style={{
                     flex: 1,
-                    padding: '0.75rem',
+                    padding: 'clamp(0.5rem, 2vw, 0.75rem)',
                     borderRadius: '8px',
                     border: 'none',
                     cursor: 'pointer',
                     fontWeight: 600,
-                    fontSize: '1rem',
+                    fontSize: 'clamp(0.8rem, 2.5vw, 1rem)',
                     background: activeTab === 'signup' ? 'var(--card)' : 'transparent',
                     color: activeTab === 'signup' ? 'var(--text-primary)' : 'var(--text-secondary)',
                     boxShadow: activeTab === 'signup' ? 'var(--shadow-md)' : 'none',

@@ -1281,3 +1281,19 @@ img {
     grid-template-columns: repeat(3, 1fr) !important;
   }
 }
+
+/* Values Grid Responsive */
+.values-grid {
+  grid-template-columns: repeat(3, 1fr) !important;
+}
+
+@media (max-width: 600px) {
+  .values-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .values-grid>div {
+    padding: 0.5rem !important;
+  }
+}
