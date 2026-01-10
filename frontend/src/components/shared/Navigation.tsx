@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Moon, Sun, LogOut, User as UserIcon, Globe } from 'lucide-react';
+import { Menu, X, Moon, Sun, LogOut, User as UserIcon, Globe, Lock } from 'lucide-react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation'
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/hooks/useAuth';
@@ -12,13 +12,14 @@ import { useAuth } from '@/hooks/useAuth';
 interface NavItem {
   labelKey: string;
   href: string;
+  requiresAuth?: boolean;
 }
 
 const navItems: NavItem[] = [
   { labelKey: 'nav.home', href: '/' },
-  { labelKey: 'nav.news', href: '/dashboard' },
-  { labelKey: 'nav.personal', href: '/personal' },
-  { labelKey: 'nav.education', href: '/education' },
+  { labelKey: 'nav.news', href: '/dashboard', requiresAuth: true },
+  { labelKey: 'nav.personal', href: '/personal', requiresAuth: true },
+  { labelKey: 'nav.education', href: '/education', requiresAuth: true },
   { labelKey: 'nav.about', href: '/about' },
 ];
 
@@ -109,6 +110,43 @@ export function Navigation({ onLoginClick }: NavigationProps) {
           <div style={{ alignItems: 'center', gap: '0.5rem', flexShrink: 1, minWidth: 0 }} className="show-md-flex">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
+              const isLocked = item.requiresAuth && !isAuthenticated;
+
+              // If locked, render a button that triggers login
+              if (isLocked) {
+                return (
+                  <button
+                    key={item.href}
+                    onClick={onLoginClick}
+                    style={{
+                      fontSize: '0.875rem',
+                      fontWeight: 500,
+                      color: 'rgba(255, 255, 255, 0.4)',
+                      textDecoration: 'none',
+                      transition: 'all 0.2s',
+                      position: 'relative',
+                      padding: '0.5rem 1rem',
+                      borderRadius: '9999px',
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.375rem'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'rgba(255, 255, 255, 0.6)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = 'rgba(255, 255, 255, 0.4)';
+                    }}
+                    title="Đăng nhập để truy cập"
+                  >
+                    <Lock size={12} />
+                    {t(item.labelKey)}
+                  </button>
+                );
+              }
 
               return (
                 <Link
@@ -395,6 +433,38 @@ export function Navigation({ onLoginClick }: NavigationProps) {
             <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
+                const isLocked = item.requiresAuth && !isAuthenticated;
+
+                // If locked, render a button that triggers login
+                if (isLocked) {
+                  return (
+                    <button
+                      key={item.href}
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        onLoginClick?.();
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.75rem 1rem',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        color: 'rgba(255, 255, 255, 0.4)',
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'left'
+                      }}
+                    >
+                      <Lock size={14} />
+                      {t(item.labelKey)}
+                    </button>
+                  );
+                }
 
                 return (
                   <Link
