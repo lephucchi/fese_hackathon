@@ -258,3 +258,60 @@ async def refresh_token(
         message="Token refreshed",
         access_token=new_access_token
     )
+
+
+@router.get(
+    "/me",
+    response_model=AuthResponse,
+    summary="Get current user",
+    description="""
+    Get current authenticated user info from access token.
+    
+    - Requires valid access token (cookie or Authorization header)
+    - Returns user info with role
+    """
+)
+async def get_current_user(
+    request: Request,
+    auth_service: AuthService = Depends(get_auth_service)
+):
+    """Get current authenticated user info."""
+    from ..middleware.auth import get_token_from_request
+    from ..utils.jwt import verify_access_token
+    
+    token = get_token_from_request(request)
+    if not token:
+        raise AuthenticationException(message="Authentication required")
+    
+    payload = verify_access_token(token)
+    if not payload:
+        raise AuthenticationException(message="Invalid or expired token")
+    
+    user_id = payload.get("sub")
+    if not user_id:
+        raise AuthenticationException(message="Invalid token payload")
+    
+    # Get user from database
+    user_data = await auth_service.get_user_by_id(user_id)
+    if not user_data:
+        raise AuthenticationException(message="User not found")
+    
+    # Build response with role info
+    role_info = None
+    if user_data.get("role"):
+        role_info = RoleInfo(**user_data["role"])
+    
+    return AuthResponse(
+        message="User retrieved",
+        user=UserInfo(
+            user_id=user_data["user_id"],
+            email=user_data["email"],
+            first_name=user_data.get("first_name"),
+            last_name=user_data.get("last_name"),
+            display_name=user_data.get("display_name"),
+            avatar_url=user_data.get("avatar_url"),
+            risk_appetite=user_data.get("risk_appetite"),
+            role=role_info,
+            created_at=user_data.get("created_at")
+        )
+    )

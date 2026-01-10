@@ -17,6 +17,7 @@ from ..repositories.user_interaction_repository import UserInteractionRepository
 from ..repositories.news_repository import NewsRepository
 from ..dependencies import get_supabase_client
 from ..middleware.auth import get_current_user_id
+from ...core.security import get_query_guard
 
 logger = logging.getLogger(__name__)
 
@@ -191,6 +192,25 @@ async def chat_with_context(
 ):
     """Chat with market context."""
     try:
+        # SECURITY: Check query with QueryGuard
+        query_guard = get_query_guard()
+        guard_result = query_guard.check(request.query)
+        
+        if not guard_result.is_safe:
+            logger.warning(
+                f"Market chat query blocked: {guard_result.reason}. "
+                f"Risk: {guard_result.risk_level.value}"
+            )
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "query_blocked",
+                    "message": guard_result.reason,
+                    "risk_level": guard_result.risk_level.value,
+                    "suggestions": guard_result.suggestions
+                }
+            )
+        
         result = await market_service.chat_with_context(
             user_id=user_id,
             query=request.query,
@@ -210,7 +230,19 @@ async def chat_with_context(
     Stream chat response with thinking process visualization.
     
     Returns Server-Sent Events (SSE) with:
-    - Thinking steps (fetching interests, building context, querying LLM)
+    - Thinking ECURITY: Check query with QueryGuard
+            query_guard = get_query_guard()
+            guard_result = query_guard.check(request.query)
+            
+            if not guard_result.is_safe:
+                logger.warning(
+                    f"Market chat stream query blocked: {guard_result.reason}. "
+                    f"Risk: {guard_result.risk_level.value}"
+                )
+                yield f"data: {json.dumps({'type': 'error', 'message': guard_result.reason, 'suggestions': guard_result.suggestions})}\n\n"
+                return
+            
+            # Ssteps (fetching interests, building context, querying LLM)
     - Answer chunks (streamed word by word)
     - Completion signal
     

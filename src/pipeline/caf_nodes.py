@@ -176,9 +176,14 @@ def synthesize_answer_node(state: RAGState) -> RAGState:
     
     This node takes the extracted canonical facts and synthesizes
     a structured answer following the Canonical Answer Structure.
+    
+    NEW: Auto-retry with fallback if LLM refusal detected.
     """
     _log_separator("CAF PASS 2: ANSWER SYNTHESIS")
     start = time.time()
+    
+    import os
+    from src.core.fallback.rate_limiter import get_fallback_limiter
     
     synthesizer = _get_answer_synthesizer()
     
@@ -213,12 +218,86 @@ def synthesize_answer_node(state: RAGState) -> RAGState:
         logger.info(f"[OUTPUT] Citations Used: {citations_used}")
         logger.info(f"[OUTPUT] Answer Preview: {_truncate(answer, 300)}")
         
-        # Check for LLM refusal - trigger fallback if needed
+        # NEW: Check for LLM refusal and auto-retry with fallback
         if should_retry_with_fallback(answer):
-            logger.warning("[REFUSAL DETECTED] LLM indicated it cannot answer. Flagging for fallback.")
-            state["llm_refusal_detected"] = True
-            state["fallback_reason"] = "LLM_REFUSAL"
-            # Note: The pipeline graph should check this flag and route to fallback
+            logger.warning("[REFUSAL DETECTED] LLM indicated it cannot answer.")
+            
+            # Check if fallback already used
+            already_used_fallback = state.get("fallback_used", False)
+            if already_used_fallback:
+                logger.warning("Fallback already used - keeping refusal answer")
+            else:
+                # Check rate limit
+                user_id = state.get("user_id", "anonymous")
+                limiter = get_fallback_limiter(
+                    limit_per_user=int(os.getenv("FALLBACK_RATE_LIMIT_PER_USER", "5")),
+                    window_seconds=int(os.getenv("FALLBACK_RATE_LIMIT_WINDOW", "3600"))
+                )
+                
+                rate_result = limiter.check_limit(user_id)
+                
+                if not rate_result.allowed:
+                    logger.warning(
+                        f"Fallback rate limit exceeded: "
+                        f"{rate_result.current_count}/{rate_result.limit}"
+                    )
+                    state["rate_limit_exceeded"] = True
+                    state["rate_limit_retry_after"] = rate_result.retry_after
+                    # Keep refusal answer
+                else:
+                    # Trigger fallback and regenerate
+                    logger.info(
+                        f"Triggering fallback for refusal - "
+                        f"rate: {rate_result.current_count}/{rate_result.limit}"
+                    )
+                    
+                    # Run Google Search inline (sync version)
+                    try:
+                        from .nodes import _execute_google_search_sync
+                        logger.info("Running Google Search for missing data...")
+                        state = _execute_google_search_sync(state)
+                        
+                        # If we got web data, regenerate answer with it
+                        web_contexts = state.get("web_contexts", [])
+                        if web_contexts:
+                            logger.info(
+                                f"Got {len(web_contexts)} web results - "
+                                f"regenerating answer..."
+                            )
+                            
+                            # Re-extract facts with web context
+                            extractor = _get_fact_extractor()
+                            
+                            # Combine original contexts + web contexts
+                            all_contexts = state.get("contexts", []) + web_contexts
+                            enriched_facts = extractor.extract(
+                                query=state["query"],
+                                contexts=all_contexts,
+                                sub_query_contexts=state.get("sub_query_contexts", {})
+                            )
+                            
+                            # Re-synthesize with enriched facts
+                            new_answer = synthesizer.synthesize(
+                                original_query=state["query"],
+                                facts=enriched_facts
+                            )
+                            
+                            state["answer"] = new_answer
+                            state["canonical_facts"] = [f.to_dict() for f in enriched_facts.facts]
+                            state["fallback_used"] = True
+                            
+                            logger.info(
+                                f"Regenerated answer with fallback data: "
+                                f"{len(new_answer)} chars"
+                            )
+                        else:
+                            logger.warning("No web results from fallback - keeping original answer")
+                            state["fallback_used"] = True  # Mark as used even if no results
+                            
+                    except Exception as fb_error:
+                        logger.error(f"Fallback failed: {fb_error}")
+                        state["fallback_error"] = str(fb_error)
+                        # Keep original answer
         
     except Exception as e:
         logger.error(f"[ERROR] Answer synthesis failed: {e}")

@@ -30,6 +30,7 @@ class QueryService:
     async def process_query(
         self,
         query: str,
+        user_id: str = "anonymous",
         max_docs: int = 10,
         include_sources: bool = True,
         include_context: bool = False
@@ -39,6 +40,7 @@ class QueryService:
         
         Args:
             query: User question
+            user_id: User identifier for rate limiting (default: "anonymous")
             max_docs: Maximum documents to retrieve
             include_sources: Whether to include source documents
             include_context: Whether to include raw context
@@ -47,11 +49,11 @@ class QueryService:
             Complete RAG response with answer, citations, metadata
         """
         try:
-            logger.info(f"Processing query: {query[:50]}...")
+            logger.info(f"Processing query: {query[:50]}... (user: {user_id})")
             
-            # Use existing pipeline
+            # Use existing pipeline WITH user_id for rate limiting
             from src.pipeline import run_rag_pipeline_async
-            result = await run_rag_pipeline_async(query)
+            result = await run_rag_pipeline_async(query, user_id=user_id)
             
             # Format response
             formatted_result = self._format_response(

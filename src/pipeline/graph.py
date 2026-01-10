@@ -192,19 +192,24 @@ def run_rag_pipeline(query: str, use_caf: bool = None) -> Dict[str, Any]:
             raise
 
 
-async def run_rag_pipeline_async(query: str, use_caf: bool = None) -> Dict[str, Any]:
+async def run_rag_pipeline_async(
+    query: str, 
+    user_id: str = "anonymous", 
+    use_caf: bool = None
+) -> Dict[str, Any]:
     """
     Run a query through the full RAG pipeline (async version).
     
     Args:
         query: User question
+        user_id: User identifier for rate limiting (default: "anonymous")
         use_caf: Override CAF_ENABLED setting
         
     Returns:
         Dict with answer, citations, and metadata (includes canonical_facts if CAF)
     """
     graph = get_rag_graph(use_caf=use_caf)
-    initial_state = create_initial_state(query)
+    initial_state = create_initial_state(query, user_id=user_id)
     
     # Use ainvoke for async execution
     result = await graph.ainvoke(initial_state)

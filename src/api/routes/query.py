@@ -8,6 +8,7 @@ from ..schemas.requests import QueryRequest
 from ..schemas.responses import QueryResponse, ErrorResponse, Citation, ResponseMetadata
 from ..services import QueryService
 from ..dependencies import get_router, get_retriever
+from ...core.security import get_query_guard
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,25 @@ async def process_query(
     """Process query through RAG pipeline."""
     try:
         logger.info(f"Received query: {request.query[:50]}...")
+        
+        # SECURITY: Check query with QueryGuard
+        query_guard = get_query_guard()
+        guard_result = query_guard.check(request.query)
+        
+        if not guard_result.is_safe:
+            logger.warning(
+                f"Query blocked by security guard: {guard_result.reason}. "
+                f"Risk: {guard_result.risk_level.value}"
+            )
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "query_blocked",
+                    "message": guard_result.reason,
+                    "risk_level": guard_result.risk_level.value,
+                    "suggestions": guard_result.suggestions
+                }
+            )
         
         # Extract options
         options = request.options or QueryRequest.model_fields['options'].default

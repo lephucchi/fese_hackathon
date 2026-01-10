@@ -25,6 +25,7 @@ class FallbackReason(str, Enum):
     FALLBACK_DISABLED = "FALLBACK_DISABLED"
     TRY_NEWS_FIRST = "TRY_NEWS_FIRST"  # Try news DB before Google
     LLM_REFUSAL = "LLM_REFUSAL"  # LLM couldn't answer from context
+    LOW_CONFIDENCE_GENERATION = "LOW_CONFIDENCE_GENERATION"  # Answer seems uncertain
 
 
 # Keywords that ALWAYS require real-time data (today, right now)
@@ -96,7 +97,8 @@ class FallbackDecider:
         self,
         query: str,
         contexts: List[Dict[str, Any]],
-        routes: Optional[List[str]] = None
+        routes: Optional[List[str]] = None,
+        generated_answer: Optional[str] = None  # NEW: Check answer quality
     ) -> FallbackDecision:
         """
         Analyze retrieval results and decide if fallback is needed.
@@ -105,6 +107,7 @@ class FallbackDecider:
             query: Original user query
             contexts: Retrieved documents with similarity scores
             routes: Routes selected by semantic router
+            generated_answer: Generated answer to check for refusals/low confidence
             
         Returns:
             FallbackDecision with analysis results
@@ -124,6 +127,22 @@ class FallbackDecider:
         scores = self._extract_scores(contexts) if contexts else []
         max_score = max(scores) if scores else 0.0
         doc_count = len(contexts) if contexts else 0
+        
+        # NEW PRIORITY 0: Check if LLM refused or generated low-confidence answer
+        if generated_answer:
+            is_refusal = self._detect_llm_refusal(generated_answer)
+            if is_refusal:
+                logger.warning(
+                    f"LLM refusal detected in generated answer - triggering fallback"
+                )
+                return FallbackDecision(
+                    should_fallback=True,
+                    reason=FallbackReason.LLM_REFUSAL,
+                    max_similarity_score=max_score,
+                    doc_count=doc_count,
+                    details="LLM indicated it cannot answer with available context",
+                    fallback_type="GOOGLE"
+                )
         
         # PRIORITY 1: Strong temporal keywords ALWAYS require real-time data
         # Database cannot have "today's" data, so we must fallback
@@ -238,8 +257,61 @@ class FallbackDecider:
         for keyword in WEAK_TEMPORAL_KEYWORDS:
             if keyword.lower() in query_lower:
                 return keyword
-        return None
-    
+        return None    
+    def _detect_llm_refusal(self, answer: str) -> bool:
+        """
+        Detect if LLM refused to answer or gave a low-confidence response.
+        
+        Args:
+            answer: Generated answer text
+            
+        Returns:
+            True if refusal/low-confidence detected, False otherwise
+        """
+        if not answer or len(answer.strip()) < 20:
+            return True  # Too short to be a real answer
+        
+        answer_lower = answer.lower()
+        
+        # Vietnamese refusal patterns
+        refusal_patterns_vn = [
+            "không có thông tin",
+            "chưa có thông tin",
+            "không tìm thấy",
+            "chưa tìm thấy",
+            "mình không có",
+            "mình chưa có",
+            "dữ liệu hiện tại mình chưa có",
+            "trong dữ liệu hiện tại",
+            "rất tiếc",
+            "xin lỗi",
+            "không thể trả lời",
+            "chưa thể trả lời",
+        ]
+        
+        # English refusal patterns
+        refusal_patterns_en = [
+            "i don't have",
+            "i don't know",
+            "no information",
+            "not available",
+            "cannot find",
+            "cannot answer",
+            "unable to",
+            "insufficient data",
+            "sorry",
+            "apologize",
+        ]
+        
+        all_patterns = refusal_patterns_vn + refusal_patterns_en
+        
+        # Check if answer contains refusal patterns
+        for pattern in all_patterns:
+            if pattern in answer_lower:
+                logger.debug(f"Refusal pattern detected: '{pattern}'")
+                return True
+        
+        return False    
     def _has_news_context(
         self,
         contexts: List[Dict[str, Any]],

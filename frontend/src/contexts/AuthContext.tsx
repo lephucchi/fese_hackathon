@@ -65,8 +65,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const success = await refreshToken();
-        if (!success) {
+        // Try to refresh token first
+        const refreshSuccess = await refreshToken();
+        if (!refreshSuccess) {
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
+
+        // Fetch current user info from /api/auth/me
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+          method: 'GET',
+          credentials: 'include',
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          setUser(data.user);
+        } else {
           setUser(null);
         }
       } catch {

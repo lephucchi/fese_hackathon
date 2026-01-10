@@ -215,3 +215,18 @@ class AuthService:
             return first_name
         else:
             return email.split("@")[0]
+    
+    async def get_user_by_id(self, user_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get user by ID.
+        
+        Args:
+            user_id: User's UUID string
+            
+        Returns:
+            Formatted user dict if found, None otherwise
+        """
+        user = await self.user_repo.find_by_id(user_id)
+        if not user:
+            return None
+        return self._format_user_response(user)

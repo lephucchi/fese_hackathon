@@ -350,22 +350,57 @@ def fallback_check_node(state: RAGState) -> RAGState:
     
     Analyzes retrieval results and decides whether to trigger
     Google Search grounding for additional context.
+    
+    Updated with Rate Limiting (Phase 4).
     """
-    _log_separator("STEP 3.5: FALLBACK CHECK")
+    _log_separator("STEP 3.5: FALLBACK CHECK + RATE LIMIT")
     start = time.time()
+    
+    import os
+    from src.core.fallback.rate_limiter import get_fallback_limiter
     
     decider = _get_fallback_decider()
     
     query = state["query"]
     contexts = state.get("contexts", [])
     routes = state.get("routes", [])
+    user_id = state.get("user_id", "anonymous")
     
     logger.info(f"[INPUT] Query: {_truncate(query)}")
     logger.info(f"[INPUT] Retrieved Contexts: {len(contexts)}")
     logger.info(f"[INPUT] Routes: {routes}")
+    logger.info(f"[INPUT] User ID: {user_id}")
     
     # Make fallback decision
     decision = decider.decide(query, contexts, routes)
+    
+    # SECURITY: Check rate limit if fallback is needed
+    if decision.should_fallback:
+        limiter = get_fallback_limiter(
+            limit_per_user=int(os.getenv("FALLBACK_RATE_LIMIT_PER_USER", "5")),
+            window_seconds=int(os.getenv("FALLBACK_RATE_LIMIT_WINDOW", "3600"))
+        )
+        
+        rate_result = limiter.check_limit(user_id)
+        
+        if not rate_result.allowed:
+            logger.warning(
+                f"Fallback rate limit exceeded for user {user_id}: "
+                f"{rate_result.reason}"
+            )
+            
+            # Override decision - don't fallback
+            decision.should_fallback = False
+            decision.details = (
+                f"Rate limit: {rate_result.current_count}/{rate_result.limit}. "
+                f"Retry after {rate_result.retry_after}s"
+            )
+            
+            state["rate_limit_exceeded"] = True
+            state["rate_limit_retry_after"] = rate_result.retry_after
+        else:
+            logger.info(f"Rate limit OK: {rate_result.current_count}/{rate_result.limit}")
+            state["rate_limit_exceeded"] = False
     
     state["fallback_decision"] = decision.to_dict()
     state["step_times"]["fallback_check"] = (time.time() - start) * 1000
@@ -377,6 +412,45 @@ def fallback_check_node(state: RAGState) -> RAGState:
     if decision.details:
         logger.info(f"[OUTPUT] Details: {decision.details}")
     logger.info(f"[TIME] Fallback Check: {state['step_times']['fallback_check']:.2f}ms")
+    
+    return state
+
+
+def _execute_google_search_sync(state: RAGState) -> RAGState:
+    """
+    Synchronous version of Google Search for inline fallback.
+    
+    Used when we need to run fallback from sync context
+    (e.g., within synthesize_answer_node).
+    """
+    _log_separator("INLINE GOOGLE SEARCH")
+    start = time.time()
+    
+    search = _get_google_search()
+    
+    query = state["query"]
+    sub_queries = state.get("sub_queries", [])
+    
+    logger.info(f"[INPUT] Query: {_truncate(query)}")
+    logger.info(f"[INPUT] Sub-queries: {len(sub_queries)}")
+    
+    # Execute search (this is sync)
+    result = search.search(query, sub_queries)
+    
+    state["web_contexts"] = result.get("web_contexts", [])
+    state["fallback_used"] = result.get("fallback_used", True)
+    state["fallback_error"] = result.get("fallback_error")
+    
+    elapsed = (time.time() - start) * 1000
+    if "step_times" not in state:
+        state["step_times"] = {}
+    state["step_times"]["google_search_inline"] = elapsed
+    
+    logger.info(f"[OUTPUT] Web Contexts: {len(state['web_contexts'])}")
+    logger.info(f"[OUTPUT] Fallback Used: {state['fallback_used']}")
+    if state["fallback_error"]:
+        logger.warning(f"[OUTPUT] Error: {state['fallback_error']}")
+    logger.info(f"[TIME] Inline Search: {elapsed:.2f}ms")
     
     return state
 
@@ -455,3 +529,106 @@ def should_fallback(state: RAGState) -> bool:
     logger.info(f"[CONDITIONAL] Should Fallback: {should_fb}")
     return should_fb
 
+
+def post_generation_fallback_check_node(state: RAGState) -> RAGState:
+    """
+    Check if fallback is needed AFTER generation.
+    
+    This catches cases where:
+    - LLM refuses to answer despite having contexts
+    - Answer quality is too low
+    - Answer indicates missing information
+    
+    This is a second-pass fallback check after seeing the generated answer.
+    """
+    _log_separator("POST-GENERATION FALLBACK CHECK")
+    start = time.time()
+    
+    import os
+    from src.core.fallback.rate_limiter import get_fallback_limiter
+    
+    decider = _get_fallback_decider()
+    
+    query = state["query"]
+    contexts = state.get("contexts", [])
+    routes = state.get("routes", [])
+    answer = state.get("answer", "")
+    user_id = state.get("user_id", "anonymous")
+    
+    # Check if already used fallback
+    already_used_fallback = state.get("fallback_used", False)
+    if already_used_fallback:
+        logger.info("Fallback already used - skipping post-check")
+        state["post_fallback_check_time"] = (time.time() - start) * 1000
+        return state
+    
+    logger.info(f"[INPUT] Query: {_truncate(query)}")
+    logger.info(f"[INPUT] Answer length: {len(answer)} chars")
+    logger.info(f"[INPUT] Answer preview: {_truncate(answer, 100)}")
+    
+    # Make decision WITH generated answer
+    decision = decider.decide(
+        query=query,
+        contexts=contexts,
+        routes=routes,
+        generated_answer=answer  # Pass answer for refusal detection
+    )
+    
+    # If refusal detected, check rate limit and trigger fallback
+    if decision.should_fallback and decision.reason == "LLM_REFUSAL":
+        logger.warning(
+            f"LLM refusal detected in answer - attempting fallback"
+        )
+        
+        # Check rate limit
+        limiter = get_fallback_limiter(
+            limit_per_user=int(os.getenv("FALLBACK_RATE_LIMIT_PER_USER", "5")),
+            window_seconds=int(os.getenv("FALLBACK_RATE_LIMIT_WINDOW", "3600"))
+        )
+        
+        rate_result = limiter.check_limit(user_id)
+        
+        if not rate_result.allowed:
+            logger.warning(
+                f"Fallback rate limit exceeded for user {user_id}: "
+                f"{rate_result.reason}"
+            )
+            decision.should_fallback = False
+            decision.details = (
+                f"LLM refusal detected but rate limited: "
+                f"{rate_result.current_count}/{rate_result.limit}. "
+                f"Retry after {rate_result.retry_after}s"
+            )
+            state["rate_limit_exceeded"] = True
+            state["rate_limit_retry_after"] = rate_result.retry_after
+        else:
+            logger.info(
+                f"Fallback approved for refusal - "
+                f"rate limit OK: {rate_result.current_count}/{rate_result.limit}"
+            )
+            state["rate_limit_exceeded"] = False
+    
+    state["post_generation_fallback_decision"] = decision.to_dict()
+    state["post_fallback_check_time"] = (time.time() - start) * 1000
+    
+    logger.info(f"[OUTPUT] Should Retry with Fallback: {decision.should_fallback}")
+    logger.info(f"[OUTPUT] Reason: {decision.reason.value}")
+    if decision.details:
+        logger.info(f"[OUTPUT] Details: {decision.details}")
+    logger.info(f"[TIME] Post-fallback Check: {state['post_fallback_check_time']:.2f}ms")
+    
+    return state
+
+
+def should_retry_with_fallback(state: RAGState) -> bool:
+    """
+    Conditional function to check if we should retry with fallback
+    after generation.
+    
+    Used by LangGraph for post-generation conditional routing.
+    """
+    post_decision = state.get("post_generation_fallback_decision", {})
+    should_retry = post_decision.get("should_fallback", False)
+    
+    logger.info(f"[CONDITIONAL] Should Retry with Fallback: {should_retry}")
+    return should_retry

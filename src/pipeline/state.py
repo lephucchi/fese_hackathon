@@ -14,9 +14,13 @@ class RAGState(TypedDict):
     This state flows through all nodes in the graph.
     Updated to support Canonical Answer Framework (CAF).
     Updated to support External Search Fallback.
+    Updated to support Rate Limiting (Phase 4).
     """
     # Input
     query: str
+    
+    # NEW: User context for rate limiting
+    user_id: Optional[str]
     
     # Routing
     routes: List[str]
@@ -44,6 +48,10 @@ class RAGState(TypedDict):
     fallback_used: bool
     fallback_error: Optional[str]
     
+    # NEW: Rate Limiting (Phase 4)
+    rate_limit_exceeded: bool
+    rate_limit_retry_after: Optional[int]
+    
     # Generation (CAF Pass 2 output)
     answer: str
     citations: List[Dict[str, Any]]
@@ -55,10 +63,11 @@ class RAGState(TypedDict):
     error: Optional[str]
 
 
-def create_initial_state(query: str) -> RAGState:
+def create_initial_state(query: str, user_id: Optional[str] = None) -> RAGState:
     """Create initial state from query."""
     return RAGState(
         query=query,
+        user_id=user_id,
         routes=[],
         route_scores={},
         is_complex=False,
@@ -73,6 +82,8 @@ def create_initial_state(query: str) -> RAGState:
         web_contexts=[],         # Fallback
         fallback_used=False,     # Fallback
         fallback_error=None,     # Fallback
+        rate_limit_exceeded=False,  # Rate Limiting
+        rate_limit_retry_after=None,  # Rate Limiting
         answer="",
         citations=[],
         is_grounded=False,
