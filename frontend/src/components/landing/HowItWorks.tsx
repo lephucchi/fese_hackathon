@@ -17,23 +17,30 @@ export function HowItWorks() {
   ];
 
   return (
+<<<<<<< HEAD
+    <section
+      id="how-it-works"
+      style={{
+        padding: '80px 0',
+=======
     <section 
       id="how-it-works" 
       style={{ 
         padding: 'clamp(40px, 8vw, 80px) 0',
+>>>>>>> main
         background: 'var(--background)'
       }}
     >
       <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 1.5rem)' }}>
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-          <h2 style={{ 
+          <h2 style={{
             fontSize: 'clamp(2rem, 4vw, 2.5rem)',
             fontWeight: 800,
             marginBottom: '16px'
           }}>
             {t('howItWorks.title')}
           </h2>
-          <p style={{ 
+          <p style={{
             fontSize: '1.125rem',
             color: 'var(--text-secondary)',
             maxWidth: '600px',
@@ -43,15 +50,15 @@ export function HowItWorks() {
           </p>
         </div>
 
-        <div style={{ 
+        <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
           gap: 'clamp(24px, 5vw, 48px)',
           position: 'relative'
         }}>
           {steps.map((step, i) => (
-            <motion.div 
-              key={i} 
+            <motion.div
+              key={i}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -70,9 +77,9 @@ export function HowItWorks() {
                   opacity: 0.3
                 }} />
               )}
-              
+
               <div style={{ textAlign: 'center' }}>
-                <div style={{ 
+                <div style={{
                   width: '80px',
                   height: '80px',
                   borderRadius: '50%',
@@ -86,23 +93,24 @@ export function HowItWorks() {
                 }}>
                   <step.icon size={24} />
                 </div>
-                <div style={{ 
+                <div style={{
                   fontSize: '3rem',
                   fontWeight: 800,
                   color: 'var(--primary)',
-                  opacity: 0.2,
-                  marginBottom: '8px'
+                  opacity: 1,
+                  marginBottom: '8px',
+                  textShadow: '0 0 20px rgba(0, 200, 5, 0.3)'
                 }}>
                   {t(`howItWorks.${step.key}.number`)}
                 </div>
-                <h3 style={{ 
+                <h3 style={{
                   fontSize: '1.5rem',
                   fontWeight: 700,
                   marginBottom: '12px'
                 }}>
                   {t(`howItWorks.${step.key}.title`)}
                 </h3>
-                <p style={{ 
+                <p style={{
                   color: 'var(--text-secondary)',
                   lineHeight: 1.6
                 }}>

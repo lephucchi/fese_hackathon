@@ -20,7 +20,7 @@ export function Hero({ onGetStarted }: HeroProps) {
         paddingBottom: '80px',
         background: 'var(--background)',
         position: 'relative',
-        overflow: 'hidden',
+        overflow: 'visible',
         width: '100%'
       }}
     >
@@ -68,11 +68,20 @@ export function Hero({ onGetStarted }: HeroProps) {
             style={{
               fontSize: 'clamp(1.75rem, 5vw, 4rem)',
               fontWeight: 800,
+<<<<<<< HEAD
+              lineHeight: 1.3,
+              marginBottom: '24px',
+              letterSpacing: '-0.02em',
+              color: 'var(--text-primary)',
+              paddingTop: '0.1em',
+              overflow: 'visible'
+=======
               lineHeight: 1.15,
               marginBottom: '20px',
               letterSpacing: '-0.02em',
               color: 'var(--text-primary)',
               padding: '0 0.5rem'
+>>>>>>> main
             }}
           >
             {t('hero.title')} <br />
@@ -120,6 +129,7 @@ export function Hero({ onGetStarted }: HeroProps) {
               style={{
                 padding: '16px 40px',
                 fontSize: '16px',
+                fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
@@ -130,10 +140,12 @@ export function Hero({ onGetStarted }: HeroProps) {
               <ArrowRight size={20} />
             </button>
             <button
+              onClick={onGetStarted}
               className="btn-secondary interactive-scale"
               style={{
                 padding: '16px 40px',
                 fontSize: '16px',
+                fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',

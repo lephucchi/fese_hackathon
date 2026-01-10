@@ -143,6 +143,7 @@ from src.api.routes.admin import router as admin_router
 from src.api.routes.news import router as news_router
 from src.api.routes.interactions import router as interactions_router
 from src.api.routes.market import router as market_router
+from src.api.routes.portfolio import router as portfolio_router
 
 app.include_router(query_router, prefix="/api")
 app.include_router(health_router, prefix="/api")
@@ -152,6 +153,7 @@ app.include_router(admin_router, prefix="/api")
 app.include_router(news_router, prefix="/api")
 app.include_router(interactions_router, prefix="/api")
 app.include_router(market_router, prefix="/api")
+app.include_router(portfolio_router, prefix="/api")
 
 
 

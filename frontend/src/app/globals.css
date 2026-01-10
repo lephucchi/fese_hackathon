@@ -6,29 +6,37 @@
    ============================================ */
 @theme {
   /* Robinhood-style Color Palette */
-  --color-primary: #00C805; /* Robinhood Green */
+  --color-primary: #00C805;
+  /* Robinhood Green */
   --color-primary-light: #33D433;
   --color-primary-dark: #00A004;
-  --color-secondary: #1F2937; /* Dark Slate */
-  --color-accent: #FFD700; /* Gold for gamification */
-  
-  --color-success: #00C805; /* Robinhood Green */
-  --color-warning: #FF9F1C; /* Orange */
-  --color-error: #FF5A5F; /* Coral Red */
-  --color-risk: #FF5A5F; /* Coral Red */
-  --color-mpoints: #FFD700; /* Gold */
-  
+  --color-secondary: #1F2937;
+  /* Dark Slate */
+  --color-accent: #FFD700;
+  /* Gold for gamification */
+
+  --color-success: #00C805;
+  /* Robinhood Green */
+  --color-warning: #FF9F1C;
+  /* Orange */
+  --color-error: #FF5A5F;
+  /* Coral Red */
+  --color-risk: #FF5A5F;
+  /* Coral Red */
+  --color-mpoints: #FFD700;
+  /* Gold */
+
   /* Font family */
   --font-family-sans: 'Inter', 'SF Pro Display', system-ui, -apple-system, sans-serif;
-  
+
   /* Spacing scale extensions */
   --spacing-18: 4.5rem;
-  
+
   /* Shadow extensions - Soft, diffused */
   --shadow-fintech: 0 4px 24px rgba(0, 0, 0, 0.06);
   --shadow-fintech-hover: 0 8px 32px rgba(0, 0, 0, 0.08);
   --shadow-glow-green: 0 0 24px rgba(0, 200, 5, 0.2);
-  
+
   /* Border radius - Heavy rounding */
   --radius-pill: 9999px;
   --radius-card: 24px;
@@ -41,26 +49,38 @@
    ROBINHOOD-ESQUE FINTECH DESIGN
    ============================================ */
 :root {
-  --background: #FFFFFF; /* Pure White */
-  --background-soft: #F5F9F9; /* Very Light Mint for softness */
-  --foreground: #1F2937; /* Dark Slate - easier on eyes */
+  --background: #FFFFFF;
+  /* Pure White */
+  --background-soft: #F5F9F9;
+  /* Very Light Mint for softness */
+  --foreground: #1F2937;
+  /* Dark Slate - easier on eyes */
 
   /* Brand Colors - Robinhood Style */
-  --primary: #00C805; /* Robinhood Green */
+  --primary: #00C805;
+  /* Robinhood Green */
   --primary-light: #33D433;
   --primary-dark: #00A004;
-  --secondary: #1F2937; /* Dark Slate */
-  --accent: #FFD700; /* Gold for M-Points */
+  --secondary: #1F2937;
+  /* Dark Slate */
+  --accent: #FFD700;
+  /* Gold for M-Points */
 
   /* Semantic Colors (Finance) */
-  --success: #00C805; /* Up/Success/Save - Vibrant Green */
-  --warning: #FF9F1C; /* Orange */
-  --error: #FF5A5F; /* Down/Risk - Coral Red */
-  --risk: #FF5A5F; /* Coral Red */
-  --mpoints: #FFD700; /* Gold */
+  --success: #00C805;
+  /* Up/Success/Save - Vibrant Green */
+  --warning: #FF9F1C;
+  /* Orange */
+  --error: #FF5A5F;
+  /* Down/Risk - Coral Red */
+  --risk: #FF5A5F;
+  /* Coral Red */
+  --mpoints: #FFD700;
+  /* Gold */
 
   /* Surface & Background - Minimalist */
-  --surface: #F0F2F5; /* Light Grey for cards/inputs */
+  --surface: #F0F2F5;
+  /* Light Grey for cards/inputs */
   --surface-hover: #E8EAED;
   --surface-active: #DDE0E3;
   --card: #FFFFFF;
@@ -70,11 +90,13 @@
   --border: #E5E7EB;
   --border-hover: #D1D5DB;
 
-  /* Text - Robinhood Style */
-  --text-primary: #1F2937; /* Dark Slate */
-  --text-secondary: #6B7280; /* Cool Grey */
-  --text-tertiary: #9CA3AF;
-  --text-muted: #D1D5DB;
+  /* Text - Robinhood Style (improved contrast) */
+  --text-primary: #111827;
+  /* Near black for best readability */
+  --text-secondary: #374151;
+  /* Dark grey - much better contrast */
+  --text-tertiary: #6B7280;
+  --text-muted: #9CA3AF;
 
   /* Glass Effect */
   --glass-bg: rgba(255, 255, 255, 0.9);
@@ -93,16 +115,19 @@
    ROBINHOOD-ESQUE DARK THEME
    ============================================ */
 .dark {
-  --background: #0A0E14; /* Deep Dark */
+  --background: #0A0E14;
+  /* Deep Dark */
   --background-soft: #121621;
   --foreground: #F5F9F9;
 
   /* Brand Colors (vibrant for dark) */
-  --primary: #00C805; /* Robinhood Green */
+  --primary: #00C805;
+  /* Robinhood Green */
   --primary-light: #33D433;
   --primary-dark: #00A004;
   --secondary: #E5E7EB;
-  --accent: #FFD700; /* Gold */
+  --accent: #FFD700;
+  /* Gold */
 
   /* Semantic Colors */
   --success: #00C805;
@@ -122,11 +147,12 @@
   --border: #2E3442;
   --border-hover: #3A4050;
 
-  /* Text */
-  --text-primary: #F5F9F9;
-  --text-secondary: #9CA3AF;
-  --text-tertiary: #6B7280;
-  --text-muted: #4B5563;
+  /* Text (improved contrast for dark mode) */
+  --text-primary: #FFFFFF;
+  --text-secondary: #D1D5DB;
+  /* Much brighter for readability */
+  --text-tertiary: #9CA3AF;
+  --text-muted: #6B7280;
 
   /* Glass Effect */
   --glass-bg: rgba(26, 31, 46, 0.85);
@@ -233,45 +259,56 @@ h4,
 h5,
 h6 {
   color: var(--text-primary);
-  font-weight: 700; /* Bold for headings */
-  line-height: 1.2; /* Tight line-height for impact */
-  letter-spacing: -0.02em; /* Large tracking for modern feel */
+  font-weight: 700;
+  /* Bold for headings */
+  line-height: 1.2;
+  /* Tight line-height for impact */
+  letter-spacing: -0.02em;
+  /* Large tracking for modern feel */
 }
 
 h1 {
-  font-size: 3rem; /* 48px */
-  font-weight: 800; /* Heavy contrast */
+  font-size: 3rem;
+  /* 48px */
+  font-weight: 800;
+  /* Heavy contrast */
   text-transform: uppercase;
 }
 
 h2 {
-  font-size: 2.25rem; /* 36px */
+  font-size: 2.25rem;
+  /* 36px */
   font-weight: 700;
 }
 
 h3 {
-  font-size: 1.875rem; /* 30px */
+  font-size: 1.875rem;
+  /* 30px */
   font-weight: 700;
 }
 
 h4 {
-  font-size: 1.5rem; /* 24px */
+  font-size: 1.5rem;
+  /* 24px */
   font-weight: 600;
 }
 
 h5 {
-  font-size: 1.25rem; /* 20px */
+  font-size: 1.25rem;
+  /* 20px */
   font-weight: 600;
 }
 
 h6 {
-  font-size: 1rem; /* 16px */
+  font-size: 1rem;
+  /* 16px */
   font-weight: 600;
 }
 
 p {
   color: var(--text-secondary);
-  line-height: 1.6; /* Ample line-height for readability */
+  line-height: 1.6;
+  /* Ample line-height for readability */
 }
 
 a {
@@ -423,6 +460,9 @@ a:hover {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  display: inline-block;
+  padding-top: 0.15em;
+  margin-top: -0.15em;
 }
 
 .text-gradient-gold {
@@ -441,17 +481,20 @@ a:hover {
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 24px; /* Heavy rounding - rounded-3xl */
+  border-radius: 24px;
+  /* Heavy rounding - rounded-3xl */
   padding: 24px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-lg); /* Soft, diffused shadow */
+  box-shadow: var(--shadow-lg);
+  /* Soft, diffused shadow */
 }
 
 .card:hover {
   background: var(--card-hover);
   border-color: var(--border-hover);
   box-shadow: var(--shadow-xl);
-  transform: translateY(-2px); /* Subtle uplift */
+  transform: translateY(-2px);
+  /* Subtle uplift */
 }
 
 /* Buttons - Pill-Shaped with Micro-interactions */
@@ -463,14 +506,16 @@ a:hover {
   padding: 12px 28px;
   font-size: 15px;
   font-weight: 600;
-  border-radius: 14px; /* Moderate rounding */
+  border-radius: 14px;
+  /* Moderate rounding */
   border: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary {
-  background: var(--primary); /* Solid Robinhood Green */
+  background: var(--primary);
+  /* Solid Robinhood Green */
   color: white;
   box-shadow: 0 2px 8px rgba(0, 200, 5, 0.15);
 }
@@ -482,7 +527,8 @@ a:hover {
 }
 
 .btn-primary:active {
-  transform: scale(0.95); /* Micro-interaction - scale down on click */
+  transform: scale(0.95);
+  /* Micro-interaction - scale down on click */
 }
 
 .btn-secondary {
@@ -498,7 +544,8 @@ a:hover {
 }
 
 .btn-secondary:active {
-  transform: scale(0.95); /* Micro-interaction */
+  transform: scale(0.95);
+  /* Micro-interaction */
 }
 
 /* Focus Styles */
@@ -524,7 +571,8 @@ textarea,
 select {
   background: var(--surface);
   border: 1.5px solid var(--border);
-  border-radius: 16px; /* Rounded-2xl */
+  border-radius: 16px;
+  /* Rounded-2xl */
   padding: 14px 18px;
   font-size: 16px;
   color: var(--text-primary);
@@ -555,6 +603,7 @@ select:disabled {
 
 /* Prevent iOS zoom on input focus */
 @media screen and (max-width: 768px) {
+
   input,
   textarea,
   select {
@@ -707,6 +756,7 @@ html {
    REDUCED MOTION FOR ACCESSIBILITY
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -870,9 +920,11 @@ html {
   .hidden-sm {
     display: block;
   }
+
   .show-sm-block {
     display: block;
   }
+
   .show-sm-flex {
     display: flex;
   }
@@ -902,12 +954,15 @@ html {
   .hidden-md {
     display: block;
   }
+
   .show-md-block {
     display: block;
   }
+
   .show-md-flex {
     display: flex !important;
   }
+
   .hide-md {
     display: none !important;
   }

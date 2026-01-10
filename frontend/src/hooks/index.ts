@@ -14,3 +14,4 @@ export { useMarketStack } from './useMarketStack';
 export type { NewsStackItem } from './useMarketStack';
 export { useTheme, ThemeProvider } from './useTheme';
 export { useUserInterests } from './useUserInterests';
+export { usePortfolio } from './usePortfolio';

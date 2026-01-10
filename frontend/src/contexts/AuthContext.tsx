@@ -6,6 +6,11 @@ import { useRouter } from 'next/navigation';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // Types
+export interface RoleInfo {
+  role_id: number;
+  role_name: string;
+}
+
 export interface User {
   user_id: string;
   email: string;
@@ -14,6 +19,7 @@ export interface User {
   display_name?: string;
   avatar_url?: string;
   risk_appetite?: string;
+  role?: RoleInfo;
   created_at?: string;
 }
 
@@ -86,7 +92,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, 14 * 60 * 1000); // 14 minutes
 
     return () => clearInterval(interval);
+<<<<<<< HEAD
+  }, [user]);
+
+  const fetchCurrentUser = useCallback(async (): Promise<User | null> => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const userData = await response.json();
+      return userData;
+    } catch (error) {
+      console.error('Fetch user error:', error);
+      return null;
+    }
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      // Try to refresh token to check if user is logged in
+      const success = await refreshToken();
+      if (success) {
+        // Token refreshed, now fetch user info
+        const userData = await fetchCurrentUser();
+        if (userData) {
+          setUser(userData);
+        } else {
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+=======
   }, [user, refreshToken]);
+>>>>>>> main
 
   const login = useCallback(async (email: string, password: string) => {
     try {
@@ -106,7 +157,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       setUser(data.user);
+<<<<<<< HEAD
+
+      // Redirect to dashboard
+=======
       
+>>>>>>> main
       router.push('/dashboard');
     } catch (error) {
       throw error;
@@ -143,7 +199,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       setUser(data.user);
+<<<<<<< HEAD
+
+      // Redirect to dashboard
+=======
       
+>>>>>>> main
       router.push('/dashboard');
     } catch (error) {
       throw error;

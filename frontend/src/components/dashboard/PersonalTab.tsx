@@ -1,30 +1,58 @@
 /**
- * Personal Tab Component - Portfolio & Macro Alignment
- * Responsibility: Display portfolio with macro news impact analysis
+ * Personal Tab Component - Profile, Portfolio & Macro Alignment
+ * Responsibility: Display user profile, portfolio with macro news impact analysis
  */
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Portfolio, SynthesisReport } from '@/types/dashboard.types';
-import { ArrowUp, ArrowDown, Edit2, Sparkles } from 'lucide-react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { SynthesisReport } from '@/types/dashboard.types';
+import { Sparkles, User, Mail, Shield, Crown, Star, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useDisclaimer } from '@/hooks/useDisclaimer';
 import { DisclaimerModal } from '@/components/common/DisclaimerModal';
+<<<<<<< HEAD
+import { useAuth } from '@/hooks/useAuth';
+import { PortfolioCard } from './PortfolioCard';
+=======
 import { useLanguage } from '@/contexts/LanguageContext';
+>>>>>>> main
 
 interface PersonalTabProps {
-  readonly portfolio: Portfolio;
   readonly report: SynthesisReport;
-  readonly onEditPortfolio: () => void;
 }
 
-// Format currency helper
-const formatVND = (amount: number): string => {
-  return new Intl.NumberFormat('vi-VN').format(amount);
+// Tier configuration
+const TIER_CONFIG: Record<number, { name: string; color: string; bgColor: string; icon: React.ReactNode }> = {
+  1: {
+    name: 'Normal',
+    color: '#6B7280',
+    bgColor: 'rgba(107, 114, 128, 0.1)',
+    icon: <User size={14} />
+  },
+  2: {
+    name: 'Pro',
+    color: '#3B82F6',
+    bgColor: 'rgba(59, 130, 246, 0.1)',
+    icon: <Star size={14} />
+  },
+  3: {
+    name: 'Business',
+    color: '#8B5CF6',
+    bgColor: 'rgba(139, 92, 246, 0.1)',
+    icon: <Zap size={14} />
+  },
+  4: {
+    name: 'Admin',
+    color: '#F59E0B',
+    bgColor: 'rgba(245, 158, 11, 0.1)',
+    icon: <Crown size={14} />
+  },
 };
 
+<<<<<<< HEAD
+export function PersonalTab({ report }: PersonalTabProps) {
+=======
 // Chart colors - Green theme matching primary color
 const COLORS: Record<string, string> = {
   HPG: '#00C805',  // Primary Green
@@ -38,9 +66,11 @@ const COLORS: Record<string, string> = {
 export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabProps) {
   const { t } = useLanguage();
   const [showEditModal, setShowEditModal] = useState(false);
+>>>>>>> main
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [viewingInsights, setViewingInsights] = useState(false);
   const { hasAccepted, isLoading: disclaimerLoading, acceptDisclaimer } = useDisclaimer();
+  const { user, isAuthenticated } = useAuth();
 
   // Check if user wants to view AI insights
   useEffect(() => {
@@ -49,14 +79,8 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
     }
   }, [viewingInsights, disclaimerLoading, hasAccepted]);
 
-  // Prepare chart data
-  const chartData = portfolio.positions.map(p => ({
-    name: p.symbol,
-    value: p.currentPrice * p.quantity,
-    allocation: ((p.currentPrice * p.quantity) / portfolio.totalValue) * 100,
-  }));
-
-  const dailyChangeAmount = portfolio.todayProfitLoss;
+  // Get tier info
+  const tierInfo = user?.role?.role_id ? TIER_CONFIG[user.role.role_id] : TIER_CONFIG[1];
 
   return (
     <div style={{
@@ -64,6 +88,35 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
       margin: '0 auto',
       padding: 'clamp(20px, 4vw, 40px) clamp(12px, 3vw, 24px)',
     }}>
+<<<<<<< HEAD
+      {/* Profile Card - NEW */}
+      {isAuthenticated && user && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{
+            background: 'var(--card)',
+            borderRadius: '24px',
+            padding: '32px',
+            boxShadow: 'var(--shadow-fintech)',
+            marginBottom: '32px',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Background decoration */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: '300px',
+            height: '300px',
+            background: 'radial-gradient(circle, rgba(0, 200, 5, 0.08) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
+
+=======
       {/* Header - Total Asset Value */}
       <div style={{
         textAlign: 'center',
@@ -198,58 +251,226 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           </div>
 
           {/* Legend */}
+>>>>>>> main
           <div style={{
             display: 'flex',
-            flexDirection: 'column',
-            gap: '16px',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '28px',
           }}>
-            {chartData.map((item) => (
-              <div
-                key={item.name}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                }}
-              >
-                <div
-                  style={{
-                    width: '16px',
-                    height: '16px',
-                    borderRadius: '4px',
-                    background: COLORS[item.name] || '#9CA3AF',
-                  }}
-                />
-                <div style={{ flex: 1 }}>
+            <Shield size={24} style={{ color: 'var(--primary)' }} />
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: 'var(--text-primary)',
+              margin: 0,
+            }}>
+              Hồ sơ cá nhân
+            </h2>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr',
+            gap: '40px',
+            alignItems: 'center',
+          }}>
+            {/* Avatar Section */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px',
+            }}>
+              {/* Avatar Image */}
+              <div style={{
+                position: 'relative',
+              }}>
+                <div style={{
+                  width: '120px',
+                  height: '120px',
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: '4px solid var(--primary)',
+                  boxShadow: '0 8px 24px rgba(0, 200, 5, 0.25)',
+                }}>
+                  {user.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt={user.display_name || 'Avatar'}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: '100%',
+                      height: '100%',
+                      background: 'linear-gradient(135deg, var(--primary) 0%, #4ADE80 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '3rem',
+                      fontWeight: 700,
+                      color: 'white',
+                    }}>
+                      {user.display_name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                {/* Online indicator */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '8px',
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  background: '#10B981',
+                  border: '3px solid var(--card)',
+                }} />
+              </div>
+
+              {/* Tier Badge */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                borderRadius: '9999px',
+                background: tierInfo.bgColor,
+                border: `1px solid ${tierInfo.color}`,
+              }}>
+                <span style={{ color: tierInfo.color }}>{tierInfo.icon}</span>
+                <span style={{
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: tierInfo.color,
+                }}>
+                  {tierInfo.name}
+                </span>
+              </div>
+            </div>
+
+            {/* Info Section */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+            }}>
+              {/* Name Row */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '24px',
+              }}>
+                {/* First Name */}
+                <div>
                   <div style={{
-                    fontSize: '15px',
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                    marginBottom: '6px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Họ
+                  </div>
+                  <div style={{
+                    fontSize: '1.125rem',
                     fontWeight: 600,
                     color: 'var(--text-primary)',
                   }}>
-                    {item.name}
+                    {user.first_name || '—'}
+                  </div>
+                </div>
+
+                {/* Last Name */}
+                <div>
+                  <div style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                    marginBottom: '6px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Tên
                   </div>
                   <div style={{
-                    fontSize: '13px',
-                    color: 'var(--text-secondary)',
+                    fontSize: '1.125rem',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
                   }}>
-                    {formatVND(item.value)} ₫
+                    {user.last_name || '—'}
                   </div>
                 </div>
+              </div>
+
+              {/* Display Name */}
+              <div>
                 <div style={{
-                  fontSize: '15px',
-                  fontWeight: 600,
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
                   color: 'var(--text-secondary)',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
                 }}>
-                  {item.allocation.toFixed(1)}%
+                  Tên hiển thị
+                </div>
+                <div style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}>
+                  <User size={18} style={{ color: 'var(--primary)' }} />
+                  {user.display_name || user.email.split('@')[0]}
                 </div>
               </div>
-            ))}
+
+              {/* Email */}
+              <div>
+                <div style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  color: 'var(--text-secondary)',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}>
+                  Email
+                </div>
+                <div style={{
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                  color: 'var(--text-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}>
+                  <Mail size={16} style={{ color: 'var(--text-secondary)' }} />
+                  {user.email}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      )}
+
+      {/* Portfolio Card - Uses real API */}
+      <PortfolioCard />
 
       {/* AI Synthesis Report */}
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
         style={{
           background: 'var(--card)',
           borderRadius: '24px',
@@ -341,7 +562,6 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: '24px',
-          marginBottom: '32px',
         }}>
           {/* Positives */}
           <div>
@@ -423,6 +643,9 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
             </ul>
           </div>
         </div>
+<<<<<<< HEAD
+      </motion.div>
+=======
 
         {/* Recommendation */}
         <div style={{
@@ -457,6 +680,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           </div>
         </div>
       </div>
+>>>>>>> main
 
       {/* Floating Action Button */}
       <Link href="/chat" style={{ textDecoration: 'none' }}>
@@ -487,6 +711,8 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
         </motion.button>
       </Link>
 
+<<<<<<< HEAD
+=======
       {/* Edit Portfolio Modal */}
       <AnimatePresence>
         {showEditModal && (
@@ -637,6 +863,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
         )}
       </AnimatePresence>
 
+>>>>>>> main
       {/* Disclaimer Modal for AI Insights */}
       <DisclaimerModal
         isOpen={showDisclaimer}

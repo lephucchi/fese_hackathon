@@ -1,8 +1,13 @@
 'use client';
 
-import { useState } from 'react';
 import { Navigation } from '@/components/shared/Navigation';
 import { PersonalTab } from '@/components/dashboard/PersonalTab';
+<<<<<<< HEAD
+import { SynthesisReport } from '@/types/dashboard.types';
+
+// Mock report data (portfolio now fetched via API)
+const mockReport: SynthesisReport = {
+=======
 import { Portfolio, SynthesisReport } from '@/types/dashboard.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -24,6 +29,7 @@ const mockPortfolio: Portfolio = {
 
 // Mock reports for different languages
 const mockReportVi: SynthesisReport = {
+>>>>>>> main
   date: new Date(),
   overview: 'Thị trường tích cực với dòng tiền mạnh vào cổ phiếu ngân hàng và thép.',
   positiveFactors: [
@@ -50,21 +56,20 @@ const mockReportEn: SynthesisReport = {
 };
 
 export default function PersonalPage() {
+<<<<<<< HEAD
+=======
   const { language } = useLanguage();
   const [showEditModal, setShowEditModal] = useState(false);
 
   // Select report based on language
   const mockReport = language === 'en' ? mockReportEn : mockReportVi;
 
+>>>>>>> main
   return (
     <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
       <Navigation />
       <main style={{ paddingTop: '80px' }}>
-        <PersonalTab 
-          portfolio={mockPortfolio}
-          report={mockReport}
-          onEditPortfolio={() => setShowEditModal(true)}
-        />
+        <PersonalTab report={mockReport} />
       </main>
     </div>
   );
