@@ -173,7 +173,8 @@ export function Pricing({ onGetStarted }: PricingProps) {
                     width: '100%',
                     padding: '14px',
                     fontSize: '15px',
-                    marginTop: 'auto'
+                    marginTop: 'auto',
+                    borderRadius: '9999px'
                   }}
                 >
                   {t(plan.ctaKey)}
