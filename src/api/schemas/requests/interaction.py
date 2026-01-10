@@ -13,9 +13,9 @@ class CreateInteractionRequest(BaseModel):
         ...,
         description="UUID of the news article"
     )
-    action_type: Literal["approve", "reject"] = Field(
+    action_type: Literal["SWIPE_RIGHT", "SWIPE_LEFT", "READ_DETAIL", "CLICK"] = Field(
         ...,
-        description="Type of interaction: 'approve' (swipe right) or 'reject' (swipe left)"
+        description="Type of interaction: 'SWIPE_RIGHT' (swipe right), 'SWIPE_LEFT' (swipe left), 'READ_DETAIL', or 'CLICK'"
     )
     
     model_config = {
@@ -23,7 +23,7 @@ class CreateInteractionRequest(BaseModel):
             "examples": [
                 {
                     "news_id": "550e8400-e29b-41d4-a716-446655440000",
-                    "action_type": "approve"
+                    "action_type": "SWIPE_RIGHT"
                 }
             ]
         }

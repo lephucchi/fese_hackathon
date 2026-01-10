@@ -53,8 +53,8 @@ async def run_once():
     logger.info("=" * 80)
 
 
-def run_scheduled():
-    """Run pipeline with scheduler (daemon mode)."""
+async def run_scheduled_async():
+    """Async version of run_scheduled for proper event loop handling."""
     logger.info("Starting NewsAnalyst in scheduled mode...")
     
     config = NewsAnalystConfig()
@@ -62,19 +62,25 @@ def run_scheduled():
     scheduler = NewsAnalystScheduler(config, pipeline)
     
     try:
-        # Start scheduler
+        # Start scheduler (now it will have access to running event loop)
         scheduler.start()
         
         logger.info("Scheduler is running. Press Ctrl+C to stop.")
         logger.info(f"Status: {scheduler.get_status()}")
         
-        # Keep running
-        asyncio.get_event_loop().run_forever()
+        # Keep running forever
+        while True:
+            await asyncio.sleep(3600)  # Sleep 1 hour at a time
         
     except (KeyboardInterrupt, SystemExit):
         logger.info("Shutting down scheduler...")
         scheduler.stop()
         logger.info("Scheduler stopped.")
+
+
+def run_scheduled():
+    """Run pipeline with scheduler (daemon mode)."""
+    asyncio.run(run_scheduled_async())
 
 
 if __name__ == "__main__":

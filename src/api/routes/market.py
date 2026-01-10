@@ -6,7 +6,7 @@ Flow: Routes → Services → Repositories
 """
 import logging
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Depends, Query, Header
+from fastapi import APIRouter, HTTPException, Depends, Query
 
 from pydantic import BaseModel
 
@@ -16,6 +16,7 @@ from ..repositories.chat_repository import ChatRepository
 from ..repositories.user_interaction_repository import UserInteractionRepository
 from ..repositories.news_repository import NewsRepository
 from ..dependencies import get_supabase_client
+from ..middleware.auth import get_current_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -115,22 +116,18 @@ def get_market_service(
     - Returns news that user hasn't interacted with yet
     - Each card has: title, sentiment, keywords, tickers (NO content)
     - Content is only shown after user approves (swipes right)
+    
+    Requires authentication via JWT token.
     """
 )
 async def get_news_stack(
     limit: int = Query(default=20, ge=1, le=50, description="Max cards to return"),
-    x_user_id: Optional[str] = Header(None, description="User ID from auth"),
+    user_id: str = Depends(get_current_user_id),
     market_service: MarketService = Depends(get_market_service)
 ):
     """Get news stack for swipe UI."""
-    if not x_user_id:
-        raise HTTPException(
-            status_code=401,
-            detail={"error": "unauthorized", "message": "User ID required"}
-        )
-    
     try:
-        result = await market_service.get_news_stack(x_user_id, limit)
+        result = await market_service.get_news_stack(user_id, limit)
         return StackResponse(**result)
         
     except Exception as e:
@@ -182,23 +179,19 @@ async def get_analytics(
     - Uses approved news (swipe right) as context
     - Context is cached in Redis for 30 minutes
     - Chat history is saved to database
+    
+    Requires authentication via JWT token.
     """
 )
 async def chat_with_context(
     request: ChatRequest,
-    x_user_id: Optional[str] = Header(None, description="User ID from auth"),
+    user_id: str = Depends(get_current_user_id),
     market_service: MarketService = Depends(get_market_service)
 ):
     """Chat with market context."""
-    if not x_user_id:
-        raise HTTPException(
-            status_code=401,
-            detail={"error": "unauthorized", "message": "User ID required"}
-        )
-    
     try:
         result = await market_service.chat_with_context(
-            user_id=x_user_id,
+            user_id=user_id,
             query=request.query,
             use_interests=request.use_interests
         )
@@ -219,20 +212,16 @@ async def chat_with_context(
     - Thinking steps (fetching interests, building context, querying LLM)
     - Answer chunks (streamed word by word)
     - Completion signal
+    
+    Requires authentication via JWT token.
     """
 )
 async def chat_with_context_stream(
     request: ChatRequest,
-    x_user_id: Optional[str] = Header(None, description="User ID from auth"),
+    user_id: str = Depends(get_current_user_id),
     market_service: MarketService = Depends(get_market_service)
 ):
     """Stream chat with thinking process."""
-    if not x_user_id:
-        raise HTTPException(
-            status_code=401,
-            detail={"error": "unauthorized", "message": "User ID required"}
-        )
-    
     from fastapi.responses import StreamingResponse
     import json
     import asyncio
@@ -246,7 +235,7 @@ async def chat_with_context_stream(
             # Step 2: Fetch interests
             yield f"data: {json.dumps({'type': 'thinking', 'step': 'fetch_interests', 'message': '📊 Đang tải tin tức bạn quan tâm...'})}\n\n"
             
-            approved_ids = await market_service.interaction_repo.find_approved_news_ids(x_user_id)
+            approved_ids = await market_service.interaction_repo.find_approved_news_ids(user_id)
             
             if not approved_ids:
                 yield f"data: {json.dumps({'type': 'error', 'message': 'Bạn chưa chọn tin tức nào. Hãy swipe phải các tin quan tâm trước.'})}\n\n"
@@ -259,7 +248,7 @@ async def chat_with_context_stream(
             yield f"data: {json.dumps({'type': 'thinking', 'step': 'build_context', 'message': '🧠 Đang xây dựng context từ tin tức...'})}\n\n"
             
             # Get cached context or build new
-            cached_context = await market_service.cache.get_context(x_user_id)
+            cached_context = await market_service.cache.get_context(user_id)
             
             if not cached_context:
                 context_news = await market_service.news_repo.find_by_ids(approved_ids[:10])
@@ -274,7 +263,7 @@ async def chat_with_context_stream(
                         for n in context_news
                     ]
                 }
-                await market_service.cache.set_context(x_user_id, context_data)
+                await market_service.cache.set_context(user_id, context_data)
                 context_news_list = context_data["news"]
             else:
                 context_news_list = cached_context.get("news", [])
@@ -289,11 +278,11 @@ async def chat_with_context_stream(
             context_str = market_service._build_context_string(context_news_list)
             
             # Get chat history
-            chat_history = await market_service.cache.get_chat_history(x_user_id, limit=6)
+            chat_history = await market_service.cache.get_chat_history(user_id, limit=6)
             full_context = market_service._build_full_context(chat_history, context_news_list)
             
             # Save user query
-            await market_service.cache.add_chat_message(x_user_id, "user", request.query)
+            await market_service.cache.add_chat_message(user_id, "user", request.query)
             
             # Process with RAG
             answer = await market_service._process_with_context(request.query, full_context)
@@ -309,7 +298,7 @@ async def chat_with_context_stream(
                     await asyncio.sleep(0.05)  # Small delay for streaming effect
             
             # Save assistant response
-            await market_service.cache.add_chat_message(x_user_id, "assistant", answer)
+            await market_service.cache.add_chat_message(user_id, "assistant", answer)
             
             # Save to DB
             import uuid
@@ -322,7 +311,7 @@ async def chat_with_context_stream(
             }, ensure_ascii=False)
             
             await market_service.chat_repo.save_message(
-                user_id=x_user_id,
+                user_id=user_id,
                 content=message_content,
                 message_id=message_id
             )
@@ -348,22 +337,16 @@ async def chat_with_context_stream(
 @router.get(
     "/history",
     summary="Get chat history",
-    description="Get user's chat conversation history."
+    description="Get user's chat conversation history. Requires authentication."
 )
 async def get_chat_history(
     limit: int = Query(default=50, ge=1, le=100, description="Max messages to return"),
-    x_user_id: Optional[str] = Header(None, description="User ID from auth"),
+    user_id: str = Depends(get_current_user_id),
     market_service: MarketService = Depends(get_market_service)
 ):
     """Get chat history."""
-    if not x_user_id:
-        raise HTTPException(
-            status_code=401,
-            detail={"error": "unauthorized", "message": "User ID required"}
-        )
-    
     try:
-        result = await market_service.get_chat_history(x_user_id, limit)
+        result = await market_service.get_chat_history(user_id, limit)
         return result
         
     except Exception as e:

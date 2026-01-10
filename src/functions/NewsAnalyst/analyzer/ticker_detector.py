@@ -284,14 +284,17 @@ class TickerDetector:
         Load keywords from finance_index table for improved ticker matching.
         
         Extracts significant words from short_info to create keyword->ticker mapping.
+        Note: This is optional - if finance_index table doesn't exist or lacks short_info,
+        the system will still work with tickers from market_data.
         """
         try:
+            # Try to load finance_index data - this table may not exist yet
             response = self.supabase.table("finance_index").select(
                 "ticker, short_info"
             ).execute()
             
             if not response.data:
-                logger.warning("No data found in finance_index table")
+                logger.info("No data found in finance_index table - skipping keyword extraction")
                 return
             
             # Process each ticker's short_info
@@ -320,7 +323,8 @@ class TickerDetector:
             logger.info(f"Loaded {len(self.short_info_keywords)} keywords from finance_index")
             
         except Exception as e:
-            logger.error(f"Error loading finance_index keywords: {e}")
+            # Log as info instead of error since this is optional functionality
+            logger.info(f"finance_index table not available or missing columns - continuing without keyword enhancement: {e}")
     
     def _extract_keywords_from_text(self, text: str) -> List[str]:
         """

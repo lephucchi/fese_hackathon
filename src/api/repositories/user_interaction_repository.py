@@ -81,7 +81,7 @@ class UserInteractionRepository(BaseRepository):
     
     async def find_approved_news_ids(self, user_id: str) -> List[str]:
         """
-        Get list of news_ids that user has approved.
+        Get list of news_ids that user has swiped right (approved).
         
         Args:
             user_id: UUID of user
@@ -92,7 +92,7 @@ class UserInteractionRepository(BaseRepository):
         response = self.supabase.table(self.table_name)\
             .select("news_id")\
             .eq("user_id", user_id)\
-            .eq("action_type", "approve")\
+            .eq("action_type", "SWIPE_RIGHT")\
             .execute()
         
         if response.data:

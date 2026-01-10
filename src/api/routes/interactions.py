@@ -5,7 +5,7 @@ Provides endpoints for managing user interactions with news.
 Flow: Routes → Services → Repositories
 """
 import logging
-from fastapi import APIRouter, HTTPException, Depends, Header
+from fastapi import APIRouter, HTTPException, Depends
 from typing import Optional
 
 from ..schemas.requests.interaction import CreateInteractionRequest
@@ -15,6 +15,7 @@ from ..services.user_interaction_service import UserInteractionService
 from ..repositories.user_interaction_repository import UserInteractionRepository
 from ..repositories.news_repository import NewsRepository
 from ..dependencies import get_supabase_client
+from ..middleware.auth import get_current_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -57,25 +58,20 @@ def get_user_interaction_service(
     Record user's interaction with a news article (swipe action).
     
     - **news_id**: UUID of the news article
-    - **action_type**: 'approve' (swipe right) or 'reject' (swipe left)
+    - **action_type**: 'SWIPE_RIGHT' (swipe right), 'SWIPE_LEFT' (swipe left), 'READ_DETAIL', or 'CLICK'
+    
+    Requires authentication via JWT token (cookie or Authorization header).
     """
 )
 async def create_interaction(
     request: CreateInteractionRequest,
-    x_user_id: Optional[str] = Header(None, description="User ID from auth"),
+    user_id: str = Depends(get_current_user_id),
     interaction_service: UserInteractionService = Depends(get_user_interaction_service)
 ):
     """Create or update user interaction with news."""
-    # TODO: Get user_id from JWT token instead of header
-    if not x_user_id:
-        raise HTTPException(
-            status_code=401,
-            detail={"error": "unauthorized", "message": "User ID required"}
-        )
-    
     try:
         result = await interaction_service.create_interaction(
-            user_id=x_user_id,
+            user_id=user_id,
             news_id=request.news_id,
             action_type=request.action_type
         )
@@ -102,21 +98,15 @@ async def create_interaction(
         500: {"model": ErrorResponse, "description": "Server error"},
     },
     summary="Get user's interested news",
-    description="Get all news articles that user has approved (swiped right) with analyst content."
+    description="Get all news articles that user has approved (swiped right) with analyst content. Requires authentication."
 )
 async def get_my_interests(
-    x_user_id: Optional[str] = Header(None, description="User ID from auth"),
+    user_id: str = Depends(get_current_user_id),
     interaction_service: UserInteractionService = Depends(get_user_interaction_service)
 ):
     """Get user's interested news with analyst content."""
-    if not x_user_id:
-        raise HTTPException(
-            status_code=401,
-            detail={"error": "unauthorized", "message": "User ID required"}
-        )
-    
     try:
-        result = await interaction_service.get_user_interests(x_user_id)
+        result = await interaction_service.get_user_interests(user_id)
         
         news_items = [_build_news_item(item) for item in result["news"]]
         

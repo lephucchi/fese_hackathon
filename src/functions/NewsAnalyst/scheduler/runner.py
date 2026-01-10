@@ -6,7 +6,7 @@ Manages scheduled execution of news scraping and analysis.
 import logging
 import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
+from apscheduler.jobstores.memory import MemoryJobStore
 from apscheduler.executors.asyncio import AsyncIOExecutor
 
 from ..config import NewsAnalystConfig
@@ -33,11 +33,10 @@ class NewsAnalystScheduler:
         self.config = config
         self.pipeline = pipeline
         
-        # Configure job stores
+        # Configure job stores - use MemoryJobStore instead of SQLAlchemy
+        # since we don't need persistence across restarts in container environment
         jobstores = {
-            'default': SQLAlchemyJobStore(
-                url=f"{config.supabase_url}/rest/v1/scheduler_jobs"
-            )
+            'default': MemoryJobStore()
         }
         
         # Configure executors
@@ -60,7 +59,7 @@ class NewsAnalystScheduler:
             timezone=config.scheduler_timezone
         )
         
-        logger.info("NewsAnalystScheduler initialized")
+        logger.info("NewsAnalystScheduler initialized with MemoryJobStore")
     
     def start(self):
         """
