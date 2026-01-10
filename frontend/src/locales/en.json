@@ -1,0 +1,147 @@
+{
+    "nav": {
+        "home": "Home",
+        "news": "News",
+        "personal": "Personal",
+        "education": "Education",
+        "about": "About",
+        "backToHome": "Back to Home"
+    },
+    "hero": {
+        "badge": "AI-Powered Financial Intelligence",
+        "title": "SMART FINANCIAL ASSISTANT WITH AI",
+        "subtitle": "Analyze financial news, predict market trends, and optimize your investment portfolio with advanced AI technology",
+        "ctaPrimary": "Get Started Free",
+        "ctaSecondary": "View Demo",
+        "stats": {
+            "users": "Users",
+            "accuracy": "Accuracy",
+            "saved": "Time Saved"
+        }
+    },
+    "features": {
+        "title": "Key Features",
+        "subtitle": "Advanced AI technology helps you invest smarter",
+        "news": {
+            "title": "Smart News Analysis",
+            "description": "AI aggregates and analyzes thousands of financial articles, helping you grasp important information instantly"
+        },
+        "portfolio": {
+            "title": "Portfolio Management",
+            "description": "Track and optimize your portfolio with personalized AI recommendations"
+        },
+        "learning": {
+            "title": "Gamified Learning",
+            "description": "Earn M-Points, unlock premium content and enhance your financial knowledge"
+        }
+    },
+    "howItWorks": {
+        "title": "How It Works",
+        "subtitle": "Simple process, high efficiency",
+        "step1": {
+            "title": "Data Collection",
+            "description": "AI collects news from trusted sources"
+        },
+        "step2": {
+            "title": "Analysis & Synthesis",
+            "description": "NLP analyzes sentiment and trends"
+        },
+        "step3": {
+            "title": "Smart Recommendations",
+            "description": "Personalized investment strategies for you"
+        }
+    },
+    "pricing": {
+        "title": "Pricing Plans",
+        "subtitle": "Choose the right plan for your needs",
+        "free": {
+            "name": "Free",
+            "price": "$0",
+            "period": "forever",
+            "features": [
+                "Daily basic news",
+                "3 AI analyses/week",
+                "Basic academy access",
+                "Community support"
+            ],
+            "cta": "Get Started"
+        },
+        "pro": {
+            "name": "Pro",
+            "price": "$12",
+            "period": "month",
+            "popular": "Most Popular",
+            "features": [
+                "Unlimited news & analysis",
+                "Portfolio management",
+                "Premium Academy (M-Points)",
+                "Priority support",
+                "Real-time trading signals"
+            ],
+            "cta": "Upgrade to Pro"
+        }
+    },
+    "footer": {
+        "tagline": "Smart financial assistant with AI",
+        "product": "Product",
+        "features": "Features",
+        "pricing": "Pricing",
+        "company": "Company",
+        "about": "About & Legal",
+        "careers": "Careers",
+        "contact": "Contact",
+        "legal": "Legal",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "rights": "All rights reserved by MacroInsight Agent"
+    },
+    "education": {
+        "title": "MacroInsight Academy",
+        "subtitle": "Enhance your financial knowledge",
+        "level": "Level",
+        "points": "points",
+        "free": "Free",
+        "locked": "Locked",
+        "unlock": "Unlock",
+        "play": "Play",
+        "unlockSuccess": "Unlock Successful!",
+        "unlockMessage": "You just unlocked",
+        "enjoyLearning": "Enjoy your learning!"
+    },
+    "about": {
+        "title": "About Us",
+        "mission": {
+            "title": "Mission",
+            "content": "MacroInsight Agent is an intelligent financial assistant platform powered by advanced AI technology. We are committed to providing Vietnamese users with professional, user-friendly, and completely free financial analysis tools."
+        },
+        "vision": {
+            "title": "Vision",
+            "content": "To become the leading financial intelligence platform in Vietnam, helping millions of investors make smart decisions based on data and AI analysis."
+        },
+        "values": {
+            "title": "Core Values",
+            "transparency": "Transparency",
+            "innovation": "Innovation",
+            "userFirst": "User First"
+        },
+        "legal": {
+            "title": "Legal & Compliance",
+            "privacy": {
+                "title": "Privacy Policy",
+                "content": "We are committed to protecting your personal data. All collected information is encrypted and stored securely according to international standards."
+            },
+            "terms": {
+                "title": "Terms of Service",
+                "content": "By using MacroInsight Agent, you agree to comply with our terms and conditions. The service provides financial information for reference only."
+            },
+            "disclaimer": {
+                "title": "Disclaimer",
+                "content": "Information on the platform is not investment advice. Users are responsible for their own financial decisions."
+            }
+        },
+        "team": {
+            "title": "Development Team",
+            "subtitle": "The people behind MacroInsight Agent"
+        }
+    }
+}

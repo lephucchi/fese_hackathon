@@ -1,63 +1,11 @@
 'use client';
 
-import React from 'react';
-import { createContext, useContext, useEffect, useState } from 'react';
+/**
+ * useTheme Hook
+ * 
+ * Re-exports theme utilities from ThemeContext.
+ * This provides backward compatibility for existing imports.
+ */
 
-type Theme = 'light' | 'dark';
-
-interface ThemeContextType {
-  theme: Theme;
-  toggleTheme: () => void;
-  setTheme: (theme: Theme) => void;
-}
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light');
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    const saved = localStorage.getItem('theme') as Theme;
-    const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    const initialTheme = saved || systemPreference;
-    setThemeState(initialTheme);
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
-  }, []);
-
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
-  };
-
-  // Prevent hydration mismatch
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
-  return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  // Return safe defaults if not in provider
-  if (context === undefined) {
-    return {
-      theme: 'light' as Theme,
-      toggleTheme: () => {},
-      setTheme: () => {},
-    };
-  }
-  return context;
-}
-
+export { useTheme, ThemeProvider } from '@/contexts/ThemeContext';
+export type { Theme, ThemeContextType } from '@/contexts/ThemeContext';
