@@ -26,6 +26,7 @@ function NewsSwipeCard({
   isTop,
   stackIndex,
   totalCards,
+  exitDirection = null,
 }: {
   news: NewsSwipeItem;
   onSwipeLeft: () => void;
@@ -34,6 +35,7 @@ function NewsSwipeCard({
   isTop: boolean;
   stackIndex: number;
   totalCards: number;
+  exitDirection?: 'left' | 'right' | null;
 }) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
@@ -79,243 +81,243 @@ function NewsSwipeCard({
     });
   };
 
-  if (!isTop) {
-    // Background cards in stack
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          top: `${stackIndex * 8}px`,
-          left: '50%',
-          transform: `translateX(-50%) scale(${1 - stackIndex * 0.05})`,
-          width: '100%',
-          maxWidth: '420px',
-          height: '520px',
-          background: 'var(--card)',
-          borderRadius: '24px',
-          boxShadow: 'var(--shadow-lg)',
-          zIndex: totalCards - stackIndex,
-          opacity: 1 - stackIndex * 0.3
-        }}
-      />
-    );
-  }
+  const isNeutral = !isTop;
 
   return (
     <motion.div
-      drag="x"
+      key={news.news_id}
+      drag={isTop ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
+      initial={stackIndex > 2 ? { opacity: 0, scale: 0.8 } : { opacity: 0, scale: 0.95 }}
+      animate={{
+        top: isTop ? 0 : stackIndex * 8,
+        scale: isTop ? 1 : 1 - stackIndex * 0.05,
+        opacity: isTop ? 1 : (stackIndex > 2 ? 0 : 1 - stackIndex * 0.3),
+        y: 0,
+      }}
+      exit={{
+        x: exitDirection === 'left' ? -1000 : (exitDirection === 'right' ? 1000 : (x.get() < 0 ? -1000 : 1000)),
+        opacity: 0,
+        rotate: exitDirection === 'left' ? -40 : (exitDirection === 'right' ? 40 : (x.get() < 0 ? -40 : 40)),
+        transition: { type: 'spring', damping: 30, stiffness: 200 }
+      }}
       style={{
         x,
-        rotate,
-        opacity,
-        position: 'relative',
+        rotate: isTop ? rotate : 0,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        margin: '0 auto',
         width: '100%',
         maxWidth: '420px',
         height: '520px',
         background: 'var(--card)',
         borderRadius: '24px',
-        boxShadow: 'var(--shadow-xl)',
-        cursor: 'grab',
-        zIndex: totalCards,
+        boxShadow: isTop ? 'var(--shadow-xl)' : 'var(--shadow-lg)',
+        cursor: isTop ? 'grab' : 'default',
+        zIndex: totalCards - stackIndex,
         overflow: 'hidden',
-        margin: '0 auto'
       }}
-      onDragEnd={handleDragEnd}
-      whileTap={{ cursor: 'grabbing' }}
-      onTap={() => onCardClick?.()}
+      onDragEnd={isTop ? handleDragEnd : undefined}
+      whileTap={isTop ? { cursor: 'grabbing' } : undefined}
+      onTap={isTop ? () => onCardClick?.() : undefined}
     >
-      {/* Swipe Indicators */}
-      <motion.div
-        style={{
-          position: 'absolute',
-          top: '1.5rem',
-          left: '1.5rem',
-          padding: '0.625rem 1.25rem',
-          borderRadius: '10px',
-          background: 'rgba(231, 76, 60, 0.9)',
-          color: 'white',
-          fontWeight: 700,
-          fontSize: '1rem',
-          opacity: useTransform(x, [-100, -50, 0], [1, 0.5, 0]),
-          zIndex: 10
-        }}
-      >
-        BỎ QUA
-      </motion.div>
+      {isTop && (
+        <>
+          {/* Swipe Indicators */}
+          <motion.div
+            style={{
+              position: 'absolute',
+              top: '1.5rem',
+              left: '1.5rem',
+              padding: '0.625rem 1.25rem',
+              borderRadius: '10px',
+              background: 'rgba(231, 76, 60, 0.9)',
+              color: 'white',
+              fontWeight: 700,
+              fontSize: '1rem',
+              opacity: useTransform(x, [-100, -50, 0], [1, 0.5, 0]),
+              zIndex: 10
+            }}
+          >
+            BỎ QUA
+          </motion.div>
 
-      <motion.div
-        style={{
-          position: 'absolute',
-          top: '1.5rem',
-          right: '1.5rem',
-          padding: '0.625rem 1.25rem',
-          borderRadius: '10px',
-          background: 'rgba(46, 204, 113, 0.9)',
-          color: 'white',
-          fontWeight: 700,
-          fontSize: '1rem',
-          opacity: useTransform(x, [0, 50, 100], [0, 0.5, 1]),
-          zIndex: 10
-        }}
-      >
-        QUAN TÂM
-      </motion.div>
+          <motion.div
+            style={{
+              position: 'absolute',
+              top: '1.5rem',
+              right: '1.5rem',
+              padding: '0.625rem 1.25rem',
+              borderRadius: '10px',
+              background: 'rgba(46, 204, 113, 0.9)',
+              color: 'white',
+              fontWeight: 700,
+              fontSize: '1rem',
+              opacity: useTransform(x, [0, 50, 100], [0, 0.5, 1]),
+              zIndex: 10
+            }}
+          >
+            QUAN TÂM
+          </motion.div>
 
-      {/* Card Content */}
-      <div style={{
-        padding: '1.5rem',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden'
-      }}>
-        {/* Header: Sentiment + Date */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '1rem'
-        }}>
+          {/* Card Content */}
           <div style={{
+            padding: '1.5rem',
+            height: '100%',
             display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.375rem 0.75rem',
-            borderRadius: '8px',
-            background: `${config.color}20`
+            flexDirection: 'column',
+            overflow: 'hidden'
           }}>
-            <SentimentIcon size={16} color={config.color} />
-            <span style={{
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              color: config.color,
-              textTransform: 'uppercase'
-            }}>
-              {config.label}
-            </span>
-          </div>
-          <span style={{
-            fontSize: '0.75rem',
-            color: 'var(--text-tertiary)'
-          }}>
-            {formatDate(news.published_at)}
-          </span>
-        </div>
-
-        {/* Tickers */}
-        {news.tickers.length > 0 && (
-          <div style={{
-            display: 'flex',
-            gap: '0.375rem',
-            flexWrap: 'wrap',
-            marginBottom: '0.75rem'
-          }}>
-            {news.tickers.slice(0, 4).map((ticker) => (
-              <span
-                key={ticker}
-                style={{
-                  fontSize: '0.7rem',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '6px',
-                  background: 'var(--primary)',
-                  color: 'white',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.25rem'
-                }}
-              >
-                <Tag size={10} />
-                {ticker}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Title */}
-        <h3 style={{
-          fontSize: '1.25rem',
-          fontWeight: 700,
-          marginBottom: '0.75rem',
-          lineHeight: 1.3,
-          color: 'var(--text-primary)',
-          display: '-webkit-box',
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
-          {news.title}
-        </h3>
-
-        {/* Content */}
-        <div style={{
-          flex: 1,
-          overflow: 'auto',
-          marginBottom: '1rem'
-        }}>
-          <p style={{
-            fontSize: '0.9rem',
-            lineHeight: 1.7,
-            color: 'var(--text-secondary)'
-          }}>
-            {truncateContent(news.content)}
-          </p>
-        </div>
-
-        {/* Footer: Source + Keywords */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingTop: '0.75rem',
-          borderTop: '1px solid var(--border)'
-        }}>
-          {news.source_url && (
-            <a
-              href={news.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                fontSize: '0.75rem',
-                color: 'var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                textDecoration: 'none',
-                fontWeight: 500
-              }}
-            >
-              Đọc nguồn <ExternalLink size={12} />
-            </a>
-          )}
-
-          {news.keywords.length > 0 && (
+            {/* Header: Sentiment + Date */}
             <div style={{
               display: 'flex',
-              gap: '0.375rem',
-              flexWrap: 'wrap',
-              justifyContent: 'flex-end'
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '1rem'
             }}>
-              {news.keywords.slice(0, 2).map((kw) => (
-                <span
-                  key={kw}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.375rem 0.75rem',
+                borderRadius: '8px',
+                background: `${config.color}20`
+              }}>
+                <SentimentIcon size={16} color={config.color} />
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  color: config.color,
+                  textTransform: 'uppercase'
+                }}>
+                  {config.label}
+                </span>
+              </div>
+              <span style={{
+                fontSize: '0.75rem',
+                color: 'var(--text-tertiary)'
+              }}>
+                {formatDate(news.published_at)}
+              </span>
+            </div>
+
+            {/* Tickers */}
+            {news.tickers.length > 0 && (
+              <div style={{
+                display: 'flex',
+                gap: '0.375rem',
+                flexWrap: 'wrap',
+                marginBottom: '0.75rem'
+              }}>
+                {news.tickers.slice(0, 4).map((ticker) => (
+                  <span
+                    key={ticker}
+                    style={{
+                      fontSize: '0.7rem',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '6px',
+                      background: 'var(--primary)',
+                      color: 'white',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
+                    }}
+                  >
+                    <Tag size={10} />
+                    {ticker}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Title */}
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              marginBottom: '0.75rem',
+              lineHeight: 1.3,
+              color: 'var(--text-primary)',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}>
+              {news.title}
+            </h3>
+
+            {/* Content */}
+            <div style={{
+              flex: 1,
+              overflow: 'auto',
+              marginBottom: '1rem'
+            }}>
+              <p style={{
+                fontSize: '0.9rem',
+                lineHeight: 1.7,
+                color: 'var(--text-secondary)'
+              }}>
+                {truncateContent(news.content)}
+              </p>
+            </div>
+
+            {/* Footer: Source + Keywords */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingTop: '0.75rem',
+              borderTop: '1px solid var(--border)'
+            }}>
+              {news.source_url && (
+                <a
+                  href={news.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
                   style={{
-                    fontSize: '0.7rem',
-                    color: 'var(--text-tertiary)',
-                    background: 'var(--surface)',
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '4px'
+                    fontSize: '0.75rem',
+                    color: 'var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    textDecoration: 'none',
+                    fontWeight: 500
                   }}
                 >
-                  #{kw}
-                </span>
-              ))}
+                  Đọc nguồn <ExternalLink size={12} />
+                </a>
+              )}
+
+              {news.keywords.length > 0 && (
+                <div style={{
+                  display: 'flex',
+                  gap: '0.375rem',
+                  flexWrap: 'wrap',
+                  justifyContent: 'flex-end'
+                }}>
+                  {news.keywords.slice(0, 2).map((keyword) => (
+                    <span
+                      key={keyword}
+                      style={{
+                        fontSize: '0.65rem',
+                        color: 'var(--text-tertiary)',
+                        background: 'var(--surface)',
+                        padding: '0.125rem 0.375rem',
+                        borderRadius: '4px'
+                      }}
+                    >
+                      #{keyword}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        </>
+      )}
     </motion.div>
   );
 }
@@ -333,6 +335,7 @@ export default function DashboardPage() {
   const [pointsEarnedToday, setPointsEarnedToday] = useState(0);
   const [selectedNews, setSelectedNews] = useState<NewsSwipeItem | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [lastDirection, setLastDirection] = useState<'left' | 'right' | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -342,6 +345,7 @@ export default function DashboardPage() {
   }, [authLoading, isAuthenticated, router]);
 
   const handleSwipeRight = async (newsId: string) => {
+    setLastDirection('right');
     // Find the news item being saved
     const newsItem = stack.find(n => n.news_id === newsId);
 
@@ -374,6 +378,7 @@ export default function DashboardPage() {
   };
 
   const handleSwipeLeft = async (newsId: string) => {
+    setLastDirection('left');
     await swipeLeft(newsId);
     setCurrentCardIndex(currentCardIndex + 1);
   };
@@ -579,11 +584,14 @@ export default function DashboardPage() {
             width: '100%'
           }}>
             {/* Left Button - Skip */}
-            <button
+            {/* Left Button - Skip */}
+            <motion.button
+              whileHover={{ scale: 1.1, backgroundColor: 'var(--error)', color: '#fff' }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => handleButtonClick('left')}
               style={{
-                width: '56px',
-                height: '56px',
+                width: '64px',
+                height: '64px',
                 borderRadius: '50%',
                 border: '2px solid var(--error)',
                 background: 'var(--card)',
@@ -592,26 +600,21 @@ export default function DashboardPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: 'var(--shadow-lg)',
-                transition: 'all 0.2s',
+                boxShadow: '0 8px 16px rgba(231, 76, 60, 0.2)',
+                transition: 'box-shadow 0.2s, background-color 0.2s, color 0.2s',
                 flexShrink: 0
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--error)';
-                e.currentTarget.style.color = 'white';
-                e.currentTarget.style.transform = 'scale(1.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--card)';
-                e.currentTarget.style.color = 'var(--error)';
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
             >
-              <ChevronLeft size={28} strokeWidth={3} />
-            </button>
+              <ChevronLeft size={32} strokeWidth={2.5} />
+            </motion.button>
 
             {/* Card Stack */}
-            <div style={{ position: 'relative', width: '100%', maxWidth: '420px' }}>
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '420px',
+              height: '550px' // Fixed height for stack
+            }}>
               {/* Background cards */}
               {stack.slice(1, 3).map((news, index) => (
                 <NewsSwipeCard
@@ -626,23 +629,32 @@ export default function DashboardPage() {
               ))}
 
               {/* Top card */}
-              <NewsSwipeCard
-                news={stack[0]}
-                onSwipeLeft={() => handleSwipeLeft(stack[0].news_id)}
-                onSwipeRight={() => handleSwipeRight(stack[0].news_id)}
-                onCardClick={() => setSelectedNews(stack[0])}
-                isTop={true}
-                stackIndex={0}
-                totalCards={stack.length}
-              />
+              <AnimatePresence initial={false}>
+                {stack.length > 0 && (
+                  <NewsSwipeCard
+                    key={stack[0].news_id}
+                    news={stack[0]}
+                    onSwipeLeft={() => handleSwipeLeft(stack[0].news_id)}
+                    onSwipeRight={() => handleSwipeRight(stack[0].news_id)}
+                    onCardClick={() => setSelectedNews(stack[0])}
+                    isTop={true}
+                    stackIndex={0}
+                    totalCards={stack.length}
+                    exitDirection={lastDirection}
+                  />
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Right Button - Save */}
-            <button
+            {/* Right Button - Save */}
+            <motion.button
+              whileHover={{ scale: 1.1, boxShadow: '0 12px 32px rgba(0, 200, 5, 0.4)' }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => handleButtonClick('right')}
               style={{
-                width: '56px',
-                height: '56px',
+                width: '64px',
+                height: '64px',
                 borderRadius: '50%',
                 border: 'none',
                 background: 'var(--primary)',
@@ -655,17 +667,9 @@ export default function DashboardPage() {
                 transition: 'all 0.2s',
                 flexShrink: 0
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-                e.currentTarget.style.boxShadow = '0 12px 32px rgba(0, 200, 5, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 200, 5, 0.3)';
-              }}
             >
-              <ChevronRight size={28} strokeWidth={3} />
-            </button>
+              <ChevronRight size={32} strokeWidth={2.5} />
+            </motion.button>
           </div>
         )}
       </main>
