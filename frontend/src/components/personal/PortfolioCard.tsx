@@ -5,9 +5,10 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Edit2, Trash2, Loader2, TrendingUp, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Loader2, TrendingUp, AlertCircle, LogIn } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { usePortfolio } from '@/hooks/usePortfolio';
+import { useAuth } from '@/hooks/useAuth';
 import { AddPositionForm } from './AddPositionForm';
 import { CreatePositionData, PortfolioItem } from '@/services/api/portfolio.service';
 
@@ -29,6 +30,7 @@ const formatVND = (amount: number): string => {
 };
 
 export function PortfolioCard() {
+    const { isAuthenticated, isLoading: authLoading } = useAuth();
     const { portfolio, isLoading, error, addNewPosition, removePosition } = usePortfolio();
     const [showAddForm, setShowAddForm] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,8 +57,61 @@ export function PortfolioCard() {
         }
     };
 
-    // Loading state
-    if (isLoading) {
+    // Not authenticated - show login prompt
+    if (!authLoading && !isAuthenticated) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                style={{
+                    background: 'var(--card)',
+                    borderRadius: '24px',
+                    padding: '32px',
+                    boxShadow: 'var(--shadow-fintech)',
+                    marginBottom: '32px',
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                    <TrendingUp size={24} style={{ color: 'var(--primary)' }} />
+                    <h2 style={{
+                        fontSize: '1.5rem',
+                        fontWeight: 700,
+                        color: 'var(--text-primary)',
+                        margin: 0,
+                    }}>
+                        Phân bổ danh mục
+                    </h2>
+                </div>
+                <div style={{
+                    textAlign: 'center',
+                    padding: '48px 24px',
+                    border: '2px dashed var(--border)',
+                    borderRadius: '16px',
+                    background: 'var(--surface)',
+                }}>
+                    <LogIn size={48} style={{ color: 'var(--text-secondary)', marginBottom: '16px' }} />
+                    <h3 style={{
+                        fontSize: '1.25rem',
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                        marginBottom: '8px',
+                    }}>
+                        Vui lòng đăng nhập
+                    </h3>
+                    <p style={{
+                        color: 'var(--text-secondary)',
+                        marginBottom: '0',
+                    }}>
+                        Đăng nhập để xem và quản lý danh mục đầu tư của bạn
+                    </p>
+                </div>
+            </motion.div>
+        );
+    }
+
+    // Loading state (auth or portfolio)
+    if (authLoading || isLoading) {
         return (
             <motion.div
                 initial={{ opacity: 0 }}
