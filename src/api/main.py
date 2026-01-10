@@ -36,32 +36,36 @@ async def lifespan(app: FastAPI):
     logger.info("Starting Multi-Index RAG API...")
     
     # =========================================================================
-    # Startup: Pre-warm models to eliminate cold start latency
+    # Startup: Pre-warm models (DISABLED for faster startup on CPU)
+    # Models will be lazy-loaded on first request
     # =========================================================================
-    try:
-        logger.info("Pre-warming models...")
-        
-        # 1. Pre-warm router
-        from src.core.router import HybridRouter
-        router = HybridRouter()
-        _ = router.route("warmup query")
-        logger.info("✓ Router pre-warmed")
-        
-        # 2. Pre-warm retriever encoder
-        from src.core.retrieval import ParallelRetriever
-        retriever = ParallelRetriever()
-        _ = retriever.retrieve("warmup", "glossary", k=1)
-        logger.info("✓ Retriever encoder pre-warmed")
-        
-        # 3. Initialize embedding cache
-        from src.core.retrieval import get_embedding_cache
-        cache = get_embedding_cache(maxsize=1000)
-        logger.info(f"✓ Embedding cache initialized (maxsize={cache.maxsize})")
-        
-        logger.info("All models pre-warmed successfully!")
-        
-    except Exception as e:
-        logger.warning(f"Pre-warming failed (non-critical): {e}")
+    logger.info("Skipping pre-warming for faster startup. Models will load on first request.")
+    
+    # # Uncomment to enable pre-warming (recommended for GPU deployments)
+    # try:
+    #     logger.info("Pre-warming models...")
+    #     
+    #     # 1. Pre-warm router
+    #     from src.core.router import HybridRouter
+    #     router = HybridRouter()
+    #     _ = router.route("warmup query")
+    #     logger.info("✓ Router pre-warmed")
+    #     
+    #     # 2. Pre-warm retriever encoder
+    #     from src.core.retrieval import ParallelRetriever
+    #     retriever = ParallelRetriever()
+    #     _ = retriever.retrieve("warmup", "glossary", k=1)
+    #     logger.info("✓ Retriever encoder pre-warmed")
+    #     
+    #     # 3. Initialize embedding cache
+    #     from src.core.retrieval import get_embedding_cache
+    #     cache = get_embedding_cache(maxsize=1000)
+    #     logger.info(f"✓ Embedding cache initialized (maxsize={cache.maxsize})")
+    #     
+    #     logger.info("All models pre-warmed successfully!")
+    #     
+    # except Exception as e:
+    #     logger.warning(f"Pre-warming failed (non-critical): {e}")
     
     yield
     

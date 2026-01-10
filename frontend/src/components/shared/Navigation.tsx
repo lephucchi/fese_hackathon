@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Moon, Sun, BarChart3, Globe } from 'lucide-react';
+import { Menu, X, Moon, Sun, LogOut, User as UserIcon, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/hooks/useAuth';
 
 interface NavItem {
   labelKey: string;
@@ -28,8 +29,10 @@ interface NavigationProps {
 export function Navigation({ onLoginClick }: NavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { language, setLanguage, t } = useLanguage();
+  const { user, isAuthenticated, logout } = useAuth();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -39,6 +42,11 @@ export function Navigation({ onLoginClick }: NavigationProps) {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setShowUserMenu(false);
+  };
 
   return (
     <header
@@ -261,8 +269,117 @@ export function Navigation({ onLoginClick }: NavigationProps) {
               )}
             </button>
 
-            {/* Login Button - Desktop */}
-            {onLoginClick && (
+            {/* User Menu or Login Button - Desktop */}
+            {isAuthenticated && user ? (
+              <div style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="interactive-scale hidden-sm"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '9999px',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                    background: 'var(--surface)',
+                    border: '1px solid var(--border)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--primary)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                  }}
+                >
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, var(--primary) 0%, #4ADE80 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '0.75rem',
+                    fontWeight: 700
+                  }}>
+                    {user.display_name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+                  </div>
+                  <span>{user.display_name || user.email.split('@')[0]}</span>
+                </button>
+
+                {/* User Dropdown Menu */}
+                <AnimatePresence>
+                  {showUserMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      style={{
+                        position: 'absolute',
+                        top: 'calc(100% + 0.5rem)',
+                        right: 0,
+                        minWidth: '200px',
+                        background: 'var(--card)',
+                        border: '1px solid var(--border)',
+                        borderRadius: '12px',
+                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+                        padding: '0.5rem',
+                        zIndex: 100
+                      }}
+                    >
+                      <Link
+                        href="/personal"
+                        onClick={() => setShowUserMenu(false)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
+                          padding: '0.75rem',
+                          borderRadius: '8px',
+                          textDecoration: 'none',
+                          color: 'var(--text-primary)',
+                          transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'var(--surface)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <UserIcon size={18} />
+                        <span style={{ fontSize: '0.875rem' }}>Trang cá nhân</span>
+                      </Link>
+                      <div style={{ height: '1px', background: 'var(--border)', margin: '0.5rem 0' }} />
+                      <button
+                        onClick={handleLogout}
+                        style={{
+                          width: '100%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.75rem',
+                          padding: '0.75rem',
+                          borderRadius: '8px',
+                          background: 'transparent',
+                          border: 'none',
+                          color: '#EF4444',
+                          cursor: 'pointer',
+                          fontSize: '0.875rem',
+                          transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <LogOut size={18} />
+                        <span>Đăng xuất</span>
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : onLoginClick ? (
               <button
                 onClick={onLoginClick}
                 className="interactive-scale hidden-sm"
@@ -293,7 +410,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
               >
                 Đăng nhập
               </button>
-            )}
+            ) : null}
 
             {/* Mobile Menu Toggle */}
             <button

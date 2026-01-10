@@ -209,6 +209,142 @@ async def chat_with_context(
         raise HTTPException(status_code=500, detail={"error": "chat_error", "message": str(e)})
 
 
+@router.post(
+    "/chat/stream",
+    summary="Chat with market context (streaming)",
+    description="""
+    Stream chat response with thinking process visualization.
+    
+    Returns Server-Sent Events (SSE) with:
+    - Thinking steps (fetching interests, building context, querying LLM)
+    - Answer chunks (streamed word by word)
+    - Completion signal
+    """
+)
+async def chat_with_context_stream(
+    request: ChatRequest,
+    x_user_id: Optional[str] = Header(None, description="User ID from auth"),
+    market_service: MarketService = Depends(get_market_service)
+):
+    """Stream chat with thinking process."""
+    if not x_user_id:
+        raise HTTPException(
+            status_code=401,
+            detail={"error": "unauthorized", "message": "User ID required"}
+        )
+    
+    from fastapi.responses import StreamingResponse
+    import json
+    import asyncio
+    
+    async def event_generator():
+        try:
+            # Step 1: Start
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'start', 'message': '🔍 Bắt đầu xử lý câu hỏi...'})}\n\n"
+            await asyncio.sleep(0.1)
+            
+            # Step 2: Fetch interests
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'fetch_interests', 'message': '📊 Đang tải tin tức bạn quan tâm...'})}\n\n"
+            
+            approved_ids = await market_service.interaction_repo.find_approved_news_ids(x_user_id)
+            
+            if not approved_ids:
+                yield f"data: {json.dumps({'type': 'error', 'message': 'Bạn chưa chọn tin tức nào. Hãy swipe phải các tin quan tâm trước.'})}\n\n"
+                return
+            
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'interests_loaded', 'message': f'✅ Tìm thấy {len(approved_ids)} tin tức', 'count': len(approved_ids)})}\n\n"
+            await asyncio.sleep(0.1)
+            
+            # Step 3: Build context
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'build_context', 'message': '🧠 Đang xây dựng context từ tin tức...'})}\n\n"
+            
+            # Get cached context or build new
+            cached_context = await market_service.cache.get_context(x_user_id)
+            
+            if not cached_context:
+                context_news = await market_service.news_repo.find_by_ids(approved_ids[:10])
+                context_data = {
+                    "news": [
+                        {
+                            "title": n.get("title"),
+                            "analyst": n.get("analyst"),
+                            "sentiment": n.get("sentiment"),
+                            "tickers": n.get("Ticker")
+                        }
+                        for n in context_news
+                    ]
+                }
+                await market_service.cache.set_context(x_user_id, context_data)
+                context_news_list = context_data["news"]
+            else:
+                context_news_list = cached_context.get("news", [])
+            
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'context_ready', 'message': '✅ Context đã sẵn sàng'})}\n\n"
+            await asyncio.sleep(0.1)
+            
+            # Step 4: Query LLM
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'query_llm', 'message': '✍️ Đang tổng hợp câu trả lời...'})}\n\n"
+            
+            # Build context string
+            context_str = market_service._build_context_string(context_news_list)
+            
+            # Get chat history
+            chat_history = await market_service.cache.get_chat_history(x_user_id, limit=6)
+            full_context = market_service._build_full_context(chat_history, context_news_list)
+            
+            # Save user query
+            await market_service.cache.add_chat_message(x_user_id, "user", request.query)
+            
+            # Process with RAG
+            answer = await market_service._process_with_context(request.query, full_context)
+            
+            # Step 5: Stream answer
+            yield f"data: {json.dumps({'type': 'answer_start'})}\n\n"
+            
+            # Split answer into sentences and stream
+            sentences = answer.split('. ')
+            for sentence in sentences:
+                if sentence.strip():
+                    yield f"data: {json.dumps({'type': 'answer_chunk', 'content': sentence + '. '})}\n\n"
+                    await asyncio.sleep(0.05)  # Small delay for streaming effect
+            
+            # Save assistant response
+            await market_service.cache.add_chat_message(x_user_id, "assistant", answer)
+            
+            # Save to DB
+            import uuid
+            message_id = str(uuid.uuid4())
+            message_content = json.dumps({
+                "query": request.query,
+                "answer": answer,
+                "context_count": len(context_news_list),
+                "use_interests": request.use_interests
+            }, ensure_ascii=False)
+            
+            await market_service.chat_repo.save_message(
+                user_id=x_user_id,
+                content=message_content,
+                message_id=message_id
+            )
+            
+            # Step 6: Complete
+            yield f"data: {json.dumps({'type': 'complete', 'message_id': message_id})}\n\n"
+            
+        except Exception as e:
+            logger.error(f"Streaming error: {e}", exc_info=True)
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disable nginx buffering
+        }
+    )
+
+
 @router.get(
     "/history",
     summary="Get chat history",

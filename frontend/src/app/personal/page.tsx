@@ -7,28 +7,31 @@ import { Portfolio, SynthesisReport } from '@/types/dashboard.types';
 
 // Mock data
 const mockPortfolio: Portfolio = {
+  id: 'portfolio-1',
   totalValue: 1250000000,
-  dailyChange: 2.34,
-  holdings: [
-    { ticker: 'HPG', name: 'Hòa Phát', value: 450000000, allocation: 36, dailyChange: 1.2 },
-    { ticker: 'VCB', name: 'Vietcombank', value: 350000000, allocation: 28, dailyChange: -0.5 },
-    { ticker: 'VHM', name: 'Vinhomes', value: 250000000, allocation: 20, dailyChange: 3.1 },
-    { ticker: 'VNM', name: 'Vinamilk', value: 200000000, allocation: 16, dailyChange: 0.8 },
+  todayProfitLoss: 29250000,
+  todayProfitLossPercent: 2.34,
+  totalProfitLoss: 125000000,
+  totalProfitLossPercent: 10.0,
+  positions: [
+    { symbol: 'HPG', quantity: 10000, averagePrice: 40000, currentPrice: 45000, profitLoss: 50000000, profitLossPercent: 12.5 },
+    { symbol: 'VCB', quantity: 5000, averagePrice: 65000, currentPrice: 70000, profitLoss: 25000000, profitLossPercent: 7.7 },
+    { symbol: 'VHM', quantity: 8000, averagePrice: 28000, currentPrice: 31250, profitLoss: 26000000, profitLossPercent: 11.6 },
+    { symbol: 'VNM', quantity: 3000, averagePrice: 65000, currentPrice: 66667, profitLoss: 5000000, profitLossPercent: 2.6 },
   ],
-  cash: 125000000,
 };
 
 const mockReport: SynthesisReport = {
-  date: new Date().toISOString(),
-  summary: 'Thị trường tích cực với dòng tiền mạnh vào cổ phiếu ngân hàng và thép.',
-  positives: [
+  date: new Date(),
+  overview: 'Thị trường tích cực với dòng tiền mạnh vào cổ phiếu ngân hàng và thép.',
+  positiveFactors: [
     'Lãi suất giảm hỗ trợ ngành ngân hàng tăng trưởng tín dụng',
     'Giá thép tăng nhẹ do nhu cầu xây dựng phục hồi',
   ],
-  negatives: [
+  negativeFactors: [
     'Tỷ giá USD/VND tăng cao gây áp lực lên các doanh nghiệp nhập khẩu',
   ],
-  recommendation: 'Giữ danh mục hiện tại. Theo dõi diễn biến lãi suất tuần tới.',
+  aiRecommendations: ['Giữ danh mục hiện tại. Theo dõi diễn biến lãi suất tuần tới.'],
 };
 
 export default function PersonalPage() {

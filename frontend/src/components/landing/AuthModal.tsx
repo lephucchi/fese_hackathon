@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
+import { X, Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -10,12 +11,54 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
+  const { login, register } = useAuth();
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setIsLoading(true);
+
+    try {
+      if (activeTab === 'login') {
+        await login(email, password);
+        onClose();
+      } else {
+        // Validation for signup
+        if (!name.trim()) {
+          setError('Vui lòng nhập họ và tên');
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError('Mật khẩu xác nhận không khớp');
+          return;
+        }
+        if (password.length < 8) {
+          setError('Mật khẩu phải có ít nhất 8 ký tự');
+          return;
+        }
+
+        // Split name into first and last name
+        const nameParts = name.trim().split(' ');
+        const lastName = nameParts[nameParts.length - 1];
+        const firstName = nameParts.slice(0, -1).join(' ') || lastName;
+
+        await register(email, password, firstName, lastName, name);
+        onClose();
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -117,7 +160,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 }}
               >
                 <button
-                  onClick={() => setActiveTab('login')}
+                  onClick={() => {
+                    setActiveTab('login');
+                    setError('');
+                  }}
                   style={{
                     flex: 1,
                     padding: '0.75rem',
@@ -135,7 +181,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   Đăng nhập
                 </button>
                 <button
-                  onClick={() => setActiveTab('signup')}
+                  onClick={() => {
+                    setActiveTab('signup');
+                    setError('');
+                  }}
                   style={{
                     flex: 1,
                     padding: '0.75rem',
@@ -154,12 +203,28 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </button>
               </div>
 
+              {/* Error Message */}
+              {error && (
+                <div
+                  style={{
+                    padding: '0.875rem',
+                    borderRadius: '12px',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <AlertCircle size={18} style={{ color: '#EF4444', flexShrink: 0 }} />
+                  <span style={{ fontSize: '0.875rem', color: '#EF4444' }}>{error}</span>
+                </div>
+              )}
+
               {/* Form */}
               <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  // Handle auth
-                }}
+                onSubmit={handleSubmit}
                 style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
               >
                 {/* Name Input - Only for signup */}
@@ -373,22 +438,24 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 {/* Submit Button */}
                 <button
                   type="submit"
+                  disabled={isLoading}
                   className="interactive-scale"
                   style={{
                     width: '100%',
                     padding: '1rem',
                     borderRadius: '12px',
                     border: 'none',
-                    background: 'var(--primary)',
+                    background: isLoading ? 'var(--surface)' : 'var(--primary)',
                     color: 'white',
                     fontSize: '1rem',
                     fontWeight: 700,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 16px rgba(0, 200, 5, 0.25)',
-                    transition: 'all 0.2s'
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    boxShadow: isLoading ? 'none' : '0 4px 16px rgba(0, 200, 5, 0.25)',
+                    transition: 'all 0.2s',
+                    opacity: isLoading ? 0.6 : 1
                   }}
                 >
-                  {activeTab === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}
+                  {isLoading ? 'Đang xử lý...' : (activeTab === 'login' ? 'Đăng nhập' : 'Tạo tài khoản')}
                 </button>
               </form>
 

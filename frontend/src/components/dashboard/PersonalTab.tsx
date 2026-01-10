@@ -48,20 +48,13 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
   }, [viewingInsights, disclaimerLoading, hasAccepted]);
 
   // Prepare chart data
-  const chartData = [
-    ...portfolio.holdings.map(h => ({
-      name: h.ticker,
-      value: h.value,
-      allocation: h.allocation,
-    })),
-    {
-      name: 'Cash',
-      value: portfolio.cash,
-      allocation: (portfolio.cash / portfolio.totalValue) * 100,
-    },
-  ];
+  const chartData = portfolio.positions.map(p => ({
+    name: p.symbol,
+    value: p.currentPrice * p.quantity,
+    allocation: ((p.currentPrice * p.quantity) / portfolio.totalValue) * 100,
+  }));
 
-  const dailyChangeAmount = (portfolio.totalValue * portfolio.dailyChange) / 100;
+  const dailyChangeAmount = portfolio.todayProfitLoss;
 
   return (
     <div style={{
@@ -91,15 +84,15 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           gap: '8px',
           fontSize: '1.5rem',
           fontWeight: 600,
-          color: portfolio.dailyChange >= 0 ? '#10B981' : '#EF4444',
+          color: portfolio.todayProfitLossPercent >= 0 ? '#10B981' : '#EF4444',
         }}>
-          {portfolio.dailyChange >= 0 ? (
+          {portfolio.todayProfitLossPercent >= 0 ? (
             <ArrowUp size={28} strokeWidth={3} />
           ) : (
             <ArrowDown size={28} strokeWidth={3} />
           )}
           <span>
-            {portfolio.dailyChange >= 0 ? '+' : ''}{formatVND(dailyChangeAmount)} ({portfolio.dailyChange >= 0 ? '+' : ''}{portfolio.dailyChange.toFixed(2)}%)
+            {portfolio.todayProfitLossPercent >= 0 ? '+' : ''}{formatVND(dailyChangeAmount)} ({portfolio.todayProfitLossPercent >= 0 ? '+' : ''}{portfolio.todayProfitLossPercent.toFixed(2)}%)
           </span>
         </div>
       </div>
@@ -195,13 +188,6 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                 marginBottom: '4px',
               }}>
                 Sức mua
-              </div>
-              <div style={{
-                fontSize: '24px',
-                fontWeight: 700,
-                color: 'var(--text-primary)',
-              }}>
-                {formatVND(portfolio.cash)} ₫
               </div>
             </div>
           </div>
@@ -342,7 +328,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           color: 'var(--text-secondary)',
           marginBottom: '32px',
         }}>
-          {report.summary}
+          {report.overview}
         </p>
 
         {/* Positives & Negatives Grid */}
@@ -373,7 +359,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               flexDirection: 'column',
               gap: '12px',
             }}>
-              {report.positives.map((positive, idx) => (
+              {report.positiveFactors.map((positive, idx) => (
                 <li
                   key={idx}
                   style={{
@@ -413,7 +399,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               flexDirection: 'column',
               gap: '12px',
             }}>
-              {report.negatives.map((negative, idx) => (
+              {report.negativeFactors.map((negative, idx) => (
                 <li
                   key={idx}
                   style={{
@@ -460,7 +446,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                 fontWeight: 600,
                 color: '#14532d',
               }}>
-                {report.recommendation}
+                {report.aiRecommendations[0] || 'Không có khuyến nghị'}
               </div>
             </div>
           </div>
@@ -545,9 +531,9 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                 gap: '16px',
                 marginBottom: '24px',
               }}>
-                {portfolio.holdings.map((holding) => (
+                {portfolio.positions.map((position) => (
                   <div
-                    key={holding.ticker}
+                    key={position.symbol}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -563,18 +549,19 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                         fontWeight: 600,
                         color: 'var(--text-primary)',
                       }}>
-                        {holding.ticker}
+                        {position.symbol}
                       </div>
                       <div style={{
                         fontSize: '14px',
                         color: 'var(--text-secondary)',
                       }}>
-                        {holding.name}
+                        Số lượng: {position.quantity}
                       </div>
                     </div>
                     <input
                       type="number"
                       placeholder="Số lượng"
+                      defaultValue={position.quantity}
                       style={{
                         width: '120px',
                         padding: '8px 12px',
