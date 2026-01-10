@@ -126,9 +126,7 @@ EOF
 else
     log_success ".env file found"
     
-    # Validate critical environment variables
-    source "$ENV_FILE"
-    
+    # Validate critical environment variables (use grep to avoid shell expansion issues)
     REQUIRED_VARS=(
         "SUPABASE_URL"
         "SUPABASE_SERVICE_ROLE_KEY"
@@ -138,7 +136,10 @@ else
     
     MISSING_VARS=()
     for var in "${REQUIRED_VARS[@]}"; do
-        if [ -z "${!var:-}" ] || [ "${!var}" == "your_"* ]; then
+        # Check if variable exists in .env file and is not a placeholder
+        if ! grep -q "^${var}=" "$ENV_FILE" 2>/dev/null; then
+            MISSING_VARS+=("$var")
+        elif grep "^${var}=" "$ENV_FILE" | grep -q "your_\|YOUR_\|xxx"; then
             MISSING_VARS+=("$var")
         fi
     done
