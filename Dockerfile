@@ -27,9 +27,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code
 COPY src/ ./src/
 
-# Copy env example (will be overridden by docker-compose)
-COPY .env.example ./.env
-
 # Create logs directory for NewsAnalyst
 RUN mkdir -p /app/logs
 
