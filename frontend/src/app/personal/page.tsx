@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { Navigation } from '@/components/shared/Navigation';
-import { PersonalTab } from '@/components/dashboard/PersonalTab';
+import { PersonalTab } from '@/components/personal/PersonalTab';
 import { SynthesisReport } from '@/types/dashboard.types';
 import { useLanguage } from '@/contexts/LanguageContext';
 
