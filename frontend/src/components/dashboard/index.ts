@@ -1,18 +1,38 @@
 /**
  * Dashboard Components Export
- * Centralized export for all dashboard components
+ * Re-exports from news, personal, and education folders for backward compatibility
+ * Also exports shared dashboard components
  */
 
+// ============================================
+// NEWS COMPONENTS (from components/news/)
+// ============================================
+export { MarketTab, NewsCard, SwipeCardStack, SwipeActions, SavedNewsList, CompletionScreen } from '../news';
+export type { NewsCard as NewsCardType } from '../news';
+
+// ============================================
+// PERSONAL COMPONENTS (from components/personal/)
+// ============================================
+export {
+    PersonalTab,
+    PortfolioCard,
+    AddPositionForm,
+    ProfileCard,
+    SynthesisReportComponent,
+    PortfolioChart,
+    PortfolioStats
+} from '../personal';
+
+// ============================================
+// EDUCATION COMPONENTS (from components/education/)
+// ============================================
+export { AcademyTab } from '../education';
+export type { VideoContent } from '../education';
+
+// ============================================
+// SHARED DASHBOARD COMPONENTS (remain in dashboard/)
+// ============================================
 export { DashboardHeader } from './DashboardHeader';
 export { TabContainer } from './TabContainer';
-export { MarketTab } from './MarketTab';
-export { PersonalTab } from './PersonalTab';
-export { AcademyTab } from './AcademyTab';
 export { FloatingChatButton } from './FloatingChatButton';
-export { NewsCard } from './NewsCard';
-export { SwipeActions } from './SwipeActions';
-export { SavedNewsList } from './SavedNewsList';
-export { PortfolioChart } from './PortfolioChart';
-export { PortfolioStats } from './PortfolioStats';
-export { SynthesisReportComponent } from './SynthesisReport';
 export { ContentCard } from './ContentCard';

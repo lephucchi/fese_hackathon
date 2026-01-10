@@ -2,7 +2,7 @@
  * Portfolio Service - API calls for portfolio management
  */
 
-import { API_BASE_URL } from '@/utils/constants/api';
+import { apiClient } from './client';
 
 export interface PortfolioItem {
     portfolio_id: string;
@@ -32,42 +32,23 @@ export interface UpdatePositionData {
     avg_buy_price?: number;
 }
 
+interface PortfolioDetailResponse {
+    message: string;
+    item: PortfolioItem;
+}
+
 /**
  * Get user's portfolio
  */
 export async function getPortfolio(): Promise<PortfolioResponse> {
-    const response = await fetch(`${API_BASE_URL}/api/portfolio`, {
-        method: 'GET',
-        credentials: 'include',
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail?.message || 'Failed to fetch portfolio');
-    }
-
-    return response.json();
+    return apiClient.get<PortfolioResponse>('/api/portfolio');
 }
 
 /**
  * Add new position
  */
 export async function addPosition(data: CreatePositionData): Promise<PortfolioItem> {
-    const response = await fetch(`${API_BASE_URL}/api/portfolio`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail?.message || 'Failed to add position');
-    }
-
-    const result = await response.json();
+    const result = await apiClient.post<PortfolioDetailResponse>('/api/portfolio', data);
     return result.item;
 }
 
@@ -78,21 +59,7 @@ export async function updatePosition(
     portfolioId: string,
     data: UpdatePositionData
 ): Promise<PortfolioItem> {
-    const response = await fetch(`${API_BASE_URL}/api/portfolio/${portfolioId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail?.message || 'Failed to update position');
-    }
-
-    const result = await response.json();
+    const result = await apiClient.put<PortfolioDetailResponse>(`/api/portfolio/${portfolioId}`, data);
     return result.item;
 }
 
@@ -100,13 +67,5 @@ export async function updatePosition(
  * Delete position
  */
 export async function deletePosition(portfolioId: string): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/api/portfolio/${portfolioId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail?.message || 'Failed to delete position');
-    }
+    await apiClient.delete(`/api/portfolio/${portfolioId}`);
 }

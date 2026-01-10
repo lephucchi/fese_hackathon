@@ -5,8 +5,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { SwipeCardStack, NewsCard } from '@/components/dashboard/SwipeCardStack';
-import { CompletionScreen } from '@/components/dashboard/CompletionScreen';
+import { SwipeCardStack, NewsCard } from '@/components/news/SwipeCardStack';
+import { CompletionScreen } from '@/components/news/CompletionScreen';
 import { Navigation } from '@/components/shared/Navigation';
 import { Coins, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,7 +20,7 @@ export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const { stack, loading, error, remaining, swipeRight, swipeLeft, refetch, savedCount } = useMarketStack(20);
-  
+
   const [mPoints, setMPoints] = useState(650);
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -74,10 +74,10 @@ export default function DashboardPage() {
     return (
       <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
         <Navigation />
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           minHeight: 'calc(100vh - 80px)',
           paddingTop: '80px'
         }}>
@@ -95,16 +95,16 @@ export default function DashboardPage() {
     return (
       <div style={{ background: 'var(--background)', minHeight: '100vh', width: '100%' }}>
         <Navigation />
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           minHeight: 'calc(100vh - 80px)',
           paddingTop: '80px',
           padding: 'clamp(80px, 10vh, 120px) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem)'
         }}>
-          <div style={{ 
-            textAlign: 'center', 
+          <div style={{
+            textAlign: 'center',
             maxWidth: '400px',
             width: '100%',
             padding: 'clamp(1.5rem, 4vw, 2rem)',
@@ -141,10 +141,10 @@ export default function DashboardPage() {
   return (
     <div style={{ background: 'var(--background)', minHeight: '100vh', width: '100%' }}>
       <Navigation />
-      <main style={{ 
-        paddingTop: 'clamp(80px, 15vh, 100px)', 
-        padding: 'clamp(80px, 15vh, 100px) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 2rem)', 
-        maxWidth: '900px', 
+      <main style={{
+        paddingTop: 'clamp(80px, 15vh, 100px)',
+        padding: 'clamp(80px, 15vh, 100px) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 2rem)',
+        maxWidth: '900px',
         margin: '0 auto',
         width: '100%'
       }}>
