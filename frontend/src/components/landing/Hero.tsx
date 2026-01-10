@@ -116,6 +116,7 @@ export function Hero({ onGetStarted }: HeroProps) {
               style={{
                 padding: '16px 40px',
                 fontSize: '16px',
+                fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
@@ -126,10 +127,12 @@ export function Hero({ onGetStarted }: HeroProps) {
               <ArrowRight size={20} />
             </button>
             <button
+              onClick={onGetStarted}
               className="btn-secondary interactive-scale"
               style={{
                 padding: '16px 40px',
                 fontSize: '16px',
+                fontWeight: 700,
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
