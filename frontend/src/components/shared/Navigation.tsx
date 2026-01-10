@@ -55,14 +55,14 @@ export function Navigation({ onLoginClick }: NavigationProps) {
         top: 0,
         left: 0,
         right: 0,
-        zIndex: 50,
+        zIndex: 1000,
         transition: 'all 0.3s',
         background: '#181D2A',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
       }}
     >
-      <nav style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(0.75rem, 2vw, 1rem)', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '4rem', gap: '0.5rem', overflow: 'hidden' }}>
+      <nav style={{ width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(0.75rem, 2vw, 1rem)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '4rem', gap: '0.5rem' }}>
           {/* Logo */}
           <Link
             href="/"
@@ -326,7 +326,7 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                       >
                         <LogOut size={18} />
-                        <span>Dang xuat</span>
+                        <span>{t('auth.logout')}</span>
                       </button>
                     </motion.div>
                   )}
