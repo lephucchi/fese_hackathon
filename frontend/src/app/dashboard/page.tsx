@@ -6,11 +6,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { CompletionScreen } from '@/components/news/CompletionScreen';
+import { SavedNewsSidebar } from '@/components/news/SavedNewsSidebar';
 import { Navigation } from '@/components/shared/Navigation';
 import { Coins, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNewsSwipe, NewsSwipeItem } from '@/hooks/useNewsSwipe';
+import { useSavedNews, SavedNewsItem } from '@/hooks/useSavedNews';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Minus, ExternalLink, Tag } from 'lucide-react';
@@ -323,12 +325,14 @@ export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const { stack, loading, error, remaining, swipeRight, swipeLeft, refetch, savedCount, total } = useNewsSwipe(20);
+  const { savedNews, loading: savedLoading, total: savedTotal, addOptimisticNews } = useSavedNews();
 
   const [mPoints, setMPoints] = useState(650);
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [pointsEarnedToday, setPointsEarnedToday] = useState(0);
   const [selectedNews, setSelectedNews] = useState<NewsSwipeItem | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -338,12 +342,35 @@ export default function DashboardPage() {
   }, [authLoading, isAuthenticated, router]);
 
   const handleSwipeRight = async (newsId: string) => {
+    // Find the news item being saved
+    const newsItem = stack.find(n => n.news_id === newsId);
+
     await swipeRight(newsId);
     setMPoints(mPoints + 2);
     setPointsEarnedToday(pointsEarnedToday + 2);
     setShowPointsAnimation(true);
     setCurrentCardIndex(currentCardIndex + 1);
     setTimeout(() => setShowPointsAnimation(false), 1000);
+
+    // Optimistically add to saved news sidebar
+    if (newsItem) {
+      const savedItem: SavedNewsItem = {
+        news_id: newsItem.news_id,
+        title: newsItem.title,
+        content: newsItem.content,
+        source_url: newsItem.source_url,
+        published_at: newsItem.published_at,
+        sentiment: newsItem.sentiment,
+        analyst: null,
+        tickers: newsItem.tickers.map(t => ({ ticker: t, confidence: null }))
+      };
+      addOptimisticNews(savedItem);
+
+      // Auto-open sidebar when first news is saved
+      if (savedTotal === 0) {
+        setSidebarOpen(true);
+      }
+    }
   };
 
   const handleSwipeLeft = async (newsId: string) => {
@@ -884,6 +911,29 @@ export default function DashboardPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Saved News Sidebar */}
+      <SavedNewsSidebar
+        savedNews={savedNews}
+        loading={savedLoading}
+        total={savedTotal}
+        isOpen={sidebarOpen}
+        onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onNewsClick={(news) => {
+          // Convert SavedNewsItem to NewsSwipeItem format for detail modal
+          setSelectedNews({
+            news_id: news.news_id,
+            title: news.title,
+            content: news.content,
+            sentiment: news.sentiment,
+            sentiment_color: '',
+            keywords: [],
+            tickers: news.tickers.map(t => t.ticker),
+            published_at: news.published_at,
+            source_url: news.source_url
+          });
+        }}
+      />
     </div>
   );
 }
