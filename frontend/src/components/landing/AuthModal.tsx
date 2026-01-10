@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Eye, EyeOff, Mail, Lock, User, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface AuthModalProps {
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const { login, register } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -35,32 +37,32 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       } else {
         // Validation for signup
         if (!firstName.trim()) {
-          setError('Vui lòng nhập họ');
+          setError(t('auth.errors.firstNameRequired') as string);
           return;
         }
         if (!lastName.trim()) {
-          setError('Vui lòng nhập tên');
+          setError(t('auth.errors.lastNameRequired') as string);
           return;
         }
         if (password !== confirmPassword) {
-          setError('Mật khẩu xác nhận không khớp');
+          setError(t('auth.errors.passwordMismatch') as string);
           return;
         }
         if (password.length < 8) {
-          setError('Mật khẩu phải có ít nhất 8 ký tự');
+          setError(t('auth.errors.passwordMinLength') as string);
           return;
         }
         // Validate password strength
         if (!/[A-Z]/.test(password)) {
-          setError('Mật khẩu phải có ít nhất 1 chữ hoa (A-Z)');
+          setError(t('auth.errors.passwordUppercase') as string);
           return;
         }
         if (!/[a-z]/.test(password)) {
-          setError('Mật khẩu phải có ít nhất 1 chữ thường (a-z)');
+          setError(t('auth.errors.passwordLowercase') as string);
           return;
         }
         if (!/\d/.test(password)) {
-          setError('Mật khẩu phải có ít nhất 1 số (0-9)');
+          setError(t('auth.errors.passwordNumber') as string);
           return;
         }
 
@@ -76,18 +78,18 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         // Check for validation errors
         const message = err.message;
         if (message.includes('uppercase')) {
-          setError('Mật khẩu phải có ít nhất 1 chữ hoa (A-Z)');
+          setError(t('auth.errors.passwordUppercase') as string);
         } else if (message.includes('lowercase')) {
-          setError('Mật khẩu phải có ít nhất 1 chữ thường (a-z)');
+          setError(t('auth.errors.passwordLowercase') as string);
         } else if (message.includes('number')) {
-          setError('Mật khẩu phải có ít nhất 1 số (0-9)');
+          setError(t('auth.errors.passwordNumber') as string);
         } else if (message.includes('already exists') || message.includes('duplicate')) {
-          setError('Email đã được sử dụng');
+          setError(t('auth.errors.emailExists') as string);
         } else {
           setError(message);
         }
       } else {
-        setError('Đã có lỗi xảy ra');
+        setError(t('auth.errors.generic') as string);
       }
     } finally {
       setIsLoading(false);
@@ -181,7 +183,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   marginBottom: 'clamp(1rem, 3vw, 2rem)'
                 }}
               >
-                Đầu tư thông minh hơn mỗi ngày
+                {t('auth.tagline')}
               </p>
 
               {/* Tabs */}
@@ -214,7 +216,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     transition: 'all 0.2s'
                   }}
                 >
-                  Đăng nhập
+                  {t('auth.login')}
                 </button>
                 <button
                   onClick={() => {
@@ -235,7 +237,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     transition: 'all 0.2s'
                   }}
                 >
-                  Tạo tài khoản
+                  {t('auth.createAccount')}
                 </button>
               </div>
 
@@ -279,7 +281,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             color: 'var(--text-primary)'
                           }}
                         >
-                          Họ <span style={{ color: '#EF4444' }}>*</span>
+                          {t('auth.firstName')} <span style={{ color: '#EF4444' }}>*</span>
                         </label>
                         <div style={{ position: 'relative' }}>
                           <User
@@ -296,7 +298,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             type="text"
                             value={firstName}
                             onChange={(e) => setFirstName(e.target.value)}
-                            placeholder="Nguyễn"
+                            placeholder={t('auth.placeholders.firstName') as string}
                             style={{
                               width: '100%',
                               padding: '0.875rem 1rem 0.875rem 3rem',
@@ -321,14 +323,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                             color: 'var(--text-primary)'
                           }}
                         >
-                          Tên <span style={{ color: '#EF4444' }}>*</span>
+                          {t('auth.lastName')} <span style={{ color: '#EF4444' }}>*</span>
                         </label>
                         <div style={{ position: 'relative' }}>
                           <input
                             type="text"
                             value={lastName}
                             onChange={(e) => setLastName(e.target.value)}
-                            placeholder="Văn A"
+                            placeholder={t('auth.placeholders.lastName') as string}
                             style={{
                               width: '100%',
                               padding: '0.875rem 1rem',
@@ -354,7 +356,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                           color: 'var(--text-primary)'
                         }}
                       >
-                        Tên hiển thị <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>(tùy chọn)</span>
+                        {t('auth.displayName')} <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>({t('auth.optional')})</span>
                       </label>
                       <div style={{ position: 'relative' }}>
                         <User
@@ -371,7 +373,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                           type="text"
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
-                          placeholder="Nickname hoặc để trống"
+                          placeholder={t('auth.placeholders.displayName') as string}
                           style={{
                             width: '100%',
                             padding: '0.875rem 1rem 0.875rem 3rem',
@@ -384,7 +386,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         />
                       </div>
                       <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
-                        Nếu để trống, sẽ sử dụng Họ + Tên làm tên hiển thị
+                        {t('auth.displayNameHint')}
                       </p>
                     </div>
                   </>
@@ -401,7 +403,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       color: 'var(--text-primary)'
                     }}
                   >
-                    Email
+                    {t('auth.email')}
                   </label>
                   <div style={{ position: 'relative' }}>
                     <Mail
@@ -418,7 +420,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your@email.com"
+                      placeholder={t('auth.placeholders.email') as string}
                       style={{
                         width: '100%',
                         padding: '0.875rem 1rem 0.875rem 3rem',
@@ -443,7 +445,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       color: 'var(--text-primary)'
                     }}
                   >
-                    Mật khẩu
+                    {t('auth.password')}
                   </label>
                   <div style={{ position: 'relative' }}>
                     <Lock
@@ -492,7 +494,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   {/* Password requirements hint - only for signup */}
                   {activeTab === 'signup' && (
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '0.5rem' }}>
-                      Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số
+                      {t('auth.passwordHint')}
                     </p>
                   )}
                 </div>
@@ -509,7 +511,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         color: 'var(--text-primary)'
                       }}
                     >
-                      Xác nhận mật khẩu
+                      {t('auth.confirmPassword')}
                     </label>
                     <div style={{ position: 'relative' }}>
                       <Lock
@@ -555,7 +557,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         cursor: 'pointer'
                       }}
                     >
-                      Quên mật khẩu?
+                      {t('auth.forgotPassword')}
                     </button>
                   </div>
                 )}
@@ -580,7 +582,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     opacity: isLoading ? 0.6 : 1
                   }}
                 >
-                  {isLoading ? 'Đang xử lý...' : (activeTab === 'login' ? 'Đăng nhập' : 'Tạo tài khoản')}
+                  {isLoading ? t('auth.processing') : (activeTab === 'login' ? t('auth.login') : t('auth.createAccount'))}
                 </button>
               </form>
             </motion.div>

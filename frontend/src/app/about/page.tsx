@@ -29,6 +29,8 @@ export default function AboutPage() {
               fontSize: 'clamp(1.75rem, 6vw, 3rem)',
               fontWeight: 800,
               marginBottom: '1rem',
+              paddingTop: '0.25em',
+              lineHeight: 1.5,
               background: 'linear-gradient(135deg, var(--primary) 0%, #00D906 100%)',
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
