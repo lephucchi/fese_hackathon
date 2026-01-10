@@ -68,6 +68,9 @@ class ChatResponse(BaseModel):
     message_id: str
     context_used: int
     cached: bool
+    tier: Optional[int] = None  # 1=cache, 2=partial, 3=full pipeline
+    elapsed_ms: Optional[int] = None
+    history_used: Optional[int] = None
 
 
 # =========================================================================
@@ -218,6 +221,8 @@ async def chat_with_context(
         )
         return ChatResponse(**result)
         
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error in context chat: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail={"error": "chat_error", "message": str(e)})

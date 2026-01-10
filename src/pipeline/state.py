@@ -61,6 +61,9 @@ class RAGState(TypedDict):
     total_time_ms: float
     step_times: Dict[str, float]
     error: Optional[str]
+    
+    # NEW: Execution Logs (Phase 4) used for UI "Thought Process"
+    logs: List[Dict[str, Any]]  # [{"step": "route", "detail": "...", "metadata": {}}]
 
 
 def create_initial_state(query: str, user_id: Optional[str] = None) -> RAGState:
@@ -89,5 +92,6 @@ def create_initial_state(query: str, user_id: Optional[str] = None) -> RAGState:
         is_grounded=False,
         total_time_ms=0.0,
         step_times={},
-        error=None
+        error=None,
+        logs=[]  # Initialize logs
     )

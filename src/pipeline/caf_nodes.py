@@ -13,23 +13,35 @@ from .state import RAGState
 
 logger = logging.getLogger(__name__)
 
+def _log_step(state: RAGState, step: str, detail: str, metadata: Dict[str, Any] = None):
+    """Add execution log to state."""
+    import time
+    if "logs" not in state:
+        state["logs"] = []
+    
+    entry = {
+        "step": step,
+        "detail": detail,
+        "timestamp": time.time() * 1000
+    }
+    if metadata:
+        entry["metadata"] = metadata
+    
+    state["logs"].append(entry)
+
+
 # =============================================================================
 # LLM REFUSAL DETECTION - Patterns indicating LLM couldn't answer
+# NOTE: Reduced patterns - only trigger for explicit refusals, not partial info
 # =============================================================================
 LLM_REFUSAL_PATTERNS = [
     "không thể đưa ra câu trả lời",
-    "không tìm thấy thông tin",
-    "không có đủ dữ liệu",
-    "không thể trả lời",
-    "tôi không có thông tin",
-    "mình chưa có thông tin",
-    "không có trong tài liệu",
-    "không được cung cấp",
-    "chưa có dữ liệu",
-    "không đủ thông tin để trả lời",
+    "không có thông tin nào trong tài liệu",
+    "không tìm thấy bất kỳ thông tin nào",
+    "tôi không thể trả lời",
     "i cannot answer",
-    "i don't have information",
-    "not found in the provided",
+    "i don't have any information",
+    "no information found",
 ]
 
 
@@ -44,12 +56,18 @@ def should_retry_with_fallback(answer: str) -> bool:
         True if answer indicates refusal/inability to answer
     """
     if not answer:
+        logger.debug("[REFUSAL CHECK] Empty answer - triggering fallback")
         return True
     
     answer_lower = answer.lower()
+    logger.debug(f"[REFUSAL CHECK] Checking answer: {answer_lower[:200]}...")
+    
     for pattern in LLM_REFUSAL_PATTERNS:
         if pattern.lower() in answer_lower:
+            logger.info(f"[REFUSAL CHECK] ✓ Matched pattern: '{pattern}'")
             return True
+    
+    logger.debug("[REFUSAL CHECK] No refusal patterns matched")
     return False
 
 # Cached CAF instances
@@ -167,6 +185,10 @@ def extract_facts_node(state: RAGState) -> RAGState:
     state["step_times"]["extract_facts"] = (time.time() - start) * 1000
     logger.info(f"[TIME] Fact Extraction: {state['step_times']['extract_facts']:.2f}ms")
     
+    _log_step(state, "extract_facts", f"Extracted {len(facts)} canonical facts", {
+        "count": len(facts)
+    })
+    
     return state
 
 
@@ -268,12 +290,26 @@ def synthesize_answer_node(state: RAGState) -> RAGState:
                             # Re-extract facts with web context
                             extractor = _get_fact_extractor()
                             
-                            # Combine original contexts + web contexts
+                            # Combine original + web contexts
                             all_contexts = state.get("contexts", []) + web_contexts
+                            
+                            # Build sub_query_contexts for enriched extraction
+                            enriched_sub_contexts = {}
+                            for sub_q, sub_ctx in state.get("sub_query_contexts", {}).items():
+                                enriched_sub_contexts[sub_q] = sub_ctx
+                            
+                            # Add web contexts to each sub-query context
+                            if web_contexts:
+                                web_text = "\n\n[WEB SEARCH RESULTS]\n" + "\n\n".join([
+                                    f"[{i+1}] {ctx.get('title', 'N/A')}\n{ctx.get('content', '')}"
+                                    for i, ctx in enumerate(web_contexts)
+                                ])
+                                for sub_q in enriched_sub_contexts:
+                                    enriched_sub_contexts[sub_q] += web_text
+                            
                             enriched_facts = extractor.extract(
-                                query=state["query"],
-                                contexts=all_contexts,
-                                sub_query_contexts=state.get("sub_query_contexts", {})
+                                sub_query_contexts=enriched_sub_contexts,
+                                citations_map=state.get("citations_map", [])
                             )
                             
                             # Re-synthesize with enriched facts
@@ -331,22 +367,37 @@ def _format_web_answer(state: RAGState) -> str:
     web_contexts = state.get("web_contexts", [])
     query = state.get("query", "")
     
-    # Build answer from web contexts
-    facts = []
-    for ctx in web_contexts:
-        content = ctx.get("content", "")
-        if content:
-            facts.append(content)
+    # Sort contexts: Summary first, then others
+    summary_ctx = next((c for c in web_contexts if c.get("source_type") == "web_summary"), None)
+    findings = [c for c in web_contexts if c.get("source_type") != "web_summary"]
     
-    if not facts:
+    if not summary_ctx and not findings:
         return None
     
-    # Create simple, direct answer
-    answer_parts = []
-    for i, fact in enumerate(facts[:5], 1):  # Limit to 5 facts
-        answer_parts.append(f"{fact} [Web {i}]")
+    parts = []
     
-    return " ".join(answer_parts)
+    # 1. Add Summary if available
+    if summary_ctx:
+        parts.append(f"🔍 **Tổng hợp nhanh:**\n{summary_ctx.get('content', '')}")
+    
+    # 2. Add Key Findings
+    if findings:
+        parts.append("\n💡 **Thông tin chi tiết:**")
+        for i, ctx in enumerate(findings[:8], 1):  # Limit findings
+            content = ctx.get("content", "").strip()
+            title = ctx.get("title", "Web Source")
+            if content:
+                parts.append(f"• {content} [{i}]")
+    
+    # 3. Add Sources footer
+    if findings:
+        parts.append("\n📚 **Nguồn tham khảo:**")
+        for i, ctx in enumerate(findings[:5], 1):
+            url = ctx.get("url", "#")
+            title = ctx.get("title", "Nguồn web")
+            parts.append(f"[{i}] [{title}]({url})")
+            
+    return "\n".join(parts)
 
 
 def generate_node_caf(state: RAGState) -> RAGState:

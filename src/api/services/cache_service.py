@@ -336,6 +336,136 @@ class CacheService:
         except Exception as e:
             logger.error(f"Error clearing retrieved IDs: {e}")
             return False
+    
+    # =========================================================================
+    # RAG CACHE - For caching pipeline results (facts + entities)
+    # =========================================================================
+    
+    def _get_rag_cache_key(self, user_id: str) -> str:
+        """Generate cache key for RAG results."""
+        return f"chat:rag_cache:{user_id}"
+    
+    async def set_rag_cache(
+        self,
+        user_id: str,
+        data: Dict[str, Any],
+        ttl: int = None
+    ) -> bool:
+        """
+        Cache RAG pipeline results (extracted facts, entities).
+        
+        Args:
+            user_id: User UUID
+            data: RAG results {entities: [...], facts: [...], last_query: "..."}
+            ttl: Time to live in seconds
+            
+        Returns:
+            True if cached successfully
+        """
+        if not self.is_connected:
+            return False
+        
+        try:
+            import time
+            key = self._get_rag_cache_key(user_id)
+            ttl = ttl or self.DEFAULT_TTL
+            
+            # Add timestamp
+            data["cached_at"] = time.time()
+            
+            self._client.setex(
+                key,
+                ttl,
+                json.dumps(data, ensure_ascii=False)
+            )
+            logger.info(f"Cached RAG results for user {user_id}: {len(data.get('entities', []))} entities, {len(data.get('facts', []))} facts")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error caching RAG results: {e}")
+            return False
+    
+    async def get_rag_cache(self, user_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get cached RAG results.
+        
+        Args:
+            user_id: User UUID
+            
+        Returns:
+            Cached RAG data or None
+        """
+        if not self.is_connected:
+            return None
+        
+        try:
+            key = self._get_rag_cache_key(user_id)
+            data = self._client.get(key)
+            
+            if data:
+                parsed = json.loads(data)
+                logger.debug(f"RAG cache hit for user {user_id}")
+                return parsed
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting RAG cache: {e}")
+            return None
+    
+    async def append_rag_cache(
+        self,
+        user_id: str,
+        new_entities: List[str],
+        new_facts: List[Dict]
+    ) -> bool:
+        """
+        Append new entities and facts to existing RAG cache.
+        
+        Args:
+            user_id: User UUID
+            new_entities: New entities to add
+            new_facts: New facts to add
+            
+        Returns:
+            True if updated successfully
+        """
+        if not self.is_connected:
+            return False
+        
+        try:
+            existing = await self.get_rag_cache(user_id) or {"entities": [], "facts": []}
+            
+            # Merge entities (unique)
+            all_entities = list(set(existing.get("entities", []) + new_entities))
+            
+            # Merge facts (append)
+            all_facts = existing.get("facts", []) + new_facts
+            
+            # Update cache
+            await self.set_rag_cache(user_id, {
+                "entities": all_entities,
+                "facts": all_facts,
+                "last_query": existing.get("last_query")
+            })
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error appending RAG cache: {e}")
+            return False
+    
+    async def clear_rag_cache(self, user_id: str) -> bool:
+        """Clear RAG cache for user."""
+        if not self.is_connected:
+            return False
+        
+        try:
+            key = self._get_rag_cache_key(user_id)
+            self._client.delete(key)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error clearing RAG cache: {e}")
+            return False
 
 
 # Singleton instance

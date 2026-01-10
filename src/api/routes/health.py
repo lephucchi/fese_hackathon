@@ -15,14 +15,42 @@ router = APIRouter(tags=["Health"], prefix="/health")
     "",
     response_model=HealthResponse,
     summary="Health check",
-    description="Check API and component health status"
+    description="Lightweight health check - does not load models"
 )
 async def health_check():
     """
-    Check health status of API and its components.
+    Lightweight health check for container orchestration.
+    
+    Returns API status without loading heavy models.
+    For detailed component health, use /health/detailed endpoint.
     
     Returns:
-        Health status with component details
+        Basic health status
+    """
+    return HealthResponse(
+        status="healthy",
+        components={
+            "api": "healthy",
+            "models": "lazy_loaded"
+        },
+        version="1.0.0"
+    )
+
+
+@router.get(
+    "/detailed",
+    response_model=HealthResponse,
+    summary="Detailed health check",
+    description="Check API and all component health (loads models)"
+)
+async def detailed_health_check():
+    """
+    Detailed health check - instantiates and tests all components.
+    
+    WARNING: This endpoint loads models and may take time on first call.
+    
+    Returns:
+        Detailed health status with component checks
     """
     components = {}
     overall_status = "healthy"

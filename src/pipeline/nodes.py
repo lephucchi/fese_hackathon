@@ -79,35 +79,70 @@ def _get_generator():
     return _generator
 
 
+def _log_step(state: RAGState, step: str, detail: str, metadata: Dict[str, Any] = None):
+    """Add execution log to state."""
+    if "logs" not in state:
+        state["logs"] = []
+    
+    entry = {
+        "step": step,
+        "detail": detail,
+        "timestamp": time.time() * 1000
+    }
+    if metadata:
+        entry["metadata"] = metadata
+    
+    state["logs"].append(entry)
+
+
 def route_node(state: RAGState) -> RAGState:
-    """Route the query to appropriate indices."""
-    _log_separator("STEP 1: ROUTING")
-    router = _get_router()
+    """
+    Step 1: Route the query to appropriate indices.
+    """
     start = time.time()
-    
     query = state["query"]
-    logger.info(f"[INPUT] Query: {_truncate(query)}")
     
+    logger.info(f"===================== STEP 1: ROUTING =====================")
+    logger.info(f"[INPUT] Query: {query}")
+    _log_step(state, "route", "Analyzing query intent...", {"query": query})
+    
+    router = _get_router()
     routes, scores = router.route(query)
     
     state["routes"] = routes
     state["route_scores"] = scores
+    
+    # Check complexity
+    is_complex, reason, score = router.classify(query)
+    state["is_complex"] = is_complex
+    
     state["step_times"]["route"] = (time.time() - start) * 1000
     
-    # Detailed logging
+    log_detail = f"Selected indices: {', '.join(routes)}"
+    _log_step(state, "route", log_detail, {
+        "routes": routes, 
+        "scores": scores,
+        "is_complex": is_complex
+    })
+    
     logger.info(f"[OUTPUT] Selected Routes: {routes}")
-    logger.info("[OUTPUT] All Scores:")
-    for index, score in sorted(scores.items(), key=lambda x: x[1], reverse=True):
-        bar = "#" * int(score * 20)
-        logger.info(f"  - {index:12s}: {score:.3f} {bar}")
+    logger.info(f"[OUTPUT] All Scores:")
+    for r, s in scores.items():
+        logger.info(f"  - {r:12s}: {s:.3f} {'#' * int(s*20)}")
     logger.info(f"[TIME] Route: {state['step_times']['route']:.2f}ms")
+    logger.info(f"[CLASSIFY] Query: {query}")
+    logger.info(f"[CLASSIFY] Is Complex: {is_complex}")
+    logger.info(f"[CLASSIFY] Score: {score:.2f}")
+    logger.info(f"[CLASSIFY] Reason: {reason}")
     
     return state
 
 
 def decompose_node(state: RAGState) -> RAGState:
     """Decompose complex query into sub-queries."""
-    _log_separator("STEP 2: DECOMPOSITION")
+    logger.info(f"================== STEP 2: DECOMPOSITION ==================")
+    _log_step(state, "decompose", "Breaking down complex query...")
+    
     decomposer = _get_decomposer()
     start = time.time()
     
@@ -138,6 +173,7 @@ def decompose_node(state: RAGState) -> RAGState:
 async def retrieve_node(state: RAGState) -> RAGState:
     """Retrieve documents for sub-queries (async version)."""
     _log_separator("STEP 3: RETRIEVAL")
+    _log_step(state, "retrieve", "Retrieving documents...")
     retriever = _get_retriever()
     fusion = _get_fusion()
     start = time.time()
@@ -252,6 +288,11 @@ async def retrieve_node(state: RAGState) -> RAGState:
     
     logger.info(f"[TIME] Retrieve + Fusion: {state['step_times']['retrieve']:.2f}ms")
     
+    _log_step(state, "retrieve", f"Retrieved {len(fused.documents)} documents", {
+        "count": len(fused.documents),
+        "time": state['step_times']['retrieve']
+    })
+    
     return state
 
 
@@ -361,18 +402,20 @@ def fallback_check_node(state: RAGState) -> RAGState:
     
     decider = _get_fallback_decider()
     
-    query = state["query"]
+    # CRITICAL: Use original user query for fallback detection, not augmented query
+    # Augmented query contains chat history which may have temporal keywords
+    query_for_fallback = state.get("user_query", state["query"])
     contexts = state.get("contexts", [])
     routes = state.get("routes", [])
     user_id = state.get("user_id", "anonymous")
     
-    logger.info(f"[INPUT] Query: {_truncate(query)}")
+    logger.info(f"[INPUT] Query: {_truncate(query_for_fallback)}")
     logger.info(f"[INPUT] Retrieved Contexts: {len(contexts)}")
     logger.info(f"[INPUT] Routes: {routes}")
     logger.info(f"[INPUT] User ID: {user_id}")
     
-    # Make fallback decision
-    decision = decider.decide(query, contexts, routes)
+    # Make fallback decision using ORIGINAL user query
+    decision = decider.decide(query_for_fallback, contexts, routes)
     
     # SECURITY: Check rate limit if fallback is needed
     if decision.should_fallback:
@@ -412,6 +455,10 @@ def fallback_check_node(state: RAGState) -> RAGState:
     if decision.details:
         logger.info(f"[OUTPUT] Details: {decision.details}")
     logger.info(f"[TIME] Fallback Check: {state['step_times']['fallback_check']:.2f}ms")
+    
+    _log_step(state, "fallback_check", 
+              f"Fallback: {decision.should_fallback} ({decision.reason.value})", 
+              decision.to_dict())
     
     return state
 
@@ -492,6 +539,10 @@ async def google_search_node(state: RAGState) -> RAGState:
         logger.info(f"      Content: {_truncate(ctx.get('content', ''), 100)}")
     
     logger.info(f"[TIME] Google Search: {state['step_times']['google_search']:.2f}ms")
+    
+    _log_step(state, "google_search", f"Found {len(state['web_contexts'])} web results", {
+        "count": len(state['web_contexts'])
+    })
     
     # Merge web contexts into main contexts for generation
     if state["web_contexts"]:

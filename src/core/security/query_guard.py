@@ -139,13 +139,16 @@ class QueryGuard:
         """
         Check query for security issues.
         
+        Uses BLACKLIST approach - only blocks clearly malicious/off-topic queries.
+        Does NOT require finance keywords (domain is too broad).
+        
         Returns:
             QueryGuardResult with is_safe=True if query is safe
         """
         query_lower = query.lower().strip()
         blocked_patterns = []
         
-        # 1. Check LLM Injection
+        # 1. Check LLM Injection (CRITICAL - always check)
         if self.enable_injection_check:
             for pattern in self.LLM_INJECTION_PATTERNS:
                 if re.search(pattern, query_lower, re.IGNORECASE):
@@ -173,7 +176,7 @@ class QueryGuard:
                         suggestions="I'm a financial analysis assistant. Please ask questions about stocks, markets, or finance."
                     )
         
-        # 3. Check Off-Topic
+        # 3. Check clearly Off-Topic patterns (cooking, travel, games, etc.)
         if self.enable_topic_check:
             for pattern in self.OFF_TOPIC_PATTERNS:
                 if re.search(pattern, query_lower, re.IGNORECASE):
@@ -182,28 +185,15 @@ class QueryGuard:
                     return QueryGuardResult(
                         is_safe=False,
                         risk_level=RiskLevel.MEDIUM,
-                        reason="Query appears to be off-topic (not related to finance)",
+                        reason="Query appears to be off-topic (not related to finance/legal/economic)",
                         blocked_patterns=blocked_patterns,
-                        suggestions="Please ask questions related to finance, stocks, or markets."
+                        suggestions="Please ask questions related to finance, stocks, law, or economics."
                     )
         
-        # 4. Check Finance Relevance Score
-        finance_score = self._calculate_finance_score(query_lower)
-        
-        if finance_score < self.min_finance_score:
-            logger.info(
-                f"Query has low finance relevance: {finance_score:.2f} < {self.min_finance_score}"
-            )
-            return QueryGuardResult(
-                is_safe=False,
-                risk_level=RiskLevel.LOW,
-                reason=f"Query does not appear finance-related (score: {finance_score:.2f})",
-                blocked_patterns=["LOW_FINANCE_SCORE"],
-                suggestions="Please include financial terms like 'stock', 'market', 'ROE', company names, etc."
-            )
-        
-        # Query is safe
-        logger.info(f"Query passed security checks (finance_score={finance_score:.2f})")
+        # Query is safe - no blacklist patterns matched
+        # Note: We don't require finance keywords because the domain is very broad
+        # (finance + legal + economic covers many topics)
+        logger.info(f"Query passed security checks (no blocked patterns found)")
         return QueryGuardResult(
             is_safe=True,
             risk_level=RiskLevel.SAFE,

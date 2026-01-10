@@ -140,6 +140,25 @@ class GoogleSearchGrounding:
                 "fallback_response": None,
                 "fallback_error": str(e),
             }
+
+    async def asearch(self, query: str, sub_queries: Optional[List[str]] = None) -> Dict[str, Any]:
+        """
+        Async version of search using thread executor.
+        
+        Args:
+            query: Main query to search for
+            sub_queries: Optional list of sub-queries
+            
+        Returns:
+            Dict containing web contexts and response
+        """
+        import asyncio
+        loop = asyncio.get_running_loop()
+        
+        return await loop.run_in_executor(
+            None, 
+            lambda: self.search(query, sub_queries)
+        )
     
     def _build_search_prompt(self, query: str, sub_queries: Optional[List[str]] = None) -> str:
         """Build the search prompt for Gemini."""
@@ -196,7 +215,11 @@ Trả về kết quả dưới dạng JSON:
         if hasattr(response, 'content') and response.content:
             try:
                 # Extract JSON from response
+                # Handle both string and list content
                 content = response.content
+                if isinstance(content, list):
+                    content = str(content)
+                    
                 json_start = content.find('{')
                 json_end = content.rfind('}') + 1
                 
@@ -206,29 +229,42 @@ Trả về kết quả dưới dạng JSON:
                     
                     # Extract findings
                     findings = parsed.get('findings', [])
-                    for finding in findings[:self.config.max_search_results]:
-                        web_contexts.append(WebContext(
-                            content=finding.get('fact', ''),
-                            url=finding.get('source_url', ''),
-                            title=finding.get('source_title', ''),
-                            similarity=0.85
-                        ))
                     
-                    # Add summary as context if no findings
-                    if not findings and parsed.get('summary'):
-                        web_contexts.append(WebContext(
+                    # If we found structured findings, use them
+                    if findings:
+                        for finding in findings[:self.config.max_search_results]:
+                            fact_text = finding.get('fact', '')
+                            # Add Finding as WebContext
+                            web_contexts.append(WebContext(
+                                content=fact_text,
+                                url=finding.get('source_url', ''),
+                                title=finding.get('source_title', ''),
+                                similarity=0.85
+                            ))
+                            
+                    # Also use summary if available
+                    if parsed.get('summary'):
+                        # Add summary as a separate high-level context
+                        web_contexts.insert(0, WebContext(
                             content=parsed['summary'],
-                            similarity=0.8
+                            source_type="web_summary",
+                            similarity=0.95
                         ))
                         
             except json.JSONDecodeError:
                 # If JSON parsing fails, use raw content
                 logger.debug("Could not parse JSON from response, using raw content")
         
-        # Fallback: use raw response content
+        # Fallback: if no structured contexts found, use raw response content
+        # But try to clean it if it looks like JSON
         if not web_contexts and hasattr(response, 'content') and response.content:
+            content = str(response.content)
+            # Remove JSON markers if present
+            if content.strip().startswith('```json'):
+                content = content.replace('```json', '').replace('```', '')
+            
             web_contexts.append(WebContext(
-                content=response.content,
+                content=content.strip(),
                 source_type="web_search_synthesized",
                 similarity=0.75
             ))

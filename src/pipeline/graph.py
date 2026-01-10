@@ -195,21 +195,27 @@ def run_rag_pipeline(query: str, use_caf: bool = None) -> Dict[str, Any]:
 async def run_rag_pipeline_async(
     query: str, 
     user_id: str = "anonymous", 
-    use_caf: bool = None
+    use_caf: bool = None,
+    user_query: str = None
 ) -> Dict[str, Any]:
     """
     Run a query through the full RAG pipeline (async version).
     
     Args:
-        query: User question
+        query: User question (may be augmented with context)
         user_id: User identifier for rate limiting (default: "anonymous")
         use_caf: Override CAF_ENABLED setting
+        user_query: Original user query before augmentation (for fallback detection)
         
     Returns:
         Dict with answer, citations, and metadata (includes canonical_facts if CAF)
     """
     graph = get_rag_graph(use_caf=use_caf)
     initial_state = create_initial_state(query, user_id=user_id)
+    
+    # Preserve original user query for fallback detection
+    if user_query:
+        initial_state["user_query"] = user_query
     
     # Use ainvoke for async execution
     result = await graph.ainvoke(initial_state)
@@ -226,7 +232,10 @@ async def run_rag_pipeline_async(
         "formatted_context": result["formatted_context"],
         "citations_map": result["citations_map"],
         "step_times": result["step_times"],
+        "citations_map": result["citations_map"],
+        "step_times": result["step_times"],
         "total_time_ms": result.get("total_time_ms", 0.0),
+        "logs": result.get("logs", [])  # NEW: Logs for UI
     }
     
     # Include CAF-specific fields if available

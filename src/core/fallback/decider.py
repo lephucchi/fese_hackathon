@@ -29,9 +29,10 @@ class FallbackReason(str, Enum):
 
 
 # Keywords that ALWAYS require real-time data (today, right now)
+# NOTE: Removed "hiện tại" and "hiện nay" as they often appear in context text, not time-sensitive queries
 STRONG_TEMPORAL_KEYWORDS = (
     "hôm nay", "hôm qua", "sáng nay", "chiều nay", "tối nay",
-    "lúc này", "bây giờ", "ngay bây giờ", "hiện tại", "hiện nay",
+    "lúc này", "bây giờ", "ngay bây giờ",
     "today", "yesterday", "right now", "currently", "now",
 )
 
