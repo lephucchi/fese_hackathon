@@ -409,13 +409,40 @@
         "login": "Đăng nhập",
         "logout": "Đăng xuất",
         "signup": "Đăng ký",
+        "createAccount": "Tạo tài khoản",
         "email": "Email",
         "password": "Mật khẩu",
+        "confirmPassword": "Xác nhận mật khẩu",
+        "firstName": "Họ",
+        "lastName": "Tên",
+        "displayName": "Tên hiển thị",
+        "optional": "tùy chọn",
         "forgotPassword": "Quên mật khẩu?",
         "noAccount": "Chưa có tài khoản?",
         "hasAccount": "Đã có tài khoản?",
         "loginSuccess": "Đăng nhập thành công",
         "logoutSuccess": "Đăng xuất thành công",
-        "loginError": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin."
+        "loginError": "Đăng nhập thất bại. Vui lòng kiểm tra thông tin.",
+        "processing": "Đang xử lý...",
+        "tagline": "Đầu tư thông minh hơn mỗi ngày",
+        "displayNameHint": "Nếu để trống, sẽ sử dụng Họ + Tên làm tên hiển thị",
+        "passwordHint": "Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số",
+        "placeholders": {
+            "email": "your@email.com",
+            "firstName": "Nguyễn",
+            "lastName": "Văn A",
+            "displayName": "Nickname hoặc để trống"
+        },
+        "errors": {
+            "firstNameRequired": "Vui lòng nhập họ",
+            "lastNameRequired": "Vui lòng nhập tên",
+            "passwordMismatch": "Mật khẩu xác nhận không khớp",
+            "passwordMinLength": "Mật khẩu phải có ít nhất 8 ký tự",
+            "passwordUppercase": "Mật khẩu phải có ít nhất 1 chữ hoa (A-Z)",
+            "passwordLowercase": "Mật khẩu phải có ít nhất 1 chữ thường (a-z)",
+            "passwordNumber": "Mật khẩu phải có ít nhất 1 số (0-9)",
+            "emailExists": "Email đã được sử dụng",
+            "generic": "Đã có lỗi xảy ra"
+        }
     }
 }

@@ -409,13 +409,40 @@
         "login": "Login",
         "logout": "Logout",
         "signup": "Sign Up",
+        "createAccount": "Create Account",
         "email": "Email",
         "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "displayName": "Display Name",
+        "optional": "optional",
         "forgotPassword": "Forgot Password?",
         "noAccount": "Don't have an account?",
         "hasAccount": "Already have an account?",
         "loginSuccess": "Login successful",
         "logoutSuccess": "Logout successful",
-        "loginError": "Login failed. Please check your credentials."
+        "loginError": "Login failed. Please check your credentials.",
+        "processing": "Processing...",
+        "tagline": "Invest smarter every day",
+        "displayNameHint": "If empty, First + Last name will be used",
+        "passwordHint": "Minimum 8 characters, including uppercase, lowercase and number",
+        "placeholders": {
+            "email": "your@email.com",
+            "firstName": "John",
+            "lastName": "Doe",
+            "displayName": "Nickname or leave empty"
+        },
+        "errors": {
+            "firstNameRequired": "Please enter first name",
+            "lastNameRequired": "Please enter last name",
+            "passwordMismatch": "Passwords do not match",
+            "passwordMinLength": "Password must be at least 8 characters",
+            "passwordUppercase": "Password must have at least 1 uppercase letter (A-Z)",
+            "passwordLowercase": "Password must have at least 1 lowercase letter (a-z)",
+            "passwordNumber": "Password must have at least 1 number (0-9)",
+            "emailExists": "Email already in use",
+            "generic": "An error occurred"
+        }
     }
 }
