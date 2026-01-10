@@ -52,6 +52,8 @@
     "howItWorks": {
         "title": "Cách hoạt động",
         "subtitle": "Ba bước đơn giản để nắm bắt thị trường mỗi ngày",
+        "badge": "Quy trình đơn giản",
+        "stepPrefix": "Bước",
         "step1": {
             "number": "01",
             "title": "Lọc tin nhanh",
@@ -97,6 +99,21 @@
                 "Ưu tiên hỗ trợ"
             ],
             "cta": "Nâng cấp Pro"
+        },
+        "business": {
+            "tag": "Doanh nghiệp",
+            "name": "Doanh nghiệp",
+            "price": "2.999.000đ",
+            "period": "/tháng",
+            "features": [
+                "Tất cả tính năng Pro",
+                "Truy cập API nâng cao",
+                "Quản lý tài khoản riêng",
+                "Báo cáo tùy chỉnh",
+                "Cộng tác nhóm",
+                "Hỗ trợ ưu tiên 24/7"
+            ],
+            "cta": "Liên hệ Sales"
         }
     },
     "footer": {
@@ -198,7 +215,7 @@
         "history": "Lịch sử trò chuyện",
         "placeholder": "Hỏi về cổ phiếu, xu hướng thị trường, chiến lược đầu tư...",
         "send": "Gửi",
-        "thinking": "AI đang suy nghĩ...",
+        "thinkingStatus": "AI đang suy nghĩ...",
         "emptyState": {
             "title": "Multi-Index RAG",
             "subtitle": "Hỏi về tài chính, pháp lý hoặc thị trường Việt Nam",
@@ -309,7 +326,7 @@
             "title": "Danh mục của tôi",
             "allocation": "Phân bổ danh mục",
             "buyingPower": "Sức mua",
-            "totalValue": "Tổng giá trị",
+            "totalValueLabel": "Tổng giá trị",
             "todayChange": "Thay đổi hôm nay",
             "totalReturn": "Tổng lợi nhuận",
             "positions": "Danh mục",

@@ -37,7 +37,7 @@ export function Hero({ onGetStarted }: HeroProps) {
       }} />
 
       <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1rem' }}>
-        <div style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto', padding: '0 0.5rem' }}>
+        <div style={{ textAlign: 'center', maxWidth: '1000px', margin: '0 auto', padding: '0 0.5rem' }}>
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -75,8 +75,8 @@ export function Hero({ onGetStarted }: HeroProps) {
               padding: '0 0.5rem'
             }}
           >
-            {t('hero.title')} <br />
-            <span className="text-gradient">{t('hero.titleHighlight')}</span>
+            <span style={{ display: 'block' }}>{t('hero.title')}</span>
+            <span className="text-gradient" style={{ display: 'block' }}>{t('hero.titleHighlight')}</span>
           </motion.h1>
 
           {/* Subheading */}

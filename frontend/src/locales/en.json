@@ -52,6 +52,8 @@
     "howItWorks": {
         "title": "How It Works",
         "subtitle": "Three simple steps to grasp the market every day",
+        "badge": "Simple Process",
+        "stepPrefix": "Step",
         "step1": {
             "number": "01",
             "title": "Quick Filter",
@@ -97,6 +99,21 @@
                 "Priority support"
             ],
             "cta": "Upgrade to Pro"
+        },
+        "business": {
+            "tag": "Business",
+            "name": "Business",
+            "price": "$129",
+            "period": "/month",
+            "features": [
+                "All Pro features",
+                "Advanced API Access",
+                "Dedicated Account Manager",
+                "Custom Reporting",
+                "Team Collaboration",
+                "24/7 Priority Support"
+            ],
+            "cta": "Contact Sales"
         }
     },
     "footer": {
@@ -198,7 +215,7 @@
         "history": "Chat History",
         "placeholder": "Ask about stocks, market trends, investment strategies...",
         "send": "Send",
-        "thinking": "AI is thinking...",
+        "thinkingStatus": "AI is thinking...",
         "emptyState": {
             "title": "Multi-Index RAG",
             "subtitle": "Ask about finance, legal or Vietnam market",
@@ -309,7 +326,7 @@
             "title": "My Portfolio",
             "allocation": "Portfolio Allocation",
             "buyingPower": "Buying Power",
-            "totalValue": "Total Value",
+            "totalValueLabel": "Total Value",
             "todayChange": "Today's Change",
             "totalReturn": "Total Return",
             "positions": "Positions",

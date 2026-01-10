@@ -27,7 +27,19 @@ export function Pricing({ onGetStarted }: PricingProps) {
       periodKey: 'pricing.pro.period',
       featuresKey: 'pricing.pro.features',
       ctaKey: 'pricing.pro.cta',
-      highlight: true
+      highlight: true,
+      tagKey: 'pricing.popular',
+      tagColor: 'var(--primary)'
+    },
+    {
+      nameKey: 'pricing.business.name',
+      priceKey: 'pricing.business.price',
+      periodKey: 'pricing.business.period',
+      featuresKey: 'pricing.business.features',
+      ctaKey: 'pricing.business.cta',
+      highlight: false,
+      tagKey: 'pricing.business.tag',
+      tagColor: '#F97316' // Orange
     }
   ];
 
@@ -39,9 +51,9 @@ export function Pricing({ onGetStarted }: PricingProps) {
   };
 
   return (
-    <section 
-      id="pricing" 
-      style={{ 
+    <section
+      id="pricing"
+      style={{
         padding: 'clamp(40px, 8vw, 80px) 0',
         background: 'var(--background-soft)'
       }}
@@ -69,12 +81,12 @@ export function Pricing({ onGetStarted }: PricingProps) {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: 'clamp(20px, 4vw, 32px)',
-          maxWidth: '900px',
+          maxWidth: '1200px',
           margin: '0 auto'
         }}>
           {plans.map((plan, i) => {
             const features = getFeatures(plan.featuresKey);
-            
+
             return (
               <motion.div
                 key={i}
@@ -83,46 +95,47 @@ export function Pricing({ onGetStarted }: PricingProps) {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 className="card"
-                style={{ 
+                style={{
                   padding: 'clamp(24px, 5vw, 40px)',
-                  border: plan.highlight ? '2px solid var(--primary)' : '1px solid var(--border)',
+                  border: plan.highlight ? '2px solid var(--primary)' : (plan.tagColor ? `2px solid ${plan.tagColor}` : '1px solid var(--border)'),
                   position: 'relative'
                 }}
               >
-                {plan.highlight && (
+                {plan.tagKey && (
                   <div style={{
                     position: 'absolute',
                     top: '-12px',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    background: 'var(--primary)',
+                    background: plan.tagColor || 'var(--primary)',
                     color: 'white',
                     padding: '6px 20px',
                     borderRadius: '9999px',
                     fontSize: '13px',
-                    fontWeight: 600
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap'
                   }}>
-                    {t('pricing.popular')}
+                    {t(plan.tagKey)}
                   </div>
                 )}
 
-                <div style={{ marginBottom: '24px' }}>
-                  <h3 style={{ 
+                <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+                  <h3 style={{
                     fontSize: '1.5rem',
                     fontWeight: 700,
                     marginBottom: '8px'
                   }}>
                     {t(plan.nameKey)}
                   </h3>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px' }}>
-                    <span style={{ 
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '4px' }}>
+                    <span style={{
                       fontSize: '3rem',
                       fontWeight: 800,
                       color: 'var(--primary)'
                     }}>
                       {t(plan.priceKey)}
                     </span>
-                    <span style={{ 
+                    <span style={{
                       color: 'var(--text-tertiary)',
                       fontSize: '1rem'
                     }}>
@@ -131,12 +144,12 @@ export function Pricing({ onGetStarted }: PricingProps) {
                   </div>
                 </div>
 
-                <ul style={{ 
+                <ul style={{
                   listStyle: 'none',
                   marginBottom: '32px'
                 }}>
                   {features.map((feature, j) => (
-                    <li key={j} style={{ 
+                    <li key={j} style={{
                       display: 'flex',
                       alignItems: 'flex-start',
                       gap: '12px',
@@ -152,7 +165,7 @@ export function Pricing({ onGetStarted }: PricingProps) {
                 <button
                   onClick={onGetStarted}
                   className={plan.highlight ? 'btn-primary interactive-scale' : 'btn-secondary interactive-scale'}
-                  style={{ 
+                  style={{
                     width: '100%',
                     padding: '14px',
                     fontSize: '15px'

@@ -15,13 +15,15 @@ import { CreatePositionData, PortfolioItem } from '@/services/api/portfolio.serv
 // Dynamic colors for chart
 const CHART_COLORS = [
     '#00C805',  // Primary Green
-    '#00A004',  // Dark Green
-    '#33D433',  // Light Green
-    '#10B981',  // Emerald
-    '#059669',  // Teal
-    '#0D9488',  // Cyan
-    '#0891B2',  // Sky
     '#3B82F6',  // Blue
+    '#F59E0B',  // Amber
+    '#EF4444',  // Red
+    '#8B5CF6',  // Violet
+    '#EC4899',  // Pink
+    '#06B6D4',  // Cyan
+    '#F97316',  // Orange
+    '#6366F1',  // Indigo
+    '#14B8A6',  // Teal
 ];
 
 // Format currency helper
@@ -29,7 +31,10 @@ const formatVND = (amount: number): string => {
     return new Intl.NumberFormat('vi-VN').format(amount);
 };
 
+import { useLanguage } from '@/contexts/LanguageContext';
+
 export function PortfolioCard() {
+    const { t } = useLanguage();
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     const { portfolio, isLoading, error, addNewPosition, removePosition } = usePortfolio();
     const [showAddForm, setShowAddForm] = useState(false);
@@ -47,7 +52,7 @@ export function PortfolioCard() {
     };
 
     const handleDeletePosition = async (item: PortfolioItem) => {
-        if (!confirm(`Xác nhận xóa ${item.ticker} khỏi danh mục?`)) return;
+        if (!confirm(t('personal.portfolio.confirmDelete', { ticker: item.ticker }))) return;
 
         setDeletingId(item.portfolio_id);
         try {
@@ -80,7 +85,7 @@ export function PortfolioCard() {
                         color: 'var(--text-primary)',
                         margin: 0,
                     }}>
-                        Phân bổ danh mục
+                        {t('personal.portfolio.allocation')}
                     </h2>
                 </div>
                 <div style={{
@@ -97,13 +102,13 @@ export function PortfolioCard() {
                         color: 'var(--text-primary)',
                         marginBottom: '8px',
                     }}>
-                        Vui lòng đăng nhập
+                        {t('personal.portfolio.emptyTitle')} {/* Using emptyTitle as a fallback for login title if specific one not meant */}
                     </h3>
                     <p style={{
                         color: 'var(--text-secondary)',
                         marginBottom: '0',
                     }}>
-                        Đăng nhập để xem và quản lý danh mục đầu tư của bạn
+                        {t('personal.portfolio.emptyDesc')} {/* Using emptyDesc as fallback */}
                     </p>
                 </div>
             </motion.div>
@@ -130,7 +135,7 @@ export function PortfolioCard() {
                 }}
             >
                 <Loader2 size={24} style={{ animation: 'spin 1s linear infinite' }} />
-                <span>Đang tải danh mục...</span>
+                <span>{t('personal.portfolio.loading')}</span>
             </motion.div>
         );
     }
@@ -174,7 +179,7 @@ export function PortfolioCard() {
                         color: 'var(--text-primary)',
                         margin: 0,
                     }}>
-                        Phân bổ danh mục
+                        {t('personal.portfolio.allocation')}
                     </h2>
                 </div>
                 <button
@@ -195,7 +200,7 @@ export function PortfolioCard() {
                     }}
                 >
                     <Plus size={16} />
-                    {showAddForm ? 'Đóng' : 'Thêm mã'}
+                    {showAddForm ? t('personal.portfolio.close') : t('personal.portfolio.addTicker')}
                 </button>
             </div>
 
@@ -249,13 +254,13 @@ export function PortfolioCard() {
                         color: 'var(--text-primary)',
                         marginBottom: '8px',
                     }}>
-                        Chưa có danh mục đầu tư
+                        {t('personal.portfolio.emptyTitle')}
                     </h3>
                     <p style={{
                         color: 'var(--text-secondary)',
                         marginBottom: '20px',
                     }}>
-                        Thêm các mã cổ phiếu để theo dõi danh mục của bạn
+                        {t('personal.portfolio.emptyDesc')}
                     </p>
                     <button
                         onClick={() => setShowAddForm(true)}
@@ -274,7 +279,7 @@ export function PortfolioCard() {
                         }}
                     >
                         <Plus size={18} />
-                        Thêm mã đầu tiên
+                        {t('personal.portfolio.addFirstTicker')}
                     </button>
                 </motion.div>
             )}
@@ -298,7 +303,7 @@ export function PortfolioCard() {
                             textTransform: 'uppercase',
                             letterSpacing: '0.1em',
                         }}>
-                            Tổng giá trị danh mục
+                            {t('personal.portfolio.totalValue')}
                         </div>
                         <div style={{
                             fontSize: '2.5rem',
@@ -356,7 +361,7 @@ export function PortfolioCard() {
                                     fontSize: '14px',
                                     color: 'var(--text-secondary)',
                                 }}>
-                                    mã
+                                    {t('personal.portfolio.tickers')}
                                 </div>
                             </div>
                         </div>
