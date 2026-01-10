@@ -35,11 +35,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       } else {
         // Validation for signup
         if (!firstName.trim()) {
-          setError('Vui lòng nhập tên');
+          setError('Vui lòng nhập họ');
           return;
         }
         if (!lastName.trim()) {
-          setError('Vui lòng nhập họ');
+          setError('Vui lòng nhập tên');
           return;
         }
         if (password !== confirmPassword) {
@@ -50,6 +50,19 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           setError('Mật khẩu phải có ít nhất 8 ký tự');
           return;
         }
+        // Validate password strength
+        if (!/[A-Z]/.test(password)) {
+          setError('Mật khẩu phải có ít nhất 1 chữ hoa (A-Z)');
+          return;
+        }
+        if (!/[a-z]/.test(password)) {
+          setError('Mật khẩu phải có ít nhất 1 chữ thường (a-z)');
+          return;
+        }
+        if (!/\d/.test(password)) {
+          setError('Mật khẩu phải có ít nhất 1 số (0-9)');
+          return;
+        }
 
         // Use displayName or auto-generate from first + last name
         const finalDisplayName = displayName.trim() || `${firstName.trim()} ${lastName.trim()}`;
@@ -57,8 +70,25 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         await register(email, password, firstName.trim(), lastName.trim(), finalDisplayName);
         onClose();
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra');
+    } catch (err: unknown) {
+      // Handle different error formats
+      if (err instanceof Error) {
+        // Check for validation errors
+        const message = err.message;
+        if (message.includes('uppercase')) {
+          setError('Mật khẩu phải có ít nhất 1 chữ hoa (A-Z)');
+        } else if (message.includes('lowercase')) {
+          setError('Mật khẩu phải có ít nhất 1 chữ thường (a-z)');
+        } else if (message.includes('number')) {
+          setError('Mật khẩu phải có ít nhất 1 số (0-9)');
+        } else if (message.includes('already exists') || message.includes('duplicate')) {
+          setError('Email đã được sử dụng');
+        } else {
+          setError(message);
+        }
+      } else {
+        setError('Đã có lỗi xảy ra');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -457,6 +487,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
                   </div>
+                  {/* Password requirements hint - only for signup */}
+                  {activeTab === 'signup' && (
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '0.5rem' }}>
+                      Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường và số
+                    </p>
+                  )}
                 </div>
 
                 {/* Confirm Password - Only for signup */}
