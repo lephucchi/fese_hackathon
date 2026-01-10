@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useDisclaimer } from '@/hooks/useDisclaimer';
 import { DisclaimerModal } from '@/components/common/DisclaimerModal';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PersonalTabProps {
   readonly portfolio: Portfolio;
@@ -35,6 +36,7 @@ const COLORS: Record<string, string> = {
 };
 
 export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabProps) {
+  const { t } = useLanguage();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [viewingInsights, setViewingInsights] = useState(false);
@@ -60,7 +62,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
     <div style={{
       maxWidth: '1200px',
       margin: '0 auto',
-      padding: '40px 24px',
+      padding: 'clamp(20px, 4vw, 40px) clamp(12px, 3vw, 24px)',
     }}>
       {/* Header - Total Asset Value */}
       <div style={{
@@ -68,12 +70,13 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
         marginBottom: '48px',
       }}>
         <div style={{
-          fontSize: '3.75rem',
+          fontSize: 'clamp(2rem, 6vw, 3.75rem)',
           fontWeight: 800,
           letterSpacing: '-0.03em',
           color: 'var(--text-primary)',
           marginBottom: '12px',
           lineHeight: 1,
+          wordBreak: 'break-word'
         }}>
           {formatVND(portfolio.totalValue)} ₫
         </div>
@@ -81,10 +84,11 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '8px',
-          fontSize: '1.5rem',
+          gap: '6px',
+          fontSize: 'clamp(1rem, 3vw, 1.5rem)',
           fontWeight: 600,
           color: portfolio.todayProfitLossPercent >= 0 ? '#10B981' : '#EF4444',
+          flexWrap: 'wrap'
         }}>
           {portfolio.todayProfitLossPercent >= 0 ? (
             <ArrowUp size={28} strokeWidth={3} />
@@ -100,10 +104,10 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
       {/* Donut Chart Section */}
       <div style={{
         background: 'var(--card)',
-        borderRadius: '24px',
-        padding: '32px',
+        borderRadius: 'clamp(16px, 3vw, 24px)',
+        padding: 'clamp(16px, 4vw, 32px)',
         boxShadow: 'var(--shadow-fintech)',
-        marginBottom: '32px',
+        marginBottom: 'clamp(16px, 3vw, 32px)',
       }}>
         <div style={{
           display: 'flex',
@@ -116,7 +120,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
             fontWeight: 700,
             color: 'var(--text-primary)',
           }}>
-            Phân bổ danh mục
+            {t('personal.portfolio.allocation')}
           </h2>
           <button
             onClick={() => setShowEditModal(true)}
@@ -144,18 +148,19 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
             }}
           >
             <Edit2 size={16} />
-            Chỉnh sửa
+            {t('personal.portfolio.edit')}
           </button>
         </div>
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr auto',
-          gap: '48px',
+          gridTemplateColumns: '1fr',
+          gap: 'clamp(24px, 5vw, 48px)',
           alignItems: 'center',
-        }}>
+        }}
+        className="chart-layout">
           {/* Donut Chart */}
-          <div style={{ position: 'relative', height: '350px' }}>
+          <div style={{ position: 'relative', height: 'clamp(250px, 50vw, 350px)', minHeight: '250px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -187,7 +192,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                 color: 'var(--text-secondary)',
                 marginBottom: '4px',
               }}>
-                Sức mua
+                {t('personal.portfolio.buyingPower')}
               </div>
             </div>
           </div>
@@ -293,13 +298,13 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                 color: 'var(--text-primary)',
                 marginBottom: '0.5rem'
               }}>
-                Click để xem AI Insights
+                {t('personal.report.clickToView')}
               </p>
               <p style={{
                 fontSize: '0.875rem',
                 color: 'var(--text-secondary)'
               }}>
-                Yêu cầu đồng ý điều khoản
+                {t('personal.report.requiresAgreement')}
               </p>
             </div>
           </div>
@@ -317,7 +322,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
             fontWeight: 700,
             color: 'var(--text-primary)',
           }}>
-            Góc nhìn AI hôm nay
+            {t('personal.report.title')}
           </h2>
         </div>
 
@@ -349,7 +354,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               alignItems: 'center',
               gap: '8px',
             }}>
-              🟢 Tích cực
+              🟢 {t('personal.report.positive')}
             </h3>
             <ul style={{
               listStyle: 'none',
@@ -389,7 +394,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
               alignItems: 'center',
               gap: '8px',
             }}>
-              🔴 Rủi ro
+              🔴 {t('personal.report.negative')}
             </h3>
             <ul style={{
               listStyle: 'none',
@@ -439,14 +444,14 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                 color: '#166534',
                 marginBottom: '4px',
               }}>
-                Khuyến nghị
+                {t('personal.report.recommendations')}
               </div>
               <div style={{
                 fontSize: '16px',
                 fontWeight: 600,
                 color: '#14532d',
               }}>
-                {report.aiRecommendations[0] || 'Không có khuyến nghị'}
+                {report.aiRecommendations[0] || t('personal.report.noRecommendation')}
               </div>
             </div>
           </div>
@@ -478,7 +483,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           }}
         >
           <Sparkles size={20} />
-          Hỏi AI về Danh mục
+          {t('personal.report.askAI')}
         </motion.button>
       </Link>
 
@@ -522,7 +527,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                 marginBottom: '24px',
                 color: 'var(--text-primary)',
               }}>
-                Cập nhật danh mục
+                {t('personal.editModal.title')}
               </h2>
 
               <div style={{
@@ -555,12 +560,12 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                         fontSize: '14px',
                         color: 'var(--text-secondary)',
                       }}>
-                        Số lượng: {position.quantity}
+                        {t('personal.editModal.quantity')}: {position.quantity}
                       </div>
                     </div>
                     <input
                       type="number"
-                      placeholder="Số lượng"
+                      placeholder={t('personal.editModal.quantity') as string}
                       defaultValue={position.quantity}
                       style={{
                         width: '120px',
@@ -596,7 +601,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                   onMouseLeave={(e) => e.currentTarget.style.background = '#F3F4F6'}
                   onClick={() => setShowEditModal(false)}
                 >
-                  Hủy
+                  {t('personal.editModal.cancel')}
                 </button>
                 <button
                   style={{
@@ -624,7 +629,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                     // Save logic here
                   }}
                 >
-                  Lưu danh mục
+                  {t('personal.editModal.save')}
                 </button>
               </div>
             </motion.div>

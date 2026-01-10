@@ -849,7 +849,7 @@ html {
    RESPONSIVE UTILITY CLASSES
    ============================================ */
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .hidden-sm {
@@ -857,6 +857,11 @@ html {
 }
 
 .hidden-md {
+  display: none;
+}
+
+/* Hide on mobile (below 768px) */
+.hide-mobile {
   display: none;
 }
 
@@ -871,6 +876,25 @@ html {
   .show-sm-flex {
     display: flex;
   }
+  
+  /* Hero CTA buttons horizontal on tablet+ */
+  .hero-cta-buttons {
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+}
+
+/* Mobile-first: hide desktop-only elements by default */
+.show-md-flex {
+  display: none !important;
+}
+
+.hide-mobile {
+  display: none !important;
+}
+
+.hidden-sm {
+  display: none !important;
 }
 
 /* Medium screens and up (768px+) */
@@ -882,9 +906,86 @@ html {
     display: block;
   }
   .show-md-flex {
-    display: flex;
+    display: flex !important;
   }
   .hide-md {
-    display: none;
+    display: none !important;
+  }
+  .hide-mobile {
+    display: block !important;
+  }
+  .hidden-sm {
+    display: block !important;
+  }
+}
+
+/* Responsive text sizing */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 2rem;
+  }
+  
+  h2 {
+    font-size: 1.75rem;
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+  }
+  
+  /* Ensure mobile padding for all content */
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  /* Mobile-friendly cards */
+  .chart-container,
+  .card-responsive {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  
+  /* Stack elements vertically on mobile */
+  .stack-mobile {
+    flex-direction: column;
+  }
+}
+
+/* Medium screens - adjust chart layout */
+@media (min-width: 768px) {
+  .chart-layout {
+    grid-template-columns: 1fr auto !important;
+  }
+}
+
+/* Responsive utilities for flex layouts */
+@media (max-width: 767px) {
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+  
+  .mobile-full-width {
+    width: 100% !important;
+  }
+  
+  .mobile-center {
+    justify-content: center !important;
+    align-items: center !important;
+  }
+}
+
+/* Ensure images are responsive */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive tables */
+@media (max-width: 640px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }

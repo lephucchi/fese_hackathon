@@ -2,18 +2,19 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Zap, Sparkles, Search, Paperclip, Smile, MoreVertical } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface QueryMode {
   id: 'fast' | 'standard' | 'deep';
-  label: string;
+  labelKey: string;
   icon: React.ReactNode;
-  description: string;
+  descKey: string;
 }
 
 const queryModes: QueryMode[] = [
-  { id: 'fast', label: 'Fast', icon: <Zap size={14} />, description: 'Quick answers' },
-  { id: 'standard', label: 'Standard', icon: <Sparkles size={14} />, description: 'Balanced quality' },
-  { id: 'deep', label: 'Deep', icon: <Search size={14} />, description: 'Detailed analysis' },
+  { id: 'fast', labelKey: 'chat.input.modes.fast', icon: <Zap size={14} />, descKey: 'chat.input.modes.fastDesc' },
+  { id: 'standard', labelKey: 'chat.input.modes.standard', icon: <Sparkles size={14} />, descKey: 'chat.input.modes.standardDesc' },
+  { id: 'deep', labelKey: 'chat.input.modes.deep', icon: <Search size={14} />, descKey: 'chat.input.modes.deepDesc' },
 ];
 
 interface EnhancedMessageInputProps {
@@ -22,6 +23,7 @@ interface EnhancedMessageInputProps {
 }
 
 export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessageInputProps) {
+  const { t } = useLanguage();
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<'fast' | 'standard' | 'deep'>('standard');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -63,9 +65,9 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.125rem' }}>
               {m.icon}
-              <span style={{ fontWeight: 600 }}>{m.label}</span>
+              <span style={{ fontWeight: 600 }}>{t(m.labelKey)}</span>
             </div>
-            <span style={{ fontSize: '0.625rem', opacity: mode === m.id ? 0.9 : 0.7 }}>{m.description}</span>
+            <span style={{ fontSize: '0.625rem', opacity: mode === m.id ? 0.9 : 0.7 }}>{t(m.descKey)}</span>
           </button>
         ))}
       </div>
@@ -84,7 +86,7 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
               style={{ padding: '0.375rem', borderRadius: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--background)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              title="Attach file (Coming soon)"
+              title={t('chat.input.attachFile') as string}
             >
               <Paperclip size={18} style={{ color: 'var(--text-tertiary)' }} />
             </button>
@@ -93,7 +95,7 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
               style={{ padding: '0.375rem', borderRadius: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--background)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-              title="Emoji (Coming soon)"
+              title={t('chat.input.emoji') as string}
             >
               <Smile size={18} style={{ color: 'var(--text-tertiary)' }} />
             </button>
@@ -104,7 +106,7 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about Vietnamese finance, legal matters, or market trends..."
+            placeholder={t('chat.input.placeholder') as string}
             disabled={disabled}
             rows={1}
             className="dark:text-white text-gray-900"
@@ -132,13 +134,13 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
       {/* Hint */}
       <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-tertiary)' }}>
-          <kbd style={{ padding: '0.125rem 0.375rem', borderRadius: '0.25rem', fontSize: '0.75rem', background: 'var(--surface)', border: '1px solid var(--border)' }}>Enter</kbd> to send
+          <kbd style={{ padding: '0.125rem 0.375rem', borderRadius: '0.25rem', fontSize: '0.75rem', background: 'var(--surface)', border: '1px solid var(--border)' }}>Enter</kbd> {t('chat.input.enterToSend')}
           <span style={{ opacity: 0.5 }}>•</span>
-          <kbd style={{ padding: '0.125rem 0.375rem', borderRadius: '0.25rem', fontSize: '0.75rem', background: 'var(--surface)', border: '1px solid var(--border)' }}>Shift+Enter</kbd> for new line
+          <kbd style={{ padding: '0.125rem 0.375rem', borderRadius: '0.25rem', fontSize: '0.75rem', background: 'var(--surface)', border: '1px solid var(--border)' }}>Shift+Enter</kbd> {t('chat.input.shiftEnter')}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-tertiary)' }}>
           <div style={{ width: '0.375rem', height: '0.375rem', borderRadius: '9999px', background: '#10b981' }} />
-          <span>AI Ready</span>
+          <span>{t('chat.input.aiReady')}</span>
         </div>
       </div>
     </div>

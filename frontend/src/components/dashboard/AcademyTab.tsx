@@ -11,6 +11,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export interface VideoContent {
   id: number;
+  titleKey?: string; // Key for i18n translation
   title: string;
   isLocked: boolean;
   points: number;
@@ -30,8 +31,16 @@ export function AcademyTab({ videos }: AcademyTabProps) {
   const [selectedVideo, setSelectedVideo] = useState<VideoContent | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
 
+  // Helper to get translated video title
+  const getVideoTitle = (video: VideoContent): string => {
+    if (video.titleKey) {
+      const translated = t(video.titleKey);
+      return typeof translated === 'string' ? translated : video.title;
+    }
+    return video.title;
+  };
+
   const currentLevel = 2;
-  const levelName = 'F0 Tập Sự';
   const progressPercent = 65;
   const pointsToNextLevel = 350;
 
@@ -98,7 +107,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
               boxShadow: 'var(--shadow-glow-green)'
             }}>
               <TrendingUp size={20} />
-              Level {currentLevel}: {levelName}
+              {t('education.level')} {currentLevel}
             </div>
           </div>
 
@@ -120,7 +129,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
           >
             <Coins size={32} color="var(--primary)" />
             <div>
-              <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Số dư M-Points</div>
+              <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('education.mPointsBalance')}</div>
               <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--primary)' }}>
                 {mPoints.toLocaleString()}
               </div>
@@ -138,8 +147,8 @@ export function AcademyTab({ videos }: AcademyTabProps) {
             fontWeight: 600,
             color: 'var(--text-secondary)'
           }}>
-            <span>Tiến độ lên cấp</span>
-            <span>{pointsToNextLevel} điểm đến Level 3</span>
+            <span>{t('education.levelProgress')}</span>
+            <span>{pointsToNextLevel} {t('education.pointsToNext')} 3</span>
           </div>
           <div style={{
             height: '12px',
@@ -194,10 +203,10 @@ export function AcademyTab({ videos }: AcademyTabProps) {
             alignItems: 'center',
             gap: '12px'
           }}>
-            🎯 Dành riêng cho bạn
+            🎯 {t('education.recommended')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-            Các khóa học miễn phí được AI gợi ý dựa trên sở thích của bạn
+            {t('education.recommendedDesc')}
           </p>
         </div>
 
@@ -273,7 +282,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                   overflow: 'hidden',
                   minHeight: '3.375rem'
                 }}>
-                  {video.title}
+                  {getVideoTitle(video)}
                 </h3>
                 <button style={{
                   width: '100%',
@@ -301,7 +310,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                 }}
                 >
                   <Play size={20} fill="white" />
-                  Học ngay
+                  {t('education.watchNow')}
                 </button>
               </div>
             </motion.div>
@@ -320,10 +329,10 @@ export function AcademyTab({ videos }: AcademyTabProps) {
             alignItems: 'center',
             gap: '12px'
           }}>
-            👑 Premium Masterclass
+            👑 {t('education.premium')}
           </h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
-            Khóa học chuyên sâu từ các chuyên gia hàng đầu
+            {t('education.premiumDesc')}
           </p>
         </div>
 
@@ -400,9 +409,8 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '4px'
-                    }}>
-                      <CheckCircle size={14} />
-                      Đã mở khóa
+                    }}>n                      <CheckCircle size={14} />
+                      {t('education.unlockSuccess').split('!')[0]}
                     </div>
                   )}
                   
@@ -433,7 +441,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                     overflow: 'hidden',
                     minHeight: '3.375rem'
                   }}>
-                    {video.title}
+                    {getVideoTitle(video)}
                   </h3>
                   
                   {unlocked ? (
@@ -463,7 +471,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                     }}
                     >
                       <Play size={20} fill="white" />
-                      Học ngay
+                      {t('education.watchNow')}
                     </button>
                   ) : (
                     <button 
@@ -499,7 +507,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                       }}
                     >
                       <Lock size={18} />
-                      Mở khóa {video.points} pts
+                      {t('education.unlock')} {video.points} pts
                     </button>
                   )}
                 </div>
@@ -559,7 +567,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                 fontWeight: '800',
                 marginBottom: '16px'
               }}>
-                Mở khóa bài học
+                {t('education.unlock')}
               </h2>
 
               <p style={{
@@ -568,7 +576,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                 marginBottom: '24px',
                 color: '#333'
               }}>
-                "{selectedVideo.title}"
+                "{getVideoTitle(selectedVideo)}"
               </p>
 
               <div style={{
@@ -584,7 +592,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                   marginBottom: '8px',
                   fontWeight: 600
                 }}>
-                  Chi phí
+                  {t('education.unlockWith')}
                 </div>
                 <div style={{
                   display: 'flex',
@@ -613,7 +621,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                   fontSize: '0.875rem',
                   color: 'var(--text-secondary)'
                 }}>
-                  Số dư sau: <strong style={{ color: mPoints - selectedVideo.points < 100 ? 'var(--error)' : 'var(--primary)' }}>
+                  {t('education.balanceAfter')}: <strong style={{ color: mPoints - selectedVideo.points < 100 ? 'var(--error)' : 'var(--primary)' }}>
                     {(mPoints - selectedVideo.points).toLocaleString()} pts
                   </strong>
                 </div>
@@ -644,7 +652,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                     e.currentTarget.style.background = 'var(--card)';
                   }}
                 >
-                  Hủy
+                  {t('common.cancel')}
                 </button>
                 <button
                   onClick={handleUnlock}
@@ -670,7 +678,7 @@ export function AcademyTab({ videos }: AcademyTabProps) {
                     e.currentTarget.style.boxShadow = 'var(--shadow-glow-green)';
                   }}
                 >
-                  Xác nhận & Mở khóa
+                  {t('common.confirm')} & {t('education.unlock')}
                 </button>
               </div>
             </motion.div>

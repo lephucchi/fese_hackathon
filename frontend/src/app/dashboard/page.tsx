@@ -83,7 +83,7 @@ export default function DashboardPage() {
         }}>
           <div style={{ textAlign: 'center' }}>
             <Loader2 size={48} style={{ color: 'var(--primary)', animation: 'spin 1s linear infinite' }} />
-            <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>Đang tải tin tức...</p>
+            <p style={{ marginTop: '1rem', color: 'var(--text-secondary)' }}>{t('dashboard.loading')}</p>
           </div>
         </div>
       </div>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
   // Show error state
   if (error) {
     return (
-      <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
+      <div style={{ background: 'var(--background)', minHeight: '100vh', width: '100%' }}>
         <Navigation />
         <div style={{ 
           display: 'flex', 
@@ -101,19 +101,20 @@ export default function DashboardPage() {
           justifyContent: 'center', 
           minHeight: 'calc(100vh - 80px)',
           paddingTop: '80px',
-          padding: '80px 1.5rem'
+          padding: 'clamp(80px, 10vh, 120px) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem)'
         }}>
           <div style={{ 
             textAlign: 'center', 
             maxWidth: '400px',
-            padding: '2rem',
+            width: '100%',
+            padding: 'clamp(1.5rem, 4vw, 2rem)',
             background: 'var(--card)',
             borderRadius: '16px',
             border: '1px solid var(--border)'
           }}>
             <AlertCircle size={48} style={{ color: '#EF4444', margin: '0 auto 1rem' }} />
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
-              Không thể tải tin tức
+              {t('dashboard.error')}
             </h3>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>{error}</p>
             <button
@@ -129,7 +130,7 @@ export default function DashboardPage() {
                 cursor: 'pointer'
               }}
             >
-              Thử lại
+              {t('dashboard.retry')}
             </button>
           </div>
         </div>
@@ -138,19 +139,26 @@ export default function DashboardPage() {
   }
 
   return (
-    <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--background)', minHeight: '100vh', width: '100%' }}>
       <Navigation />
-      <main style={{ paddingTop: '80px', padding: '80px 1.5rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
+      <main style={{ 
+        paddingTop: 'clamp(80px, 15vh, 100px)', 
+        padding: 'clamp(80px, 15vh, 100px) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 2rem)', 
+        maxWidth: '900px', 
+        margin: '0 auto',
+        width: '100%'
+      }}>
         {/* Progress Bar */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '0.75rem',
-          marginBottom: '1.5rem',
-          padding: '1rem',
+          gap: 'clamp(0.5rem, 2vw, 0.75rem)',
+          marginBottom: 'clamp(1rem, 3vw, 1.5rem)',
+          padding: 'clamp(0.75rem, 2vw, 1rem)',
           background: 'var(--card)',
           borderRadius: '12px',
-          border: '1px solid var(--border)'
+          border: '1px solid var(--border)',
+          flexWrap: 'wrap'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Coins size={16} style={{ color: '#FFC107' }} />

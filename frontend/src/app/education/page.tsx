@@ -5,7 +5,8 @@ import { AcademyTab } from '@/components/dashboard/AcademyTab';
 
 export interface VideoContent {
   id: number;
-  title: string;
+  titleKey: string; // Key for i18n translation
+  title: string; // Fallback title
   isLocked: boolean;
   points: number;
   category: 'Basic' | 'Premium';
@@ -18,6 +19,7 @@ const mockVideos: VideoContent[] = [
   // Recommended for You (Free)
   { 
     id: 1, 
+    titleKey: 'education.videos.steelCycle',
     title: 'Chu kỳ ngành Thép', 
     isLocked: false, 
     points: 0, 
@@ -27,6 +29,7 @@ const mockVideos: VideoContent[] = [
   },
   { 
     id: 2, 
+    titleKey: 'education.videos.gdpImpact',
     title: 'Hiểu về GDP và tác động thị trường', 
     isLocked: false, 
     points: 0, 
@@ -36,6 +39,7 @@ const mockVideos: VideoContent[] = [
   },
   { 
     id: 3, 
+    titleKey: 'education.videos.inflationInterest',
     title: 'Lạm phát và Lãi suất: Mối quan hệ', 
     isLocked: false, 
     points: 0, 
@@ -47,6 +51,7 @@ const mockVideos: VideoContent[] = [
   // Premium Masterclass (Locked)
   { 
     id: 4, 
+    titleKey: 'education.videos.readingWhales',
     title: 'Đọc vị Cá mập (Advanced)', 
     isLocked: true, 
     points: 500, 
@@ -56,6 +61,7 @@ const mockVideos: VideoContent[] = [
   },
   { 
     id: 5, 
+    titleKey: 'education.videos.cashFlowTechniques',
     title: 'Kỹ thuật nhìn dòng tiền', 
     isLocked: true, 
     points: 500, 
@@ -65,6 +71,7 @@ const mockVideos: VideoContent[] = [
   },
   { 
     id: 6, 
+    titleKey: 'education.videos.f0Analysis',
     title: 'Phân tích F0 chuyên sâu', 
     isLocked: true, 
     points: 300, 
@@ -74,6 +81,7 @@ const mockVideos: VideoContent[] = [
   },
   { 
     id: 7, 
+    titleKey: 'education.videos.advancedTrading',
     title: 'Chiến lược Trading nâng cao', 
     isLocked: true, 
     points: 700, 
@@ -83,6 +91,7 @@ const mockVideos: VideoContent[] = [
   },
   { 
     id: 8, 
+    titleKey: 'education.videos.readingFinancials',
     title: 'Đọc báo cáo tài chính như Pro', 
     isLocked: true, 
     points: 400, 
@@ -92,6 +101,7 @@ const mockVideos: VideoContent[] = [
   },
   { 
     id: 9, 
+    titleKey: 'education.videos.investorPsychology',
     title: 'Tâm lý học nhà đầu tư', 
     isLocked: true, 
     points: 600, 

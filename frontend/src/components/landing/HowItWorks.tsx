@@ -3,45 +3,35 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Target, TrendingUp } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-const steps = [
-  {
-    number: '01',
-    title: 'Lọc tin nhanh',
-    description: 'Mở app vào buổi sáng. Vuốt qua 10 tin quan trọng nhất. Chỉ mất 2 phút.',
-    icon: Zap
-  },
-  {
-    number: '02',
-    title: 'Xem tác động',
-    description: 'AI phân tích ngay tác động của tin tức đến danh mục của bạn với nhãn màu rõ ràng.',
-    icon: Target
-  },
-  {
-    number: '03',
-    title: 'Ra quyết định',
-    description: 'Chat với AI để hiểu sâu. Nhận báo cáo tổng hợp và khuyến nghị hành động.',
-    icon: TrendingUp
-  }
-];
+const stepIcons = [Zap, Target, TrendingUp];
 
 export function HowItWorks() {
+  const { t } = useLanguage();
+
+  const steps = [
+    { key: 'step1', icon: stepIcons[0] },
+    { key: 'step2', icon: stepIcons[1] },
+    { key: 'step3', icon: stepIcons[2] }
+  ];
+
   return (
     <section 
       id="how-it-works" 
       style={{ 
-        padding: '80px 0',
+        padding: 'clamp(40px, 8vw, 80px) 0',
         background: 'var(--background)'
       }}
     >
-      <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 1.5rem' }}>
+      <div className="container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 1.5rem)' }}>
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>
           <h2 style={{ 
             fontSize: 'clamp(2rem, 4vw, 2.5rem)',
             fontWeight: 800,
             marginBottom: '16px'
           }}>
-            Cách hoạt động
+            {t('howItWorks.title')}
           </h2>
           <p style={{ 
             fontSize: '1.125rem',
@@ -49,14 +39,14 @@ export function HowItWorks() {
             maxWidth: '600px',
             margin: '0 auto'
           }}>
-            Ba bước đơn giản để nắm bắt thị trường mỗi ngày
+            {t('howItWorks.subtitle')}
           </p>
         </div>
 
         <div style={{ 
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '48px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: 'clamp(24px, 5vw, 48px)',
           position: 'relative'
         }}>
           {steps.map((step, i) => (
@@ -103,20 +93,20 @@ export function HowItWorks() {
                   opacity: 0.2,
                   marginBottom: '8px'
                 }}>
-                  {step.number}
+                  {t(`howItWorks.${step.key}.number`)}
                 </div>
                 <h3 style={{ 
                   fontSize: '1.5rem',
                   fontWeight: 700,
                   marginBottom: '12px'
                 }}>
-                  {step.title}
+                  {t(`howItWorks.${step.key}.title`)}
                 </h3>
                 <p style={{ 
                   color: 'var(--text-secondary)',
                   lineHeight: 1.6
                 }}>
-                  {step.description}
+                  {t(`howItWorks.${step.key}.description`)}
                 </p>
               </div>
             </motion.div>

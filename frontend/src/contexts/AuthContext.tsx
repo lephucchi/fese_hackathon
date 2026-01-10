@@ -34,10 +34,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Define refreshToken first as it's used by checkAuth
+  const refreshToken = useCallback(async (): Promise<boolean> => {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
+      const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        return false;
+      }
+
+      return true;
+    } catch {
+      // Network error, timeout, or backend offline - silently fail
+      return false;
+    }
+  }, []);
+
   // Check if user is already logged in on mount
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const success = await refreshToken();
+        if (!success) {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     checkAuth();
-  }, []);
+  }, [refreshToken]);
 
   // Auto-refresh token every 14 minutes (token expires in 15 min)
   useEffect(() => {
@@ -48,21 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, 14 * 60 * 1000); // 14 minutes
 
     return () => clearInterval(interval);
-  }, [user]);
-
-  const checkAuth = async () => {
-    try {
-      // Try to refresh token to check if user is logged in
-      const success = await refreshToken();
-      if (!success) {
-        setUser(null);
-      }
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [user, refreshToken]);
 
   const login = useCallback(async (email: string, password: string) => {
     try {
@@ -71,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         headers: {
           'Content-Type': 'application/json',
         },
-        credentials: 'include', // Important: Include cookies
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
@@ -83,10 +107,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
       setUser(data.user);
       
-      // Redirect to dashboard
       router.push('/dashboard');
     } catch (error) {
-      console.error('Login error:', error);
       throw error;
     }
   }, [router]);
@@ -122,10 +144,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
       setUser(data.user);
       
-      // Redirect to dashboard
       router.push('/dashboard');
     } catch (error) {
-      console.error('Registration error:', error);
       throw error;
     }
   }, [router]);
@@ -136,33 +156,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         method: 'POST',
         credentials: 'include',
       });
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch {
+      // Ignore logout errors
     } finally {
       setUser(null);
       router.push('/');
     }
   }, [router]);
-
-  const refreshToken = useCallback(async (): Promise<boolean> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        return false;
-      }
-
-      // Token refreshed successfully (new access_token in cookie)
-      // We don't get user info from refresh, so keep existing user state
-      return true;
-    } catch (error) {
-      console.error('Token refresh error:', error);
-      return false;
-    }
-  }, []);
 
   const value: AuthContextType = {
     user,
