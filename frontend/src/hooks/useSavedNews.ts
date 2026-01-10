@@ -27,14 +27,28 @@ interface UseSavedNewsReturn {
     removeOptimisticNews: (newsId: string) => void;
 }
 
+// Helper function to deduplicate news by news_id
+const deduplicateNews = (newsList: SavedNewsItem[]): SavedNewsItem[] => {
+    const seen = new Set<string>();
+    return newsList.filter(news => {
+        if (seen.has(news.news_id)) {
+            return false;
+        }
+        seen.add(news.news_id);
+        return true;
+    });
+};
+
 export function useSavedNews(): UseSavedNewsReturn {
     const { user, isAuthenticated } = useAuth();
     const [savedNews, setSavedNews] = useState<SavedNewsItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [total, setTotal] = useState(0);
     const [hasAnalysis, setHasAnalysis] = useState(0);
     const [missingAnalysis, setMissingAnalysis] = useState(0);
+
+    // Calculate total from actual unique items
+    const total = savedNews.length;
 
     const fetchSavedNews = useCallback(async () => {
         if (!user || !isAuthenticated) {
@@ -57,8 +71,10 @@ export function useSavedNews(): UseSavedNewsReturn {
             }
 
             const data = await response.json();
-            setSavedNews(data.news || []);
-            setTotal(data.total || 0);
+
+            // Deduplicate the API response
+            const uniqueNews = deduplicateNews(data.news || []);
+            setSavedNews(uniqueNews);
             setHasAnalysis(data.has_analysis || 0);
             setMissingAnalysis(data.missing_analysis || 0);
         } catch (err) {
@@ -79,19 +95,20 @@ export function useSavedNews(): UseSavedNewsReturn {
     // Optimistic add - add news immediately without waiting for API
     const addOptimisticNews = useCallback((news: SavedNewsItem) => {
         setSavedNews(prev => {
-            // Check if already exists
-            if (prev.some(n => n.news_id === news.news_id)) {
-                return prev;
+            // Check if already exists by news_id
+            const exists = prev.some(n => n.news_id === news.news_id);
+            if (exists) {
+                console.log(`News ${news.news_id} already in saved list, skipping`);
+                return prev; // Don't add duplicate
             }
+            // Add to beginning of list
             return [news, ...prev];
         });
-        setTotal(prev => prev + 1);
     }, []);
 
     // Optimistic remove
     const removeOptimisticNews = useCallback((newsId: string) => {
         setSavedNews(prev => prev.filter(n => n.news_id !== newsId));
-        setTotal(prev => Math.max(0, prev - 1));
     }, []);
 
     return {
