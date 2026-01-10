@@ -7,6 +7,7 @@ import { API_BASE_URL } from '@/utils/constants/api';
 export interface NewsStackItem {
   news_id: string;
   title: string;
+  content: string | null;
   sentiment: string | null;
   sentiment_color: string;
   keywords: string[];

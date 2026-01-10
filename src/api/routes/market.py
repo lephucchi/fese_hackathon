@@ -37,6 +37,7 @@ class StackItem(BaseModel):
     """Single news stack item."""
     news_id: str
     title: str
+    content: Optional[str] = None
     sentiment: Optional[str] = None
     sentiment_color: str = "#95A5A6"
     keywords: list = []

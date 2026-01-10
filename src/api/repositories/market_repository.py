@@ -57,7 +57,7 @@ class MarketRepository:
             
             # Build query for uninteracted news
             query = self.supabase.table("news")\
-                .select("news_id, title, sentiment, published_at, analyst, Ticker")\
+                .select("news_id, title, content, sentiment, published_at, analyst, Ticker")\
                 .order("published_at", desc=True)\
                 .limit(limit)
             
@@ -104,6 +104,7 @@ class MarketRepository:
         return {
             "news_id": news["news_id"],
             "title": news.get("title", ""),
+            "content": news.get("content", ""),
             "sentiment": sentiment,
             "sentiment_color": sentiment_color,
             "keywords": keywords[:5],  # Limit to 5 keywords

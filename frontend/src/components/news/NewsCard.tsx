@@ -1,110 +1,281 @@
-/**
- * News Card Component - Macro Analysis Focused
- * Responsibility: Display news article with impact analysis and macro indicators
- */
 'use client';
 
 import React from 'react';
-import { NewsArticle } from '@/types/dashboard.types';
+import { TrendingUp, TrendingDown, Minus, ExternalLink, Clock, Tag } from 'lucide-react';
+import { NewsItem } from '@/services/api/news.service';
 
 interface NewsCardProps {
-    readonly article: NewsArticle;
-    readonly style?: React.CSSProperties;
+    news: NewsItem;
+    onCardClick?: (news: NewsItem) => void;
+    variant?: 'default' | 'compact';
 }
 
-/**
- * Formats date to display time
- */
-function formatPublishTime(date: Date): string {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
-}
+export function NewsCard({ news, onCardClick, variant = 'default' }: NewsCardProps) {
+    const sentimentConfig = {
+        positive: {
+            color: 'var(--success)',
+            bgColor: 'rgba(46, 204, 113, 0.1)',
+            icon: TrendingUp,
+            label: 'Tích cực'
+        },
+        negative: {
+            color: 'var(--error)',
+            bgColor: 'rgba(231, 76, 60, 0.1)',
+            icon: TrendingDown,
+            label: 'Tiêu cực'
+        },
+        neutral: {
+            color: 'var(--warning)',
+            bgColor: 'rgba(243, 156, 18, 0.1)',
+            icon: Minus,
+            label: 'Trung lập'
+        }
+    };
 
-/**
- * Get impact indicator based on article content
- */
-function getImpactLevel(tags: readonly string[]): 'high' | 'medium' | 'low' {
-    const highImpactKeywords = ['gdp', 'cpi', 'fed', 'interest rate', 'inflation', 'employment'];
-    const hasHighImpact = tags.some(tag =>
-        highImpactKeywords.some(keyword => tag.toLowerCase().includes(keyword))
-    );
-    return hasHighImpact ? 'high' : 'medium';
-}
+    const sentiment = (news.sentiment?.toLowerCase() || 'neutral') as keyof typeof sentimentConfig;
+    const config = sentimentConfig[sentiment] || sentimentConfig.neutral;
+    const SentimentIcon = config.icon;
 
-/**
- * Get impact icon based on tags
- */
-function getImpactIcon(tags: readonly string[]): string {
-    if (tags.some(t => t.toLowerCase().includes('positive'))) return '📈';
-    if (tags.some(t => t.toLowerCase().includes('negative'))) return '📉';
-    return '⚡';
-}
+    // Format date
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) return 'Mới nhất';
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-export function NewsCard({ article, style }: NewsCardProps) {
-    const impactLevel = getImpactLevel(article.tags);
-    const impactIcon = getImpactIcon(article.tags);
+        if (diffHours < 1) return 'Vừa xong';
+        if (diffHours < 24) return `${diffHours} giờ trước`;
+        if (diffDays < 7) return `${diffDays} ngày trước`;
+        return date.toLocaleDateString('vi-VN');
+    };
 
-    return (
-        <div className="news-card macro-focused" style={style}>
-            {/* Header with impact badge */}
-            <div className="news-card-header">
-                <div className={`impact-badge impact-${impactLevel}`}>
-                    <span className="impact-icon">{impactIcon}</span>
-                    <span className="impact-text">
-                        {impactLevel === 'high' ? 'Ảnh hưởng cao' : 'Ảnh hưởng trung bình'}
-                    </span>
-                </div>
-                <div className="source-badge">
-                    {article.source}
+    // Truncate content
+    const truncateContent = (content: string | null, maxLength: number = 150) => {
+        if (!content) return 'Không có nội dung';
+        if (content.length <= maxLength) return content;
+        return content.substring(0, maxLength).trim() + '...';
+    };
+
+    if (variant === 'compact') {
+        return (
+            <div
+                onClick={() => onCardClick?.(news)}
+                style={{
+                    background: 'var(--card)',
+                    borderRadius: '12px',
+                    padding: '1rem',
+                    cursor: onCardClick ? 'pointer' : 'default',
+                    transition: 'all 0.2s ease',
+                    border: '1px solid var(--border)',
+                }}
+                className="interactive-scale"
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
+                    e.currentTarget.style.borderColor = 'var(--primary)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.borderColor = 'var(--border)';
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    {/* Sentiment Indicator */}
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '10px',
+                        background: config.bgColor,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
+                    }}>
+                        <SentimentIcon size={20} color={config.color} />
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <h4 style={{
+                            fontSize: '0.9rem',
+                            fontWeight: 600,
+                            color: 'var(--text-primary)',
+                            marginBottom: '0.25rem',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                        }}>
+                            {news.title}
+                        </h4>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                                {formatDate(news.published_at)}
+                            </span>
+                            {news.tickers.length > 0 && (
+                                <span style={{
+                                    fontSize: '0.7rem',
+                                    padding: '0.125rem 0.375rem',
+                                    borderRadius: '4px',
+                                    background: 'var(--primary)',
+                                    color: 'white',
+                                    fontWeight: 600
+                                }}>
+                                    {news.tickers[0].ticker}
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
+        );
+    }
 
-            {/* Image/Visual */}
-            <div className="news-card-image">
-                {article.imageUrl ? (
-                    <img src={article.imageUrl} alt={article.title} />
-                ) : (
-                    <div className="image-placeholder">{impactIcon}</div>
-                )}
+    return (
+        <div
+            onClick={() => onCardClick?.(news)}
+            style={{
+                background: 'var(--card)',
+                borderRadius: '16px',
+                overflow: 'hidden',
+                cursor: onCardClick ? 'pointer' : 'default',
+                transition: 'all 0.3s ease',
+                border: '1px solid var(--border)',
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column'
+            }}
+            className="interactive-scale"
+            onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.borderColor = config.color;
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = 'var(--border)';
+            }}
+        >
+            {/* Header with Sentiment */}
+            <div style={{
+                padding: '1rem 1.25rem',
+                background: config.bgColor,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                borderBottom: `1px solid ${config.color}20`
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <SentimentIcon size={18} color={config.color} />
+                    <span style={{
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        color: config.color,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                    }}>
+                        {config.label}
+                    </span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-tertiary)' }}>
+                    <Clock size={14} />
+                    <span style={{ fontSize: '0.75rem' }}>{formatDate(news.published_at)}</span>
+                </div>
             </div>
 
             {/* Content */}
-            <div className="news-card-content">
-                {article.tags.length > 0 && (
-                    <div className="news-tags macro-tags">
-                        {article.tags.slice(0, 3).map((tag) => (
-                            <span key={tag} className="tag macro-tag">
-                                {tag}
+            <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                {/* Title */}
+                <h3 style={{
+                    fontSize: '1.1rem',
+                    fontWeight: 700,
+                    color: 'var(--text-primary)',
+                    marginBottom: '0.75rem',
+                    lineHeight: 1.4,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                }}>
+                    {news.title}
+                </h3>
+
+                {/* Content Preview */}
+                <p style={{
+                    fontSize: '0.9rem',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.6,
+                    marginBottom: '1rem',
+                    flex: 1,
+                    display: '-webkit-box',
+                    WebkitLineClamp: 3,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden'
+                }}>
+                    {truncateContent(news.content, 200)}
+                </p>
+
+                {/* Footer */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '0.5rem'
+                }}>
+                    {/* Tickers */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap' }}>
+                        {news.tickers.slice(0, 3).map((ticker) => (
+                            <span
+                                key={ticker.ticker}
+                                style={{
+                                    fontSize: '0.75rem',
+                                    padding: '0.25rem 0.5rem',
+                                    borderRadius: '6px',
+                                    background: 'var(--primary)',
+                                    color: 'white',
+                                    fontWeight: 600,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.25rem'
+                                }}
+                            >
+                                <Tag size={10} />
+                                {ticker.ticker}
                             </span>
                         ))}
-                        {article.tags.length > 3 && (
-                            <span className="tag more-tags">+{article.tags.length - 3}</span>
+                        {news.tickers.length > 3 && (
+                            <span style={{
+                                fontSize: '0.7rem',
+                                color: 'var(--text-tertiary)',
+                                fontWeight: 500
+                            }}>
+                                +{news.tickers.length - 3}
+                            </span>
                         )}
                     </div>
-                )}
 
-                <h3 className="news-title">{article.title}</h3>
-
-                {/* Macro analysis summary - AI generated */}
-                <div className="macro-summary">
-                    <p className="summary-intro">💡 Phân tích vĩ mô:</p>
-                    <p className="summary-text">
-                        Tin tức này liên quan đến các chỉ số kinh tế vĩ mô.
-                        Có thể ảnh hưởng đến lãi suất, tỷ giá hối đoái và hiệu suất danh mục của bạn.
-                    </p>
-                </div>
-
-                {/* Meta information */}
-                <div className="news-meta macro-meta">
-                    <span className="meta-item">⏰ {formatPublishTime(article.publishedAt)}</span>
-                    <span className="meta-divider">•</span>
-                    <span className="meta-item">📰 {article.source}</span>
-                </div>
-
-                {/* Action hint */}
-                <div className="action-hint">
-                    <span>👍 Lưu tin | 👎 Bỏ qua</span>
+                    {/* Source Link */}
+                    {news.source_url && (
+                        <a
+                            href={news.source_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                fontSize: '0.75rem',
+                                color: 'var(--primary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                textDecoration: 'none',
+                                fontWeight: 500
+                            }}
+                        >
+                            Nguồn <ExternalLink size={12} />
+                        </a>
+                    )}
                 </div>
             </div>
         </div>
