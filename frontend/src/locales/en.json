@@ -356,12 +356,24 @@
             "loading": "Loading portfolio...",
             "addTicker": "Add Ticker",
             "close": "Close",
+            "cancel": "Cancel",
             "totalValue": "Total Portfolio Value",
             "tickers": "tickers",
             "emptyTitle": "No investment portfolio yet",
-            "emptyDesc": "Add stock tickers to track your portfolio",
+            "emptyDesc": "Add stock tickers to track and analyze your portfolio",
             "addFirstTicker": "Add first ticker",
-            "confirmDelete": "Are you sure you want to remove {ticker} from portfolio?"
+            "confirmDelete": "Confirm delete",
+            "loginRequired": "Login to view portfolio",
+            "loginDesc": "Please login to manage your investment portfolio",
+            "form": {
+                "ticker": "Ticker",
+                "quantity": "Quantity",
+                "avgPrice": "Avg. Buy Price (₫)",
+                "add": "Add",
+                "tickerRequired": "Please enter ticker symbol",
+                "quantityRequired": "Please enter valid quantity",
+                "priceRequired": "Please enter valid buy price"
+            }
         },
         "report": {
             "title": "AI Insights Today",

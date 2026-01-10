@@ -171,7 +171,7 @@
         }
     },
     "about": {
-        "title": "About us",
+        "title": "Về chúng tôi",
         "intro": {
             "title": "Macro Insight là gì?",
             "content": "Thị trường tài chính có quá nhiều tin vĩ mô và biến động nhanh. Lợi thế không phải là đọc thật nhiều, mà là hiểu đúng và phản ứng kịp thời. Macro Insight được tạo ra để rút ngắn khoảng cách giữa tin tức và quyết định, biến tin rời rạc thành phân tích rõ ràng theo thời gian thực cho nhà đầu tư."
@@ -356,12 +356,24 @@
             "loading": "Đang tải danh mục...",
             "addTicker": "Thêm mã",
             "close": "Đóng",
+            "cancel": "Hủy",
             "totalValue": "Tổng giá trị danh mục",
             "tickers": "mã",
             "emptyTitle": "Chưa có danh mục đầu tư",
-            "emptyDesc": "Thêm các mã cổ phiếu để theo dõi danh mục của bạn",
+            "emptyDesc": "Thêm các mã cổ phiếu để theo dõi và phân tích danh mục của bạn",
             "addFirstTicker": "Thêm mã đầu tiên",
-            "confirmDelete": "Xác nhận xóa {ticker} khỏi danh mục?"
+            "confirmDelete": "Xác nhận xóa",
+            "loginRequired": "Đăng nhập để xem danh mục",
+            "loginDesc": "Vui lòng đăng nhập để quản lý danh mục đầu tư của bạn",
+            "form": {
+                "ticker": "Mã CK",
+                "quantity": "Số lượng",
+                "avgPrice": "Giá mua TB (₫)",
+                "add": "Thêm",
+                "tickerRequired": "Vui lòng nhập mã cổ phiếu",
+                "quantityRequired": "Vui lòng nhập số lượng hợp lệ",
+                "priceRequired": "Vui lòng nhập giá mua hợp lệ"
+            }
         },
         "report": {
             "title": "Góc nhìn AI hôm nay",
