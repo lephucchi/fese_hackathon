@@ -20,6 +20,7 @@ function NewsSwipeCard({
   news,
   onSwipeLeft,
   onSwipeRight,
+  onCardClick,
   isTop,
   stackIndex,
   totalCards,
@@ -27,6 +28,7 @@ function NewsSwipeCard({
   news: NewsSwipeItem;
   onSwipeLeft: () => void;
   onSwipeRight: () => void;
+  onCardClick?: () => void;
   isTop: boolean;
   stackIndex: number;
   totalCards: number;
@@ -119,6 +121,7 @@ function NewsSwipeCard({
       }}
       onDragEnd={handleDragEnd}
       whileTap={{ cursor: 'grabbing' }}
+      onTap={() => onCardClick?.()}
     >
       {/* Swipe Indicators */}
       <motion.div
@@ -325,6 +328,7 @@ export default function DashboardPage() {
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [pointsEarnedToday, setPointsEarnedToday] = useState(0);
+  const [selectedNews, setSelectedNews] = useState<NewsSwipeItem | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -599,6 +603,7 @@ export default function DashboardPage() {
                 news={stack[0]}
                 onSwipeLeft={() => handleSwipeLeft(stack[0].news_id)}
                 onSwipeRight={() => handleSwipeRight(stack[0].news_id)}
+                onCardClick={() => setSelectedNews(stack[0])}
                 isTop={true}
                 stackIndex={0}
                 totalCards={stack.length}
@@ -637,6 +642,248 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* News Detail Modal */}
+      <AnimatePresence>
+        {selectedNews && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelectedNews(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0, 0, 0, 0.75)',
+              backdropFilter: 'blur(4px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              padding: '1rem'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: 'var(--card)',
+                borderRadius: '24px',
+                maxWidth: '600px',
+                width: '100%',
+                maxHeight: '85vh',
+                overflow: 'hidden',
+                position: 'relative',
+                boxShadow: 'var(--shadow-xl)'
+              }}
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedNews(null)}
+                style={{
+                  position: 'absolute',
+                  top: '1rem',
+                  right: '1rem',
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: 'var(--surface)',
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  fontSize: '1.5rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--error)';
+                  e.currentTarget.style.color = 'white';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'var(--surface)';
+                  e.currentTarget.style.color = 'var(--text-primary)';
+                }}
+              >
+                ×
+              </button>
+
+              {/* Modal Content */}
+              <div style={{ padding: '2rem', overflow: 'auto', maxHeight: '85vh' }}>
+                {/* Sentiment Badge */}
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.375rem 0.75rem',
+                  borderRadius: '8px',
+                  background: selectedNews.sentiment?.toLowerCase() === 'positive'
+                    ? 'rgba(46, 204, 113, 0.15)'
+                    : selectedNews.sentiment?.toLowerCase() === 'negative'
+                      ? 'rgba(231, 76, 60, 0.15)'
+                      : 'rgba(243, 156, 18, 0.15)',
+                  marginBottom: '1rem'
+                }}>
+                  {selectedNews.sentiment?.toLowerCase() === 'positive' && <TrendingUp size={16} color="#2ECC71" />}
+                  {selectedNews.sentiment?.toLowerCase() === 'negative' && <TrendingDown size={16} color="#E74C3C" />}
+                  {(!selectedNews.sentiment || selectedNews.sentiment?.toLowerCase() === 'neutral') && <Minus size={16} color="#F39C12" />}
+                  <span style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 600,
+                    color: selectedNews.sentiment?.toLowerCase() === 'positive'
+                      ? '#2ECC71'
+                      : selectedNews.sentiment?.toLowerCase() === 'negative'
+                        ? '#E74C3C'
+                        : '#F39C12',
+                    textTransform: 'uppercase'
+                  }}>
+                    {selectedNews.sentiment?.toLowerCase() === 'positive' ? 'Tích cực'
+                      : selectedNews.sentiment?.toLowerCase() === 'negative' ? 'Tiêu cực'
+                        : 'Trung lập'}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h2 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  marginBottom: '1rem',
+                  lineHeight: 1.4,
+                  paddingRight: '2rem'
+                }}>
+                  {selectedNews.title}
+                </h2>
+
+                {/* Tickers & Date */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  marginBottom: '1.5rem',
+                  flexWrap: 'wrap'
+                }}>
+                  {selectedNews.tickers.map((ticker) => (
+                    <span
+                      key={ticker}
+                      style={{
+                        padding: '0.375rem 0.75rem',
+                        background: 'var(--primary)',
+                        color: 'white',
+                        borderRadius: '6px',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem'
+                      }}
+                    >
+                      <Tag size={12} />
+                      {ticker}
+                    </span>
+                  ))}
+                  <span style={{
+                    color: 'var(--text-tertiary)',
+                    fontSize: '0.875rem'
+                  }}>
+                    {selectedNews.published_at
+                      ? new Date(selectedNews.published_at).toLocaleString('vi-VN')
+                      : 'Mới nhất'
+                    }
+                  </span>
+                </div>
+
+                {/* Full Content */}
+                <div style={{
+                  fontSize: '1rem',
+                  lineHeight: 1.8,
+                  color: 'var(--text-secondary)',
+                  whiteSpace: 'pre-wrap',
+                  marginBottom: '1.5rem'
+                }}>
+                  {selectedNews.content || 'Không có nội dung chi tiết'}
+                </div>
+
+                {/* Keywords */}
+                {selectedNews.keywords.length > 0 && (
+                  <div style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    flexWrap: 'wrap',
+                    marginBottom: '1.5rem'
+                  }}>
+                    {selectedNews.keywords.map((kw) => (
+                      <span
+                        key={kw}
+                        style={{
+                          fontSize: '0.75rem',
+                          color: 'var(--text-tertiary)',
+                          background: 'var(--surface)',
+                          padding: '0.375rem 0.625rem',
+                          borderRadius: '6px'
+                        }}
+                      >
+                        #{kw}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div style={{
+                  display: 'flex',
+                  gap: '1rem',
+                  paddingTop: '1rem',
+                  borderTop: '1px solid var(--border)'
+                }}>
+                  {selectedNews.source_url && (
+                    <a
+                      href={selectedNews.source_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.75rem 1.5rem',
+                        background: 'var(--primary)',
+                        color: 'white',
+                        borderRadius: '10px',
+                        textDecoration: 'none',
+                        fontWeight: 600,
+                        fontSize: '0.9rem'
+                      }}
+                    >
+                      Đọc bài gốc <ExternalLink size={16} />
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setSelectedNews(null)}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      background: 'var(--surface)',
+                      color: 'var(--text-primary)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    Đóng
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
