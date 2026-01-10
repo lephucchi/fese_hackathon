@@ -87,7 +87,7 @@ class UserInteractionRepository(BaseRepository):
             user_id: UUID of user
             
         Returns:
-            List of approved news_ids
+            List of unique approved news_ids
         """
         response = self.supabase.table(self.table_name)\
             .select("news_id")\
@@ -96,7 +96,9 @@ class UserInteractionRepository(BaseRepository):
             .execute()
         
         if response.data:
-            return [item["news_id"] for item in response.data]
+            # Use set to deduplicate news_ids
+            unique_ids = list(set(item["news_id"] for item in response.data))
+            return unique_ids
         return []
     
     async def exists(self, user_id: str, news_id: str) -> bool:

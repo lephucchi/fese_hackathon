@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './useAuth';
 import { newsService, NewsItem } from '@/services/api/news.service';
 import { API_BASE_URL } from '@/utils/constants/api';
@@ -28,6 +28,43 @@ interface UseNewsSwipeReturn {
     savedCount: number;
     total: number;
 }
+
+// Storage keys
+const STORAGE_KEYS = {
+    STACK: 'news_swipe_stack',
+    SWIPED_IDS: 'news_swipe_swiped_ids',
+    SAVED_COUNT: 'news_swipe_saved_count',
+    TOTAL: 'news_swipe_total',
+    FETCHED: 'news_swipe_fetched',
+    USER_ID: 'news_swipe_user_id', // Track current user
+};
+
+// Helper to safely access sessionStorage (SSR safe)
+const getSessionItem = <T>(key: string, defaultValue: T): T => {
+    if (typeof window === 'undefined') return defaultValue;
+    try {
+        const item = sessionStorage.getItem(key);
+        return item ? JSON.parse(item) : defaultValue;
+    } catch {
+        return defaultValue;
+    }
+};
+
+const setSessionItem = <T>(key: string, value: T): void => {
+    if (typeof window === 'undefined') return;
+    try {
+        sessionStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+        console.error('Error saving to sessionStorage:', e);
+    }
+};
+
+const clearAllSessionItems = (): void => {
+    if (typeof window === 'undefined') return;
+    Object.values(STORAGE_KEYS).forEach(key => {
+        sessionStorage.removeItem(key);
+    });
+};
 
 // Sentiment color mapping
 const getSentimentColor = (sentiment: string | null): string => {
@@ -64,13 +101,94 @@ const convertToSwipeItem = (news: NewsItem): NewsSwipeItem => ({
 
 export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
     const { user, isAuthenticated } = useAuth();
-    const [allNews, setAllNews] = useState<NewsSwipeItem[]>([]);
-    const [stack, setStack] = useState<NewsSwipeItem[]>([]);
+    const previousUserId = useRef<string | null>(null);
+
+    // Initialize state from sessionStorage
+    const [stack, setStack] = useState<NewsSwipeItem[]>(() =>
+        getSessionItem(STORAGE_KEYS.STACK, [])
+    );
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [savedCount, setSavedCount] = useState(0);
-    const [swipedIds, setSwipedIds] = useState<Set<string>>(new Set());
-    const [total, setTotal] = useState(0);
+    const [savedCount, setSavedCount] = useState(() =>
+        getSessionItem(STORAGE_KEYS.SAVED_COUNT, 0)
+    );
+    const [swipedIds, setSwipedIds] = useState<Set<string>>(() =>
+        new Set(getSessionItem<string[]>(STORAGE_KEYS.SWIPED_IDS, []))
+    );
+    const [total, setTotal] = useState(() =>
+        getSessionItem(STORAGE_KEYS.TOTAL, 0)
+    );
+    const [hasFetched, setHasFetched] = useState(() =>
+        getSessionItem(STORAGE_KEYS.FETCHED, false)
+    );
+
+    // Check if user changed (new login) - reset session data
+    useEffect(() => {
+        const storedUserId = getSessionItem<string | null>(STORAGE_KEYS.USER_ID, null);
+        const currentUserId = user?.user_id || null;
+
+        if (currentUserId && storedUserId !== currentUserId) {
+            // User changed - clear session and reset
+            console.log('[useNewsSwipe] User changed, resetting session:', { storedUserId, currentUserId });
+            clearAllSessionItems();
+            setStack([]);
+            setSwipedIds(new Set());
+            setSavedCount(0);
+            setTotal(0);
+            setHasFetched(false);
+            setSessionItem(STORAGE_KEYS.USER_ID, currentUserId);
+        }
+
+        previousUserId.current = currentUserId;
+    }, [user?.user_id]);
+
+    // Persist stack to sessionStorage whenever it changes
+    useEffect(() => {
+        setSessionItem(STORAGE_KEYS.STACK, stack);
+    }, [stack]);
+
+    // Persist swipedIds to sessionStorage
+    useEffect(() => {
+        setSessionItem(STORAGE_KEYS.SWIPED_IDS, Array.from(swipedIds));
+    }, [swipedIds]);
+
+    // Persist savedCount
+    useEffect(() => {
+        setSessionItem(STORAGE_KEYS.SAVED_COUNT, savedCount);
+    }, [savedCount]);
+
+    // Persist total
+    useEffect(() => {
+        setSessionItem(STORAGE_KEYS.TOTAL, total);
+    }, [total]);
+
+    // Persist fetched flag
+    useEffect(() => {
+        setSessionItem(STORAGE_KEYS.FETCHED, hasFetched);
+    }, [hasFetched]);
+
+    // Fetch already-read news IDs from backend
+    const fetchInteractedIds = useCallback(async (): Promise<Set<string>> => {
+        if (!user || !isAuthenticated) return new Set();
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/interactions/my-interests`, {
+                headers: {
+                    'x-user-id': user.user_id,
+                },
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const ids = (data.news || []).map((n: { news_id: string }) => n.news_id);
+                return new Set(ids);
+            }
+        } catch (err) {
+            console.error('Error fetching interacted IDs:', err);
+        }
+        return new Set();
+    }, [user, isAuthenticated]);
 
     const fetchNews = useCallback(async () => {
         setLoading(true);
@@ -81,12 +199,22 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
             const response = await newsService.getNewsList(1, pageSize);
 
             const swipeItems = response.news.map(convertToSwipeItem);
-            setAllNews(swipeItems);
             setTotal(response.total);
 
-            // Filter out already swiped items
-            const unswipedItems = swipeItems.filter(item => !swipedIds.has(item.news_id));
+            // Get already interacted IDs from backend (already read articles)
+            const interactedIds = await fetchInteractedIds();
+
+            // Combine with session swiped IDs
+            const currentSwipedIds = getSessionItem<string[]>(STORAGE_KEYS.SWIPED_IDS, []);
+            const allSwipedSet = new Set([...currentSwipedIds, ...interactedIds]);
+
+            // Update swipedIds state with backend data
+            setSwipedIds(allSwipedSet);
+
+            // Filter out already swiped/read items
+            const unswipedItems = swipeItems.filter(item => !allSwipedSet.has(item.news_id));
             setStack(unswipedItems);
+            setHasFetched(true);
 
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Đã có lỗi xảy ra');
@@ -94,19 +222,27 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
         } finally {
             setLoading(false);
         }
-    }, [pageSize, swipedIds]);
+    }, [pageSize, fetchInteractedIds]);
 
-    // Fetch on mount
+    // Fetch only if not already fetched
     useEffect(() => {
-        fetchNews();
-    }, []);
+        if (!hasFetched && stack.length === 0 && isAuthenticated) {
+            fetchNews();
+        }
+    }, [hasFetched, stack.length, fetchNews, isAuthenticated]);
 
     // Record interaction to backend
     const recordInteraction = async (newsId: string, actionType: 'SWIPE_RIGHT' | 'SWIPE_LEFT') => {
-        if (!user || !isAuthenticated) return;
+        console.log('[recordInteraction] Called with:', { newsId, actionType, user: user?.user_id, isAuthenticated });
+
+        if (!user || !isAuthenticated) {
+            console.warn('[recordInteraction] Skipping - not authenticated:', { user, isAuthenticated });
+            return;
+        }
 
         try {
-            await fetch(`${API_BASE_URL}/api/interactions`, {
+            console.log('[recordInteraction] Sending to API:', `${API_BASE_URL}/api/interactions`);
+            const response = await fetch(`${API_BASE_URL}/api/interactions`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -118,6 +254,12 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
                     action_type: actionType,
                 }),
             });
+
+            console.log('[recordInteraction] Response:', response.status, response.statusText);
+            if (!response.ok) {
+                const errorData = await response.text();
+                console.error('[recordInteraction] API Error:', errorData);
+            }
         } catch (err) {
             console.error('Error recording interaction:', err);
         }
@@ -143,9 +285,19 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
     }, [user, isAuthenticated]);
 
     const refetch = useCallback(async () => {
-        // Reset swiped IDs for fresh start
+        // Clear sessionStorage for fresh start (keep user_id)
+        const currentUserId = getSessionItem<string | null>(STORAGE_KEYS.USER_ID, null);
+        clearAllSessionItems();
+        if (currentUserId) {
+            setSessionItem(STORAGE_KEYS.USER_ID, currentUserId);
+        }
+
+        // Reset state
         setSwipedIds(new Set());
         setSavedCount(0);
+        setHasFetched(false);
+
+        // Fetch fresh data
         await fetchNews();
     }, [fetchNews]);
 
