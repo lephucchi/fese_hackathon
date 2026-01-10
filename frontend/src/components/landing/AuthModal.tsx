@@ -16,7 +16,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -32,8 +34,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         onClose();
       } else {
         // Validation for signup
-        if (!name.trim()) {
-          setError('Vui lòng nhập họ và tên');
+        if (!firstName.trim()) {
+          setError('Vui lòng nhập tên');
+          return;
+        }
+        if (!lastName.trim()) {
+          setError('Vui lòng nhập họ');
           return;
         }
         if (password !== confirmPassword) {
@@ -45,12 +51,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           return;
         }
 
-        // Split name into first and last name
-        const nameParts = name.trim().split(' ');
-        const lastName = nameParts[nameParts.length - 1];
-        const firstName = nameParts.slice(0, -1).join(' ') || lastName;
+        // Use displayName or auto-generate from first + last name
+        const finalDisplayName = displayName.trim() || `${firstName.trim()} ${lastName.trim()}`;
 
-        await register(email, password, firstName, lastName, name);
+        await register(email, password, firstName.trim(), lastName.trim(), finalDisplayName);
         onClose();
       }
     } catch (err) {
@@ -227,48 +231,131 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 onSubmit={handleSubmit}
                 style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
               >
-                {/* Name Input - Only for signup */}
+                {/* Name Inputs - Only for signup */}
                 {activeTab === 'signup' && (
-                  <div>
-                    <label
-                      style={{
-                        display: 'block',
-                        marginBottom: '0.5rem',
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                        color: 'var(--text-primary)'
-                      }}
-                    >
-                      Họ và tên
-                    </label>
-                    <div style={{ position: 'relative' }}>
-                      <User
-                        size={20}
+                  <>
+                    {/* First Name & Last Name Row */}
+                    <div style={{ display: 'flex', gap: '1rem' }}>
+                      {/* First Name */}
+                      <div style={{ flex: 1 }}>
+                        <label
+                          style={{
+                            display: 'block',
+                            marginBottom: '0.5rem',
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            color: 'var(--text-primary)'
+                          }}
+                        >
+                          Họ <span style={{ color: '#EF4444' }}>*</span>
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <User
+                            size={20}
+                            style={{
+                              position: 'absolute',
+                              left: '1rem',
+                              top: '50%',
+                              transform: 'translateY(-50%)',
+                              color: 'var(--text-tertiary)'
+                            }}
+                          />
+                          <input
+                            type="text"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            placeholder="Nguyễn"
+                            style={{
+                              width: '100%',
+                              padding: '0.875rem 1rem 0.875rem 3rem',
+                              borderRadius: '12px',
+                              border: '1.5px solid var(--border)',
+                              background: 'var(--surface)',
+                              fontSize: '1rem',
+                              color: 'var(--text-primary)'
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Last Name */}
+                      <div style={{ flex: 1 }}>
+                        <label
+                          style={{
+                            display: 'block',
+                            marginBottom: '0.5rem',
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            color: 'var(--text-primary)'
+                          }}
+                        >
+                          Tên <span style={{ color: '#EF4444' }}>*</span>
+                        </label>
+                        <div style={{ position: 'relative' }}>
+                          <input
+                            type="text"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            placeholder="Văn A"
+                            style={{
+                              width: '100%',
+                              padding: '0.875rem 1rem',
+                              borderRadius: '12px',
+                              border: '1.5px solid var(--border)',
+                              background: 'var(--surface)',
+                              fontSize: '1rem',
+                              color: 'var(--text-primary)'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Display Name */}
+                    <div>
+                      <label
                         style={{
-                          position: 'absolute',
-                          left: '1rem',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          color: 'var(--text-tertiary)'
-                        }}
-                      />
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Nguyễn Văn A"
-                        style={{
-                          width: '100%',
-                          padding: '0.875rem 1rem 0.875rem 3rem',
-                          borderRadius: '12px',
-                          border: '1.5px solid var(--border)',
-                          background: 'var(--surface)',
-                          fontSize: '1rem',
+                          display: 'block',
+                          marginBottom: '0.5rem',
+                          fontSize: '0.875rem',
+                          fontWeight: 600,
                           color: 'var(--text-primary)'
                         }}
-                      />
+                      >
+                        Tên hiển thị <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>(tùy chọn)</span>
+                      </label>
+                      <div style={{ position: 'relative' }}>
+                        <User
+                          size={20}
+                          style={{
+                            position: 'absolute',
+                            left: '1rem',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            color: 'var(--text-tertiary)'
+                          }}
+                        />
+                        <input
+                          type="text"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          placeholder="Nickname hoặc để trống"
+                          style={{
+                            width: '100%',
+                            padding: '0.875rem 1rem 0.875rem 3rem',
+                            borderRadius: '12px',
+                            border: '1.5px solid var(--border)',
+                            background: 'var(--surface)',
+                            fontSize: '1rem',
+                            color: 'var(--text-primary)'
+                          }}
+                        />
+                      </div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', marginTop: '0.25rem' }}>
+                        Nếu để trống, sẽ sử dụng Họ + Tên làm tên hiển thị
+                      </p>
                     </div>
-                  </div>
+                  </>
                 )}
 
                 {/* Email Input */}
