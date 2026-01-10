@@ -489,23 +489,97 @@ export function Navigation({ onLoginClick }: NavigationProps) {
                   </Link>
                 );
               })}
-              <Link
-                href="/chat"
-                style={{
-                  display: 'block',
-                  padding: '0.75rem 1rem',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  textAlign: 'center',
-                  color: 'white',
-                  background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
-                  textDecoration: 'none'
-                }}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                Open Chat
-              </Link>
+            </div>
+
+            {/* Mobile Auth Actions */}
+            <div style={{
+              padding: '0 1rem 1.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.75rem'
+            }}>
+              {isAuthenticated && user ? (
+                <>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '0.75rem 1rem',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '0.5rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: 'white'
+                  }}>
+                    <div style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, var(--primary) 0%, #4ADE80 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '0.875rem',
+                      fontWeight: 700
+                    }}>
+                      {user.display_name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>{user.display_name || user.email.split('@')[0]}</span>
+                      <span style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.5)' }}>{user.email}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      padding: '0.75rem',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      color: '#EF4444',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '1px solid rgba(239, 68, 68, 0.2)',
+                      cursor: 'pointer',
+                      width: '100%'
+                    }}
+                  >
+                    <LogOut size={18} />
+                    <span>{t('auth.logout')}</span>
+                  </button>
+                </>
+              ) : onLoginClick ? (
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onLoginClick();
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem',
+                    borderRadius: '0.5rem',
+                    fontSize: '0.875rem',
+                    fontWeight: 600,
+                    color: 'white',
+                    background: 'var(--primary)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    width: '100%',
+                    boxShadow: '0 4px 12px rgba(0, 200, 5, 0.2)'
+                  }}
+                >
+                  <span>{t('auth.signup')} / {t('auth.login')}</span>
+                </button>
+              ) : null}
             </div>
           </motion.div>
         )}
