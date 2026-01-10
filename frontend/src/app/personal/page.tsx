@@ -3,9 +3,7 @@
 import { useState } from 'react';
 import { Navigation } from '@/components/shared/Navigation';
 import { PersonalTab } from '@/components/dashboard/PersonalTab';
-import { ProfileCard } from '@/components/dashboard/ProfileCard';
 import { Portfolio, SynthesisReport } from '@/types/dashboard.types';
-import { useAuth } from '@/hooks/useAuth';
 
 // Mock data
 const mockPortfolio: Portfolio = {
@@ -38,19 +36,11 @@ const mockReport: SynthesisReport = {
 
 export default function PersonalPage() {
   const [showEditModal, setShowEditModal] = useState(false);
-  const { user } = useAuth();
 
   return (
     <div style={{ background: 'var(--background)', minHeight: '100vh' }}>
       <Navigation />
-      <main style={{ paddingTop: '80px', maxWidth: '1200px', margin: '0 auto', padding: '80px 24px 40px' }}>
-        {/* Profile Card */}
-        <ProfileCard
-          user={user}
-          onEdit={() => console.log('Edit profile')}
-        />
-
-        {/* Portfolio & AI Insights */}
+      <main style={{ paddingTop: '80px' }}>
         <PersonalTab
           portfolio={mockPortfolio}
           report={mockReport}
@@ -60,4 +50,3 @@ export default function PersonalPage() {
     </div>
   );
 }
-

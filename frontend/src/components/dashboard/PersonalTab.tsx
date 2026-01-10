@@ -1,17 +1,18 @@
 /**
- * Personal Tab Component - Portfolio & Macro Alignment
- * Responsibility: Display portfolio with macro news impact analysis
+ * Personal Tab Component - Profile, Portfolio & Macro Alignment
+ * Responsibility: Display user profile, portfolio with macro news impact analysis
  */
 'use client';
 
 import { useState, useEffect } from 'react';
 import { Portfolio, SynthesisReport } from '@/types/dashboard.types';
-import { ArrowUp, ArrowDown, Edit2, Sparkles } from 'lucide-react';
+import { ArrowUp, ArrowDown, Edit2, Sparkles, User, Mail, Shield, Crown, Star, Zap } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useDisclaimer } from '@/hooks/useDisclaimer';
 import { DisclaimerModal } from '@/components/common/DisclaimerModal';
+import { useAuth } from '@/hooks/useAuth';
 
 interface PersonalTabProps {
   readonly portfolio: Portfolio;
@@ -34,11 +35,40 @@ const COLORS: Record<string, string> = {
   Cash: '#9CA3AF', // Gray
 };
 
+// Tier configuration
+const TIER_CONFIG: Record<number, { name: string; color: string; bgColor: string; icon: React.ReactNode }> = {
+  1: {
+    name: 'Normal',
+    color: '#6B7280',
+    bgColor: 'rgba(107, 114, 128, 0.1)',
+    icon: <User size={14} />
+  },
+  2: {
+    name: 'Pro',
+    color: '#3B82F6',
+    bgColor: 'rgba(59, 130, 246, 0.1)',
+    icon: <Star size={14} />
+  },
+  3: {
+    name: 'Business',
+    color: '#8B5CF6',
+    bgColor: 'rgba(139, 92, 246, 0.1)',
+    icon: <Zap size={14} />
+  },
+  4: {
+    name: 'Admin',
+    color: '#F59E0B',
+    bgColor: 'rgba(245, 158, 11, 0.1)',
+    icon: <Crown size={14} />
+  },
+};
+
 export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabProps) {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [viewingInsights, setViewingInsights] = useState(false);
   const { hasAccepted, isLoading: disclaimerLoading, acceptDisclaimer } = useDisclaimer();
+  const { user, isAuthenticated } = useAuth();
 
   // Check if user wants to view AI insights
   useEffect(() => {
@@ -56,17 +86,273 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
 
   const dailyChangeAmount = portfolio.todayProfitLoss;
 
+  // Get tier info
+  const tierInfo = user?.role?.role_id ? TIER_CONFIG[user.role.role_id] : TIER_CONFIG[1];
+
   return (
     <div style={{
       maxWidth: '1200px',
       margin: '0 auto',
       padding: '40px 24px',
     }}>
+      {/* Profile Card - NEW */}
+      {isAuthenticated && user && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{
+            background: 'var(--card)',
+            borderRadius: '24px',
+            padding: '32px',
+            boxShadow: 'var(--shadow-fintech)',
+            marginBottom: '32px',
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Background decoration */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: '300px',
+            height: '300px',
+            background: 'radial-gradient(circle, rgba(0, 200, 5, 0.08) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '28px',
+          }}>
+            <Shield size={24} style={{ color: 'var(--primary)' }} />
+            <h2 style={{
+              fontSize: '1.5rem',
+              fontWeight: 700,
+              color: 'var(--text-primary)',
+              margin: 0,
+            }}>
+              Hồ sơ cá nhân
+            </h2>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr',
+            gap: '40px',
+            alignItems: 'center',
+          }}>
+            {/* Avatar Section */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px',
+            }}>
+              {/* Avatar Image */}
+              <div style={{
+                position: 'relative',
+              }}>
+                <div style={{
+                  width: '120px',
+                  height: '120px',
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: '4px solid var(--primary)',
+                  boxShadow: '0 8px 24px rgba(0, 200, 5, 0.25)',
+                }}>
+                  {user.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt={user.display_name || 'Avatar'}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: '100%',
+                      height: '100%',
+                      background: 'linear-gradient(135deg, var(--primary) 0%, #4ADE80 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '3rem',
+                      fontWeight: 700,
+                      color: 'white',
+                    }}>
+                      {user.display_name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                {/* Online indicator */}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '8px',
+                  right: '8px',
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '50%',
+                  background: '#10B981',
+                  border: '3px solid var(--card)',
+                }} />
+              </div>
+
+              {/* Tier Badge */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                borderRadius: '9999px',
+                background: tierInfo.bgColor,
+                border: `1px solid ${tierInfo.color}`,
+              }}>
+                <span style={{ color: tierInfo.color }}>{tierInfo.icon}</span>
+                <span style={{
+                  fontSize: '0.875rem',
+                  fontWeight: 600,
+                  color: tierInfo.color,
+                }}>
+                  {tierInfo.name}
+                </span>
+              </div>
+            </div>
+
+            {/* Info Section */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+            }}>
+              {/* Name Row */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
+                gap: '24px',
+              }}>
+                {/* First Name */}
+                <div>
+                  <div style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                    marginBottom: '6px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Họ
+                  </div>
+                  <div style={{
+                    fontSize: '1.125rem',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                  }}>
+                    {user.first_name || '—'}
+                  </div>
+                </div>
+
+                {/* Last Name */}
+                <div>
+                  <div style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    color: 'var(--text-secondary)',
+                    marginBottom: '6px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}>
+                    Tên
+                  </div>
+                  <div style={{
+                    fontSize: '1.125rem',
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
+                  }}>
+                    {user.last_name || '—'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Display Name */}
+              <div>
+                <div style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  color: 'var(--text-secondary)',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}>
+                  Tên hiển thị
+                </div>
+                <div style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}>
+                  <User size={18} style={{ color: 'var(--primary)' }} />
+                  {user.display_name || user.email.split('@')[0]}
+                </div>
+              </div>
+
+              {/* Email */}
+              <div>
+                <div style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  color: 'var(--text-secondary)',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                }}>
+                  Email
+                </div>
+                <div style={{
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                  color: 'var(--text-primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}>
+                  <Mail size={16} style={{ color: 'var(--text-secondary)' }} />
+                  {user.email}
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       {/* Header - Total Asset Value */}
-      <div style={{
-        textAlign: 'center',
-        marginBottom: '48px',
-      }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        style={{
+          textAlign: 'center',
+          marginBottom: '48px',
+        }}
+      >
+        <div style={{
+          fontSize: '0.875rem',
+          fontWeight: 500,
+          color: 'var(--text-secondary)',
+          marginBottom: '8px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.1em',
+        }}>
+          Tổng giá trị tài sản
+        </div>
         <div style={{
           fontSize: '3.75rem',
           fontWeight: 800,
@@ -95,16 +381,21 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
             {portfolio.todayProfitLossPercent >= 0 ? '+' : ''}{formatVND(dailyChangeAmount)} ({portfolio.todayProfitLossPercent >= 0 ? '+' : ''}{portfolio.todayProfitLossPercent.toFixed(2)}%)
           </span>
         </div>
-      </div>
+      </motion.div>
 
       {/* Donut Chart Section */}
-      <div style={{
-        background: 'var(--card)',
-        borderRadius: '24px',
-        padding: '32px',
-        boxShadow: 'var(--shadow-fintech)',
-        marginBottom: '32px',
-      }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        style={{
+          background: 'var(--card)',
+          borderRadius: '24px',
+          padding: '32px',
+          boxShadow: 'var(--shadow-fintech)',
+          marginBottom: '32px',
+        }}
+      >
         <div style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -173,7 +464,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-            
+
             {/* Center Label */}
             <div style={{
               position: 'absolute',
@@ -241,10 +532,13 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
             ))}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* AI Synthesis Report */}
-      <div
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
         style={{
           background: 'var(--card)',
           borderRadius: '24px',
@@ -336,7 +630,6 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
           gap: '24px',
-          marginBottom: '32px',
         }}>
           {/* Positives */}
           <div>
@@ -418,40 +711,7 @@ export function PersonalTab({ portfolio, report, onEditPortfolio }: PersonalTabP
             </ul>
           </div>
         </div>
-
-        {/* Recommendation */}
-        <div style={{
-          padding: '20px 24px',
-          background: 'rgba(0, 200, 5, 0.08)',
-          borderRadius: '16px',
-          borderLeft: '4px solid var(--primary)',
-        }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '12px',
-          }}>
-            <span style={{ fontSize: '24px' }}>💡</span>
-            <div>
-              <div style={{
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#166534',
-                marginBottom: '4px',
-              }}>
-                Khuyến nghị
-              </div>
-              <div style={{
-                fontSize: '16px',
-                fontWeight: 600,
-                color: '#14532d',
-              }}>
-                {report.aiRecommendations[0] || 'Không có khuyến nghị'}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </motion.div>
 
       {/* Floating Action Button */}
       <Link href="/chat" style={{ textDecoration: 'none' }}>
