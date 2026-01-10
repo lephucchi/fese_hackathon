@@ -1,47 +1,51 @@
 # Multi-Index RAG Finance - EC2 Deployment Guide
 
+## 🌐 Production Domain: macroinsight.me
+
+---
+
 ## Prerequisites
 
 1. **Ubuntu EC2 Instance** với:
    - Ubuntu 22.04 LTS hoặc mới hơn
    - Minimum: t3.medium (2 vCPU, 4GB RAM)
    - Recommended: t3.large (2 vCPU, 8GB RAM) cho production
-   - Security Group mở ports: 22 (SSH), 80 (HTTP), 443 (HTTPS), 8000 (Backend), 3000 (Frontend)
+   - **Security Group** mở ports:
+     - 22 (SSH)
+     - 80 (HTTP - cho Let's Encrypt & redirect)
+     - 443 (HTTPS)
 
-2. **Đã cài đặt sẵn**:
+2. **DNS Configuration**:
+   - `macroinsight.me` → EC2 Public IP
+   - `www.macroinsight.me` → EC2 Public IP
+
+3. **Đã cài đặt sẵn**:
    - Git
    - Docker
    - Docker Compose v2
    - User hiện tại có quyền chạy Docker (đã add vào docker group)
 
-## Quick Start
+---
 
-### Bước 1: SSH vào EC2 instance
+## Quick Start (5 Steps)
+
+### Step 1: SSH vào EC2 instance
 ```bash
-ssh -i your-key.pem ubuntu@your-ec2-ip
+ssh -i your-key.pem ubuntu@54.153.255.138
 ```
 
-### Bước 2: Clone repository
+### Step 2: Clone repository
 ```bash
-# Clone qua HTTPS
 git clone https://github.com/your-username/multi_index_rag_for_finance.git
 cd multi_index_rag_for_finance
-
-# Hoặc clone qua SSH (nếu đã setup SSH key)
-git clone git@github.com:your-username/multi_index_rag_for_finance.git
-cd multi_index_rag_for_finance
 ```
 
-### Bước 3: Tạo file .env
+### Step 3: Tạo file .env
 ```bash
-# Copy template
-cp .env.example .env
-
-# Edit với credentials thật
 nano .env
 ```
 
-File `.env` cần có:
+Nội dung `.env`:
 ```env
 # Supabase Configuration
 SUPABASE_URL=https://your-project.supabase.co
@@ -53,72 +57,141 @@ GEMINI_API_KEY=your_gemini_api_key
 GOOGLE_CUSTOM_SEARCH_API_KEY=your_search_api_key
 GOOGLE_CUSTOM_SEARCH_ENGINE_ID=your_search_engine_id
 
+# Security - JWT key (chỉ dùng alphanumeric và -, _, không dùng special chars)
+JWT_SECRET_KEY=your-super-secret-jwt-key-min-32-chars-long
+
+# CORS Configuration (Production)
+CORS_ORIGINS=https://macroinsight.me,https://www.macroinsight.me
+
+# Domain Settings
+DOMAIN=macroinsight.me
+PUBLIC_URL=https://macroinsight.me
+
 # Application Settings
 LOG_LEVEL=INFO
 NEWS_SCRAPE_INTERVAL_HOURS=4
 ```
 
-### Bước 4: Chạy deployment script
+### Step 4: Deploy Docker containers
 ```bash
-# Make script executable
 chmod +x deploy.sh
-
-# Deploy
 ./deploy.sh
 ```
 
-### Bước 5: Kiểm tra services
+### Step 5: Setup HTTPS với Let's Encrypt
 ```bash
-# Check container status
-docker compose ps
-
-# View logs
-docker compose logs -f
-
-# Test backend
-curl http://localhost:8000/api/health
-
-# Test frontend
-curl http://localhost:3000
+chmod +x setup-ssl.sh
+sudo ./setup-ssl.sh
 ```
 
-## Script Usage
+---
 
-### Deploy bình thường
-```bash
-./deploy.sh
+## ✅ Sau khi deploy thành công
+
+Truy cập:
+- **Website**: https://macroinsight.me
+- **API**: https://macroinsight.me/api
+- **API Docs**: https://macroinsight.me/docs
+
+---
+
+## Architecture
+
+```
+                                    ┌─────────────────────────────────────┐
+                                    │            Internet                  │
+                                    └─────────────────────────────────────┘
+                                                    │
+                                                    │ HTTPS (443)
+                                                    ▼
+┌──────────────────────────────────────────────────────────────────────────┐
+│                              EC2 Instance                                │
+│                                                                          │
+│    ┌────────────────────────────────────────────────────────────────┐   │
+│    │                      Nginx (Port 80/443)                        │   │
+│    │                   SSL Termination + Proxy                       │   │
+│    └───────────────────────────┬────────────────────────────────────┘   │
+│                                │                                         │
+│              ┌─────────────────┼─────────────────┐                      │
+│              │                 │                 │                      │
+│              ▼                 ▼                 ▼                      │
+│    ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐         │
+│    │  Frontend       │ │  Backend        │ │  Redis          │         │
+│    │  (Next.js)      │ │  (FastAPI)      │ │  (Cache)        │         │
+│    │  127.0.0.1:3000 │ │  127.0.0.1:8000 │ │  127.0.0.1:6379 │         │
+│    └─────────────────┘ └─────────────────┘ └─────────────────┘         │
+│                                │                                         │
+│                                ▼                                         │
+│    ┌─────────────────────────────────────────────────────────────────┐  │
+│    │                     NewsAnalyst Worker                          │  │
+│    │               (Scheduled background tasks)                      │  │
+│    └─────────────────────────────────────────────────────────────────┘  │
+│                                                                          │
+└──────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+                    ┌───────────────────────────────┐
+                    │       External Services       │
+                    │   • Supabase (Database)       │
+                    │   • Google Gemini AI          │
+                    │   • Google Search API         │
+                    └───────────────────────────────┘
 ```
 
-### Deploy và xóa toàn bộ data (clean slate)
-```bash
-./deploy.sh --clean-volumes
+---
+
+## File Structure (Deployment)
+
 ```
-⚠️ **Warning**: Sẽ xóa toàn bộ Redis data!
-
-### Xem help
-```bash
-./deploy.sh --help
+multi_index_rag_for_finance/
+├── deploy.sh              # Main deployment script
+├── setup-ssl.sh           # SSL/Nginx setup script
+├── docker-compose.yml     # Container orchestration
+├── .env                   # Environment variables
+├── nginx/
+│   └── macroinsight.me.conf  # Nginx configuration
+└── DEPLOY_EC2.md          # This guide
 ```
 
-## Deploy Script Features
+---
 
-✅ **Idempotent**: Có thể chạy nhiều lần an toàn  
-✅ **Error Handling**: Dừng ngay khi có lỗi  
-✅ **Logging**: Log chi tiết vào `deploy.log`  
-✅ **Health Checks**: Kiểm tra services sau khi deploy  
-✅ **Environment Validation**: Validate .env trước khi deploy  
-✅ **Graceful Shutdown**: Stop containers cũ trước khi start mới  
-✅ **No Downtime Build**: Build images mới trước khi stop cũ  
+## Script Details
+
+### deploy.sh
+Main deployment script:
+```bash
+./deploy.sh              # Deploy normally
+./deploy.sh --clean-volumes  # Deploy + clear all data
+./deploy.sh --help       # Show help
+```
+
+**Features:**
+- ✅ Idempotent (safe to run multiple times)
+- ✅ Error handling with immediate stop
+- ✅ Detailed logging to `deploy.log`
+- ✅ Health checks after deployment
+- ✅ Environment validation
+- ✅ Graceful container shutdown
+
+### setup-ssl.sh
+SSL setup with Let's Encrypt:
+```bash
+sudo ./setup-ssl.sh
+```
+
+**What it does:**
+1. Install Nginx & Certbot
+2. Configure HTTP server for cert challenge
+3. Obtain SSL certificate from Let's Encrypt
+4. Install production Nginx config
+5. Setup auto-renewal (via certbot timer)
+6. Configure UFW firewall
+
+---
 
 ## Common Operations
 
-### Update code và redeploy
-```bash
-git pull origin main
-./deploy.sh
-```
-
-### View logs
+### View Logs
 ```bash
 # All services
 docker compose logs -f
@@ -127,314 +200,162 @@ docker compose logs -f
 docker compose logs -f backend
 docker compose logs -f frontend
 docker compose logs -f newsanalyst
-docker compose logs -f redis
 
 # Last 100 lines
 docker compose logs --tail=100 backend
 ```
 
-### Restart services
+### Restart Services
 ```bash
 # Restart all
 docker compose restart
 
-# Restart specific service
+# Restart specific
 docker compose restart backend
-docker compose restart frontend
 ```
 
-### Stop services
+### Update Code
 ```bash
-docker compose down
-```
-
-### Stop và xóa volumes
-```bash
-docker compose down -v
-```
-
-### Check resource usage
-```bash
-docker stats
-```
-
-### Access container shell
-```bash
-# Backend container
-docker compose exec backend bash
-
-# Frontend container
-docker compose exec frontend sh
-```
-
-## Setup EC2 from Scratch
-
-Nếu EC2 chưa cài Docker, chạy các lệnh sau:
-
-```bash
-# Update system
-sudo apt update && sudo apt upgrade -y
-
-# Install Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# Add user to docker group
-sudo usermod -aG docker $USER
-
-# Logout and login again for group changes to take effect
-exit
-# SSH lại vào
-
-# Verify Docker
-docker --version
-docker compose version
-
-# Install Git (nếu chưa có)
-sudo apt install git -y
-
-# Install curl (để test API)
-sudo apt install curl -y
-```
-
-## Production Recommendations
-
-### 1. Setup Nginx Reverse Proxy
-```bash
-sudo apt install nginx -y
-
-# Configure Nginx
-sudo nano /etc/nginx/sites-available/rag-finance
-```
-
-Nginx config:
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    location /api {
-        proxy_pass http://localhost:8000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
-
-Enable site:
-```bash
-sudo ln -s /etc/nginx/sites-available/rag-finance /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl restart nginx
-```
-
-### 2. Setup SSL với Let's Encrypt
-```bash
-sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d your-domain.com
-```
-
-### 3. Setup Automatic Updates
-```bash
-# Create update script
-cat > ~/update-app.sh << 'EOF'
-#!/bin/bash
-cd ~/multi_index_rag_for_finance
 git pull origin main
 ./deploy.sh
-EOF
-
-chmod +x ~/update-app.sh
-
-# Setup cron job (optional)
-crontab -e
-# Add: 0 2 * * * ~/update-app.sh >> ~/update.log 2>&1
+sudo systemctl reload nginx
 ```
 
-### 4. Setup Monitoring
+### Check Status
 ```bash
-# Install htop
-sudo apt install htop -y
+# Docker containers
+docker compose ps
+docker stats
 
-# View logs in real-time
-docker compose logs -f | grep ERROR
+# Nginx
+sudo systemctl status nginx
+
+# SSL Certificate
+sudo certbot certificates
 ```
 
-### 5. Setup Backup
+### SSL Certificate Renewal
 ```bash
-# Create backup script
-cat > ~/backup-redis.sh << 'EOF'
-#!/bin/bash
-DATE=$(date +%Y%m%d_%H%M%S)
-docker compose exec -T redis redis-cli SAVE
-docker cp rag-redis:/data/dump.rdb ~/backups/redis_${DATE}.rdb
-# Keep only last 7 days
-find ~/backups -name "redis_*.rdb" -mtime +7 -delete
-EOF
+# Test renewal (dry run)
+sudo certbot renew --dry-run
 
-chmod +x ~/backup-redis.sh
-
-# Run daily at 3am
-crontab -e
-# Add: 0 3 * * * ~/backup-redis.sh
+# Force renewal
+sudo certbot renew --force-renewal
 ```
+
+---
 
 ## Troubleshooting
 
-### Containers không start
+### 1. Container không start
 ```bash
 # Check logs
-docker compose logs
-
-# Check specific service
 docker compose logs backend
+docker compose logs frontend
 
-# Rebuild từ đầu
+# Check environment
+docker compose config
+
+# Rebuild
 docker compose down
 docker compose build --no-cache
 docker compose up -d
 ```
 
-### Port already in use
+### 2. SSL certificate error
 ```bash
-# Find process using port
-sudo lsof -i :8000
-sudo lsof -i :3000
+# Check certificate status
+sudo certbot certificates
 
-# Kill process
-sudo kill -9 PID
+# Check Nginx config
+sudo nginx -t
+
+# Renew certificate
+sudo certbot renew
+
+# Check DNS
+dig macroinsight.me
+dig www.macroinsight.me
 ```
 
-### Out of disk space
+### 3. 502 Bad Gateway
 ```bash
-# Clean up Docker
-docker system prune -a --volumes
+# Check if backend is running
+curl http://127.0.0.1:8000/api/health
 
-# Check disk usage
-df -h
-du -sh /var/lib/docker
+# Check if frontend is running
+curl http://127.0.0.1:3000
+
+# Check Nginx error log
+sudo tail -f /var/log/nginx/macroinsight.error.log
 ```
 
-### Permission denied
+### 4. CORS errors
+Kiểm tra `.env`:
+```env
+CORS_ORIGINS=https://macroinsight.me,https://www.macroinsight.me
+```
+
+Restart backend:
 ```bash
-# Ensure user is in docker group
-groups $USER
-
-# If not, add and re-login
-sudo usermod -aG docker $USER
-exit
-# SSH lại
+docker compose restart backend
 ```
 
-### Environment variables not loading
+### 5. Memory issues
 ```bash
-# Check .env file exists and has correct format
-cat .env
+# Check memory
+free -h
 
-# Check no trailing spaces or special characters
-dos2unix .env  # If file was created on Windows
+# Check container memory
+docker stats
 
-# Reload
-docker compose down
-docker compose up -d
+# Reduce Redis memory (docker-compose.yml)
+# --maxmemory 128mb
 ```
 
-## Performance Tuning
-
-### For EC2 t3.medium (4GB RAM)
-```yaml
-# Edit docker-compose.yml to add resource limits
-services:
-  backend:
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-  frontend:
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-```
-
-### Enable Docker logging limits
-```bash
-# Edit /etc/docker/daemon.json
-sudo nano /etc/docker/daemon.json
-```
-
-Add:
-```json
-{
-  "log-driver": "json-file",
-  "log-opts": {
-    "max-size": "10m",
-    "max-file": "3"
-  }
-}
-```
-
-Restart Docker:
-```bash
-sudo systemctl restart docker
-```
+---
 
 ## Security Checklist
 
-- [ ] SSH key-based authentication (disable password auth)
-- [ ] Security Groups configured (minimal ports open)
-- [ ] .env file has proper permissions (chmod 600)
-- [ ] Regular security updates (unattended-upgrades)
-- [ ] Fail2ban installed
-- [ ] Nginx rate limiting configured
-- [ ] SSL/TLS enabled
-- [ ] Regular backups
-- [ ] Monitoring/alerting setup
+- [ ] Security Group chỉ mở ports cần thiết (22, 80, 443)
+- [ ] Không expose Docker ports ra public (dùng 127.0.0.1)
+- [ ] SSL/HTTPS enabled với auto-renewal
+- [ ] JWT_SECRET_KEY đủ strong (32+ chars, alphanumeric)
+- [ ] CORS_ORIGINS chỉ allow domains cần thiết
+- [ ] Disable SSH password auth, chỉ dùng key
+- [ ] Regular updates: `sudo apt update && sudo apt upgrade`
 
-## CI/CD Integration (Optional)
+---
 
-### GitHub Actions
-Create `.github/workflows/deploy-ec2.yml`:
-```yaml
-name: Deploy to EC2
+## Monitoring (Optional)
 
-on:
-  push:
-    branches: [main]
+### Basic monitoring với cron
+```bash
+# Add to crontab
+crontab -e
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/multi_index_rag_for_finance
-            git pull origin main
-            ./deploy.sh
+# Check every 5 minutes
+*/5 * * * * curl -sf https://macroinsight.me/api/health || echo "Health check failed" >> /var/log/health-check.log
 ```
 
-## Support
+### Log rotation
+```bash
+# Nginx logs auto-rotated by logrotate
+# Docker logs - add to docker-compose.yml:
+logging:
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+```
 
-Nếu gặp vấn đề:
-1. Check logs: `docker compose logs`
-2. Check deploy log: `cat deploy.log`
-3. Check container status: `docker compose ps`
-4. Restart: `docker compose restart`
-5. Clean deploy: `./deploy.sh --clean-volumes`
+---
+
+## Contact & Support
+
+- **Repository**: https://github.com/your-username/multi_index_rag_for_finance
+- **Issues**: https://github.com/your-username/multi_index_rag_for_finance/issues
+
+---
+
+*Last updated: January 2025*

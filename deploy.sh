@@ -290,7 +290,7 @@ fi
 # Test backend health endpoint
 log "Testing backend health endpoint..."
 sleep 5
-if curl -f http://localhost:8000/api/health > /dev/null 2>&1; then
+if curl -sf http://127.0.0.1:8000/api/health > /dev/null 2>&1; then
     log_success "Backend health check passed"
 else
     log_warning "Backend health check failed (service may still be starting)"
@@ -298,10 +298,38 @@ fi
 
 # Test frontend
 log "Testing frontend..."
-if curl -f http://localhost:3000 > /dev/null 2>&1; then
+if curl -sf http://127.0.0.1:3000 > /dev/null 2>&1; then
     log_success "Frontend is accessible"
 else
     log_warning "Frontend not yet accessible (may need more time to start)"
+fi
+
+# =============================================================================
+# SSL/Nginx Setup Check
+# =============================================================================
+
+DOMAIN="macroinsight.me"
+SETUP_SSL_SCRIPT="${PROJECT_DIR}/setup-ssl.sh"
+
+log "Checking Nginx/SSL configuration..."
+
+# Check if Nginx is installed
+if command -v nginx &> /dev/null; then
+    log_success "Nginx is installed"
+    
+    # Check if SSL certificate exists
+    if [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
+        log_success "SSL certificate found for ${DOMAIN}"
+        
+        # Reload Nginx to pick up any changes
+        sudo systemctl reload nginx || log_warning "Could not reload Nginx"
+    else
+        log_warning "SSL certificate not found for ${DOMAIN}"
+        log_warning "Run 'sudo ./setup-ssl.sh' to set up HTTPS"
+    fi
+else
+    log_warning "Nginx is not installed"
+    log_warning "For production with HTTPS, run: sudo ./setup-ssl.sh"
 fi
 
 # =============================================================================
@@ -313,10 +341,27 @@ log "=========================================="
 log_success "Deployment completed successfully!"
 log "=========================================="
 log ""
-log "Services:"
-log "  - Backend API: http://localhost:8000"
-log "  - Frontend:    http://localhost:3000"
-log "  - Redis:       localhost:6379"
+log "Services (internal):"
+log "  - Backend API: 127.0.0.1:8000"
+log "  - Frontend:    127.0.0.1:3000"
+log "  - Redis:       127.0.0.1:6379"
+log ""
+
+# Check if Nginx/SSL is configured
+if [ -f "/etc/letsencrypt/live/${DOMAIN}/fullchain.pem" ]; then
+    log "Public URLs (HTTPS via Nginx):"
+    log "  - Website:     https://${DOMAIN}"
+    log "  - API:         https://${DOMAIN}/api"
+    log "  - API Docs:    https://${DOMAIN}/docs"
+else
+    log "⚠️  HTTPS not configured yet!"
+    log "Run: sudo ./setup-ssl.sh"
+    log ""
+    log "Temporary access (HTTP only):"
+    log "  - Backend API: http://<your-ip>:8000"
+    log "  - Frontend:    http://<your-ip>:3000"
+fi
+
 log ""
 log "Useful commands:"
 log "  - View logs:        docker compose logs -f"
@@ -324,6 +369,7 @@ log "  - View logs (service): docker compose logs -f backend"
 log "  - Stop services:    docker compose down"
 log "  - Restart services: docker compose restart"
 log "  - Check status:     docker compose ps"
+log "  - Setup HTTPS:      sudo ./setup-ssl.sh"
 log ""
 log "Deployment log saved to: ${LOG_FILE}"
 log ""
