@@ -90,28 +90,6 @@ export function HowItWorks() {
               boxShadow: '0 0 20px rgba(0, 200, 5, 0.5)'
             }}
           />
-          {/* Progress Dots */}
-          {steps.map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ scale: 0 }}
-              whileInView={{ scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 + i * 0.2 }}
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: `${i * 50}%`,
-                transform: 'translate(-50%, -50%)',
-                width: '16px',
-                height: '16px',
-                borderRadius: '50%',
-                background: 'var(--primary)',
-                border: '3px solid var(--background)',
-                boxShadow: '0 0 15px rgba(0, 200, 5, 0.6)'
-              }}
-            />
-          ))}
         </div>
 
         <div style={{
@@ -154,20 +132,6 @@ export function HowItWorks() {
                   background: 'linear-gradient(90deg, var(--primary), #00E676)',
                   opacity: 0.8
                 }} />
-
-                {/* Step Number Badge */}
-                <div style={{
-                  position: 'absolute',
-                  top: '20px',
-                  right: '20px',
-                  fontSize: '4rem',
-                  fontWeight: 900,
-                  color: 'var(--primary)',
-                  opacity: 0.1,
-                  lineHeight: 1
-                }}>
-                  {t(`howItWorks.${step.key}.number`)}
-                </div>
 
                 {/* Icon */}
                 <motion.div

@@ -51,7 +51,7 @@ export function CoreValue() {
         </motion.div>
 
         {/* Cards Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(250px, 100%), 1fr))', gap: 'clamp(1rem, 3vw, 2rem)' }}>
           {values.map((value, index) => (
             <motion.div
               key={value.title}

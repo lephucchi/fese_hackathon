@@ -60,9 +60,11 @@ export function FeatureHighlights() {
         {/* Features Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-          gap: 'clamp(20px, 4vw, 32px)'
-        }}>
+          gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: 'clamp(16px, 4vw, 32px)'
+        }}
+          className="features-grid"
+        >
           {featureKeys.map((feature, i) => (
             <motion.div
               key={i}

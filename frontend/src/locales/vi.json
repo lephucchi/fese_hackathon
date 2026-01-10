@@ -9,8 +9,9 @@
     },
     "hero": {
         "badge": "AI-Powered Financial Intelligence",
-        "title": "Biến Thông Tin Vĩ Mô",
-        "titleHighlight": "Thành Quyết Định Đầu Tư",
+        "titleLine1": "Biến Thông Tin",
+        "titleLine2": "Vĩ Mô Thành",
+        "titleHighlight": "Quyết Định Đầu Tư",
         "subtitle": "Không còn bị ngợp trong biển tin tức hỗn độn. MacroInsight giúp bạn lọc, phân tích và hiểu tác động của tin tức vĩ mô đến danh mục đầu tư chỉ trong vài giây.",
         "ctaPrimary": "Dùng thử miễn phí",
         "ctaSecondary": "Xem demo",

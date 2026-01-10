@@ -98,7 +98,10 @@ export function Pricing({ onGetStarted }: PricingProps) {
                 style={{
                   padding: 'clamp(24px, 5vw, 40px)',
                   border: plan.highlight ? '2px solid var(--primary)' : (plan.tagColor ? `2px solid ${plan.tagColor}` : '1px solid var(--border)'),
-                  position: 'relative'
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%'
                 }}
               >
                 {plan.tagKey && (
@@ -146,7 +149,8 @@ export function Pricing({ onGetStarted }: PricingProps) {
 
                 <ul style={{
                   listStyle: 'none',
-                  marginBottom: '32px'
+                  marginBottom: '32px',
+                  flex: 1
                 }}>
                   {features.map((feature, j) => (
                     <li key={j} style={{
@@ -168,7 +172,8 @@ export function Pricing({ onGetStarted }: PricingProps) {
                   style={{
                     width: '100%',
                     padding: '14px',
-                    fontSize: '15px'
+                    fontSize: '15px',
+                    marginTop: 'auto'
                   }}
                 >
                   {t(plan.ctaKey)}

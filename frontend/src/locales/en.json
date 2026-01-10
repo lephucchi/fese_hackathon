@@ -9,8 +9,9 @@
     },
     "hero": {
         "badge": "AI-Powered Financial Intelligence",
-        "title": "Transform Macro Information",
-        "titleHighlight": "Into Investment Decisions",
+        "titleLine1": "Transform Macro",
+        "titleLine2": "Information Into",
+        "titleHighlight": "Investment Decisions",
         "subtitle": "No more drowning in chaotic news. MacroInsight helps you filter, analyze and understand the impact of macro news on your portfolio in seconds.",
         "ctaPrimary": "Try Free",
         "ctaSecondary": "Watch Demo",

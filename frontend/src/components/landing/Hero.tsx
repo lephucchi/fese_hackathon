@@ -75,7 +75,8 @@ export function Hero({ onGetStarted }: HeroProps) {
               padding: '0 0.5rem'
             }}
           >
-            <span style={{ display: 'block' }}>{t('hero.title')}</span>
+            <span style={{ display: 'block' }}>{t('hero.titleLine1')}</span>
+            <span style={{ display: 'block' }}>{t('hero.titleLine2')}</span>
             <span className="text-gradient" style={{ display: 'block' }}>{t('hero.titleHighlight')}</span>
           </motion.h1>
 
