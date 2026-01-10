@@ -485,68 +485,104 @@ export default function DashboardPage() {
         margin: '0 auto',
         width: '100%'
       }}>
-        {/* Progress Bar */}
+        {/* Progress & Stats Bar */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'clamp(0.5rem, 2vw, 0.75rem)',
-          marginBottom: 'clamp(1rem, 3vw, 1.5rem)',
-          padding: 'clamp(0.75rem, 2vw, 1rem)',
+          marginBottom: 'clamp(1.5rem, 4vw, 2.5rem)',
+          padding: 'clamp(1rem, 3vw, 1.5rem)',
           background: 'var(--card)',
-          borderRadius: '12px',
+          borderRadius: '20px',
           border: '1px solid var(--border)',
-          flexWrap: 'wrap'
+          boxShadow: 'var(--shadow-fintech)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Coins size={16} style={{ color: '#FFC107' }} />
-            <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#FFC107', position: 'relative' }}>
-              {mPoints}
-              <AnimatePresence>
-                {showPointsAnimation && (
-                  <motion.span
-                    initial={{ opacity: 0, y: 0 }}
-                    animate={{ opacity: 1, y: -20 }}
-                    exit={{ opacity: 0 }}
-                    style={{
-                      position: 'absolute',
-                      top: '-0.75rem',
-                      right: '-1.5rem',
-                      color: '#4ADE80',
-                      fontWeight: 800,
-                      fontSize: '0.75rem'
-                    }}
-                  >
-                    +2
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </span>
+          {/* Top Row: Points & Counts */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {/* Left: Points */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'rgba(255, 193, 7, 0.1)',
+              padding: '6px 12px',
+              borderRadius: '20px',
+              border: '1px solid rgba(255, 193, 7, 0.2)'
+            }}>
+              <Coins size={16} style={{ color: '#FFB800' }} />
+              <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#FFB800', position: 'relative' }}>
+                {mPoints}
+                <AnimatePresence>
+                  {showPointsAnimation && (
+                    <motion.span
+                      initial={{ opacity: 0, y: 0 }}
+                      animate={{ opacity: 1, y: -20 }}
+                      exit={{ opacity: 0 }}
+                      style={{
+                        position: 'absolute',
+                        top: '-0.75rem',
+                        right: '-1.5rem',
+                        color: '#4ADE80',
+                        fontWeight: 800,
+                        fontSize: '0.75rem'
+                      }}
+                    >
+                      +2
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </span>
+            </div>
+
+            {/* Right: Symmetrical Stats */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '2px' }}>Bỏ qua</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--error)' }}>
+                  {(total - remaining) - savedCount}
+                </div>
+              </div>
+              <div style={{ width: '1px', height: '20px', background: 'var(--border)' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '2px' }}>Đã lưu</div>
+                <div style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--primary)' }}>
+                  {savedCount}
+                </div>
+              </div>
+            </div>
           </div>
-          <div style={{
-            flex: 1,
-            height: '6px',
-            background: 'var(--surface)',
-            borderRadius: '3px',
-            overflow: 'hidden'
-          }}>
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${total > 0 ? ((total - remaining) / total) * 100 : 0}%` }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              style={{
-                height: '100%',
-                background: 'linear-gradient(90deg, var(--primary) 0%, #4ADE80 100%)',
-                borderRadius: '3px'
-              }}
-            />
+
+          {/* Bottom Row: Progress Bar */}
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              height: '8px',
+              background: 'var(--surface)',
+              borderRadius: '4px',
+              overflow: 'hidden'
+            }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${total > 0 ? ((total - remaining) / total) * 100 : 0}%` }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                style={{
+                  height: '100%',
+                  background: 'linear-gradient(90deg, var(--primary) 0%, #4ADE80 100%)',
+                  borderRadius: '4px'
+                }}
+              />
+            </div>
+            {/* Progress Percentage Indicator */}
+            <div style={{
+              position: 'absolute',
+              top: '-18px',
+              right: '0',
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              color: 'var(--text-tertiary)'
+            }}>
+              {Math.round(((total - remaining) / total) * 100)}%
+            </div>
           </div>
-          <span style={{
-            fontSize: '0.75rem',
-            color: 'var(--text-tertiary)',
-            fontWeight: 600
-          }}>
-            {total - remaining}/{total}
-          </span>
         </div>
 
         {/* Title */}

@@ -65,7 +65,7 @@ export function CompletionScreen({
                     marginBottom: '2rem',
                 }}
             >
-                Bạn đã lọc xong {totalCards} tin tức
+                Bạn đã xử lý xong {totalCards} tin tức
             </p>
 
             {/* Stats Summary */}
@@ -82,13 +82,13 @@ export function CompletionScreen({
                         style={{
                             fontSize: '1.5rem',
                             fontWeight: 800,
-                            color: 'var(--primary)',
+                            color: 'var(--error)',
                         }}
                     >
-                        {totalCards}
+                        {totalCards - savedCount}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                        Tin đã lọc
+                        Bỏ qua
                     </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
@@ -96,7 +96,7 @@ export function CompletionScreen({
                         style={{
                             fontSize: '1.5rem',
                             fontWeight: 800,
-                            color: '#4ADE80',
+                            color: 'var(--primary)',
                         }}
                     >
                         {savedCount}
