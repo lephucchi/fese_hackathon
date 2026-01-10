@@ -13,6 +13,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from '
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNewsSwipe, NewsSwipeItem } from '@/hooks/useNewsSwipe';
 import { useSavedNews, SavedNewsItem } from '@/hooks/useSavedNews';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Minus, ExternalLink, Tag } from 'lucide-react';
@@ -26,6 +27,7 @@ function NewsSwipeCard({
   isTop,
   stackIndex,
   totalCards,
+  exitDirection = null,
 }: {
   news: NewsSwipeItem;
   onSwipeLeft: () => void;
@@ -34,6 +36,7 @@ function NewsSwipeCard({
   isTop: boolean;
   stackIndex: number;
   totalCards: number;
+  exitDirection?: 'left' | 'right' | null;
 }) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
@@ -79,243 +82,243 @@ function NewsSwipeCard({
     });
   };
 
-  if (!isTop) {
-    // Background cards in stack
-    return (
-      <div
-        style={{
-          position: 'absolute',
-          top: `${stackIndex * 8}px`,
-          left: '50%',
-          transform: `translateX(-50%) scale(${1 - stackIndex * 0.05})`,
-          width: '100%',
-          maxWidth: '420px',
-          height: '520px',
-          background: 'var(--card)',
-          borderRadius: '24px',
-          boxShadow: 'var(--shadow-lg)',
-          zIndex: totalCards - stackIndex,
-          opacity: 1 - stackIndex * 0.3
-        }}
-      />
-    );
-  }
+  const isNeutral = !isTop;
 
   return (
     <motion.div
-      drag="x"
+      key={news.news_id}
+      drag={isTop ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
+      initial={stackIndex > 2 ? { opacity: 0, scale: 0.8 } : { opacity: 0, scale: 0.95 }}
+      animate={{
+        top: isTop ? 0 : stackIndex * 8,
+        scale: isTop ? 1 : 1 - stackIndex * 0.05,
+        opacity: isTop ? 1 : (stackIndex > 2 ? 0 : 1 - stackIndex * 0.3),
+        y: 0,
+      }}
+      exit={{
+        x: exitDirection === 'left' ? -1000 : (exitDirection === 'right' ? 1000 : (x.get() < 0 ? -1000 : 1000)),
+        opacity: 0,
+        rotate: exitDirection === 'left' ? -40 : (exitDirection === 'right' ? 40 : (x.get() < 0 ? -40 : 40)),
+        transition: { type: 'spring', damping: 30, stiffness: 200 }
+      }}
       style={{
         x,
-        rotate,
-        opacity,
-        position: 'relative',
+        rotate: isTop ? rotate : 0,
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        margin: '0 auto',
         width: '100%',
         maxWidth: '420px',
-        height: '520px',
+        height: '100%',
         background: 'var(--card)',
         borderRadius: '24px',
-        boxShadow: 'var(--shadow-xl)',
-        cursor: 'grab',
-        zIndex: totalCards,
+        boxShadow: isTop ? 'var(--shadow-xl)' : 'var(--shadow-lg)',
+        cursor: isTop ? 'grab' : 'default',
+        zIndex: totalCards - stackIndex,
         overflow: 'hidden',
-        margin: '0 auto'
       }}
-      onDragEnd={handleDragEnd}
-      whileTap={{ cursor: 'grabbing' }}
-      onTap={() => onCardClick?.()}
+      onDragEnd={isTop ? handleDragEnd : undefined}
+      whileTap={isTop ? { cursor: 'grabbing' } : undefined}
+      onTap={isTop ? () => onCardClick?.() : undefined}
     >
-      {/* Swipe Indicators */}
-      <motion.div
-        style={{
-          position: 'absolute',
-          top: '1.5rem',
-          left: '1.5rem',
-          padding: '0.625rem 1.25rem',
-          borderRadius: '10px',
-          background: 'rgba(231, 76, 60, 0.9)',
-          color: 'white',
-          fontWeight: 700,
-          fontSize: '1rem',
-          opacity: useTransform(x, [-100, -50, 0], [1, 0.5, 0]),
-          zIndex: 10
-        }}
-      >
-        BỎ QUA
-      </motion.div>
+      {isTop && (
+        <>
+          {/* Swipe Indicators */}
+          <motion.div
+            style={{
+              position: 'absolute',
+              top: '1.5rem',
+              left: '1.5rem',
+              padding: '0.625rem 1.25rem',
+              borderRadius: '10px',
+              background: 'rgba(231, 76, 60, 0.9)',
+              color: 'white',
+              fontWeight: 700,
+              fontSize: '1rem',
+              opacity: useTransform(x, [-100, -50, 0], [1, 0.5, 0]),
+              zIndex: 10
+            }}
+          >
+            BỎ QUA
+          </motion.div>
 
-      <motion.div
-        style={{
-          position: 'absolute',
-          top: '1.5rem',
-          right: '1.5rem',
-          padding: '0.625rem 1.25rem',
-          borderRadius: '10px',
-          background: 'rgba(46, 204, 113, 0.9)',
-          color: 'white',
-          fontWeight: 700,
-          fontSize: '1rem',
-          opacity: useTransform(x, [0, 50, 100], [0, 0.5, 1]),
-          zIndex: 10
-        }}
-      >
-        QUAN TÂM
-      </motion.div>
+          <motion.div
+            style={{
+              position: 'absolute',
+              top: '1.5rem',
+              right: '1.5rem',
+              padding: '0.625rem 1.25rem',
+              borderRadius: '10px',
+              background: 'rgba(46, 204, 113, 0.9)',
+              color: 'white',
+              fontWeight: 700,
+              fontSize: '1rem',
+              opacity: useTransform(x, [0, 50, 100], [0, 0.5, 1]),
+              zIndex: 10
+            }}
+          >
+            QUAN TÂM
+          </motion.div>
 
-      {/* Card Content */}
-      <div style={{
-        padding: '1.5rem',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden'
-      }}>
-        {/* Header: Sentiment + Date */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: '1rem'
-        }}>
+          {/* Card Content */}
           <div style={{
+            padding: 'clamp(1rem, 4vw, 1.5rem)',
+            height: '100%',
             display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.375rem 0.75rem',
-            borderRadius: '8px',
-            background: `${config.color}20`
+            flexDirection: 'column',
+            overflow: 'hidden'
           }}>
-            <SentimentIcon size={16} color={config.color} />
-            <span style={{
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              color: config.color,
-              textTransform: 'uppercase'
-            }}>
-              {config.label}
-            </span>
-          </div>
-          <span style={{
-            fontSize: '0.75rem',
-            color: 'var(--text-tertiary)'
-          }}>
-            {formatDate(news.published_at)}
-          </span>
-        </div>
-
-        {/* Tickers */}
-        {news.tickers.length > 0 && (
-          <div style={{
-            display: 'flex',
-            gap: '0.375rem',
-            flexWrap: 'wrap',
-            marginBottom: '0.75rem'
-          }}>
-            {news.tickers.slice(0, 4).map((ticker) => (
-              <span
-                key={ticker}
-                style={{
-                  fontSize: '0.7rem',
-                  padding: '0.25rem 0.5rem',
-                  borderRadius: '6px',
-                  background: 'var(--primary)',
-                  color: 'white',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.25rem'
-                }}
-              >
-                <Tag size={10} />
-                {ticker}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Title */}
-        <h3 style={{
-          fontSize: '1.25rem',
-          fontWeight: 700,
-          marginBottom: '0.75rem',
-          lineHeight: 1.3,
-          color: 'var(--text-primary)',
-          display: '-webkit-box',
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden'
-        }}>
-          {news.title}
-        </h3>
-
-        {/* Content */}
-        <div style={{
-          flex: 1,
-          overflow: 'auto',
-          marginBottom: '1rem'
-        }}>
-          <p style={{
-            fontSize: '0.9rem',
-            lineHeight: 1.7,
-            color: 'var(--text-secondary)'
-          }}>
-            {truncateContent(news.content)}
-          </p>
-        </div>
-
-        {/* Footer: Source + Keywords */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingTop: '0.75rem',
-          borderTop: '1px solid var(--border)'
-        }}>
-          {news.source_url && (
-            <a
-              href={news.source_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                fontSize: '0.75rem',
-                color: 'var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                textDecoration: 'none',
-                fontWeight: 500
-              }}
-            >
-              Đọc nguồn <ExternalLink size={12} />
-            </a>
-          )}
-
-          {news.keywords.length > 0 && (
+            {/* Header: Sentiment + Date */}
             <div style={{
               display: 'flex',
-              gap: '0.375rem',
-              flexWrap: 'wrap',
-              justifyContent: 'flex-end'
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: '1rem'
             }}>
-              {news.keywords.slice(0, 2).map((kw) => (
-                <span
-                  key={kw}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.375rem 0.75rem',
+                borderRadius: '8px',
+                background: `${config.color}20`
+              }}>
+                <SentimentIcon size={16} color={config.color} />
+                <span style={{
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  color: config.color,
+                  textTransform: 'uppercase'
+                }}>
+                  {config.label}
+                </span>
+              </div>
+              <span style={{
+                fontSize: '0.75rem',
+                color: 'var(--text-tertiary)'
+              }}>
+                {formatDate(news.published_at)}
+              </span>
+            </div>
+
+            {/* Tickers */}
+            {news.tickers.length > 0 && (
+              <div style={{
+                display: 'flex',
+                gap: '0.375rem',
+                flexWrap: 'wrap',
+                marginBottom: '0.75rem'
+              }}>
+                {news.tickers.slice(0, 4).map((ticker) => (
+                  <span
+                    key={ticker}
+                    style={{
+                      fontSize: '0.7rem',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '6px',
+                      background: 'var(--primary)',
+                      color: 'white',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
+                    }}
+                  >
+                    <Tag size={10} />
+                    {ticker}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Title */}
+            <h3 style={{
+              fontSize: 'clamp(1.1rem, 4vw, 1.25rem)',
+              fontWeight: 700,
+              marginBottom: '0.75rem',
+              lineHeight: 1.3,
+              color: 'var(--text-primary)',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}>
+              {news.title}
+            </h3>
+
+            {/* Content */}
+            <div style={{
+              flex: 1,
+              overflow: 'auto',
+              marginBottom: '1rem'
+            }}>
+              <p style={{
+                fontSize: '0.9rem',
+                lineHeight: 1.7,
+                color: 'var(--text-secondary)'
+              }}>
+                {truncateContent(news.content)}
+              </p>
+            </div>
+
+            {/* Footer: Source + Keywords */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingTop: '0.75rem',
+              borderTop: '1px solid var(--border)'
+            }}>
+              {news.source_url && (
+                <a
+                  href={news.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
                   style={{
-                    fontSize: '0.7rem',
-                    color: 'var(--text-tertiary)',
-                    background: 'var(--surface)',
-                    padding: '0.25rem 0.5rem',
-                    borderRadius: '4px'
+                    fontSize: '0.75rem',
+                    color: 'var(--primary)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    textDecoration: 'none',
+                    fontWeight: 500
                   }}
                 >
-                  #{kw}
-                </span>
-              ))}
+                  Đọc nguồn <ExternalLink size={12} />
+                </a>
+              )}
+
+              {news.keywords.length > 0 && (
+                <div style={{
+                  display: 'flex',
+                  gap: '0.375rem',
+                  flexWrap: 'wrap',
+                  justifyContent: 'flex-end'
+                }}>
+                  {news.keywords.slice(0, 2).map((keyword) => (
+                    <span
+                      key={keyword}
+                      style={{
+                        fontSize: '0.65rem',
+                        color: 'var(--text-tertiary)',
+                        background: 'var(--surface)',
+                        padding: '0.125rem 0.375rem',
+                        borderRadius: '4px'
+                      }}
+                    >
+                      #{keyword}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </div>
+          </div>
+        </>
+      )}
     </motion.div>
   );
 }
@@ -326,6 +329,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { stack, loading, error, remaining, swipeRight, swipeLeft, refetch, savedCount, total } = useNewsSwipe(20);
   const { savedNews, loading: savedLoading, total: savedTotal, addOptimisticNews } = useSavedNews();
+  const isMobile = useIsMobile();
 
   const [mPoints, setMPoints] = useState(650);
   const [showPointsAnimation, setShowPointsAnimation] = useState(false);
@@ -333,6 +337,7 @@ export default function DashboardPage() {
   const [pointsEarnedToday, setPointsEarnedToday] = useState(0);
   const [selectedNews, setSelectedNews] = useState<NewsSwipeItem | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [lastDirection, setLastDirection] = useState<'left' | 'right' | null>(null);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -342,6 +347,7 @@ export default function DashboardPage() {
   }, [authLoading, isAuthenticated, router]);
 
   const handleSwipeRight = async (newsId: string) => {
+    setLastDirection('right');
     // Find the news item being saved
     const newsItem = stack.find(n => n.news_id === newsId);
 
@@ -374,6 +380,7 @@ export default function DashboardPage() {
   };
 
   const handleSwipeLeft = async (newsId: string) => {
+    setLastDirection('left');
     await swipeLeft(newsId);
     setCurrentCardIndex(currentCardIndex + 1);
   };
@@ -474,80 +481,129 @@ export default function DashboardPage() {
     <div style={{ background: 'var(--background)', minHeight: '100vh', width: '100%' }}>
       <Navigation />
       <main style={{
-        paddingTop: 'clamp(80px, 15vh, 100px)',
-        padding: 'clamp(80px, 15vh, 100px) clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 2rem)',
+        paddingTop: isMobile ? '80px' : 'clamp(80px, 15vh, 100px)',
+        padding: `${isMobile ? '80px' : 'clamp(80px, 15vh, 100px)'} clamp(12px, 3vw, 1.5rem) clamp(1rem, 3vw, 2rem)`,
         maxWidth: '900px',
         margin: '0 auto',
         width: '100%'
       }}>
-        {/* Progress Bar */}
+        {/* Progress & Stats Bar */}
         <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'clamp(0.5rem, 2vw, 0.75rem)',
-          marginBottom: 'clamp(1rem, 3vw, 1.5rem)',
-          padding: 'clamp(0.75rem, 2vw, 1rem)',
+          marginBottom: isMobile ? '1.5rem' : 'clamp(1.5rem, 4vw, 2.5rem)',
+          padding: isMobile ? '1rem' : 'clamp(1rem, 3vw, 1.5rem)',
           background: 'var(--card)',
-          borderRadius: '12px',
+          borderRadius: '20px',
           border: '1px solid var(--border)',
-          flexWrap: 'wrap'
+          boxShadow: 'var(--shadow-fintech)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Coins size={16} style={{ color: '#FFC107' }} />
-            <span style={{ fontWeight: 700, fontSize: '0.875rem', color: '#FFC107', position: 'relative' }}>
-              {mPoints}
-              <AnimatePresence>
-                {showPointsAnimation && (
-                  <motion.span
-                    initial={{ opacity: 0, y: 0 }}
-                    animate={{ opacity: 1, y: -20 }}
-                    exit={{ opacity: 0 }}
-                    style={{
-                      position: 'absolute',
-                      top: '-0.75rem',
-                      right: '-1.5rem',
-                      color: '#4ADE80',
-                      fontWeight: 800,
-                      fontSize: '0.75rem'
-                    }}
-                  >
-                    +2
-                  </motion.span>
-                )}
-              </AnimatePresence>
-            </span>
-          </div>
+          {/* Top Row: Points & Counts */}
           <div style={{
-            flex: 1,
-            height: '6px',
-            background: 'var(--surface)',
-            borderRadius: '3px',
-            overflow: 'hidden'
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: isMobile ? 'wrap' : 'nowrap',
+            gap: isMobile ? '12px' : '0'
           }}>
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${total > 0 ? ((total - remaining) / total) * 100 : 0}%` }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              style={{
-                height: '100%',
-                background: 'linear-gradient(90deg, var(--primary) 0%, #4ADE80 100%)',
-                borderRadius: '3px'
-              }}
-            />
+            {/* Left: Points */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'rgba(255, 193, 7, 0.1)',
+              padding: '6px 12px',
+              borderRadius: '20px',
+              border: '1px solid rgba(255, 193, 7, 0.2)',
+              order: isMobile ? 1 : 0
+            }}>
+              <Coins size={16} style={{ color: '#FFB800' }} />
+              <span style={{ fontWeight: 800, fontSize: '0.9rem', color: '#FFB800', position: 'relative' }}>
+                {mPoints}
+                <AnimatePresence>
+                  {showPointsAnimation && (
+                    <motion.span
+                      initial={{ opacity: 0, y: 0 }}
+                      animate={{ opacity: 1, y: -20 }}
+                      exit={{ opacity: 0 }}
+                      style={{
+                        position: 'absolute',
+                        top: '-0.75rem',
+                        right: '-1.5rem',
+                        color: '#4ADE80',
+                        fontWeight: 800,
+                        fontSize: '0.75rem'
+                      }}
+                    >
+                      +2
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </span>
+            </div>
+
+            {/* Right: Symmetrical Stats */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: isMobile ? '0.75rem' : '1rem',
+              order: isMobile ? 2 : 0,
+              width: isMobile ? 'auto' : 'auto'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '2px' }}>Bỏ qua</div>
+                <div style={{ fontSize: isMobile ? '1rem' : '1.125rem', fontWeight: 800, color: 'var(--error)' }}>
+                  {(total - remaining) - savedCount}
+                </div>
+              </div>
+              <div style={{ width: '1px', height: '16px', background: 'var(--border)' }} />
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-tertiary)', textTransform: 'uppercase', marginBottom: '2px' }}>Đã lưu</div>
+                <div style={{ fontSize: isMobile ? '1rem' : '1.125rem', fontWeight: 800, color: 'var(--primary)' }}>
+                  {savedCount}
+                </div>
+              </div>
+            </div>
           </div>
-          <span style={{
-            fontSize: '0.75rem',
-            color: 'var(--text-tertiary)',
-            fontWeight: 600
-          }}>
-            {total - remaining}/{total}
-          </span>
+
+          {/* Bottom Row: Progress Bar */}
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              height: '8px',
+              background: 'var(--surface)',
+              borderRadius: '4px',
+              overflow: 'hidden'
+            }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${total > 0 ? ((total - remaining) / total) * 100 : 0}%` }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                style={{
+                  height: '100%',
+                  background: 'linear-gradient(90deg, var(--primary) 0%, #4ADE80 100%)',
+                  borderRadius: '4px'
+                }}
+              />
+            </div>
+            {/* Progress Percentage Indicator */}
+            <div style={{
+              position: 'absolute',
+              top: '-18px',
+              right: '0',
+              fontSize: '0.65rem',
+              fontWeight: 700,
+              color: 'var(--text-tertiary)'
+            }}>
+              {Math.round(((total - remaining) / total) * 100)}%
+            </div>
+          </div>
         </div>
 
         {/* Title */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: isMobile ? '1.5rem' : '2rem' }}>
           <h1 style={{
-            fontSize: '1.75rem',
+            fontSize: isMobile ? '1.5rem' : '1.75rem',
             fontWeight: 800,
             color: 'var(--text-primary)',
             marginBottom: '0.5rem'
@@ -555,11 +611,12 @@ export default function DashboardPage() {
             Tin tức Tài chính
           </h1>
           <p style={{
-            fontSize: '1rem',
-            color: 'var(--text-secondary)'
+            fontSize: isMobile ? '0.875rem' : '1rem',
+            color: 'var(--text-secondary)',
+            lineHeight: 1.4
           }}>
             <Sparkles size={16} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />
-            Lướt để lọc tin tức quan trọng • {total} tin mới nhất
+            {isMobile ? 'Lướt để lọc tin quan trọng' : 'Lướt để lọc tin tức quan trọng'} • {total} tin mới nhất
           </p>
         </div>
 
@@ -573,45 +630,78 @@ export default function DashboardPage() {
         ) : (
           <div style={{
             display: 'flex',
+            flexDirection: isMobile ? 'column-reverse' : 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '1.5rem',
-            width: '100%'
+            gap: isMobile ? '24px' : '1.5rem',
+            width: '100%',
+            position: 'relative'
           }}>
-            {/* Left Button - Skip */}
-            <button
-              onClick={() => handleButtonClick('left')}
-              style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
-                border: '2px solid var(--error)',
-                background: 'var(--card)',
-                color: 'var(--error)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: 'var(--shadow-lg)',
-                transition: 'all 0.2s',
-                flexShrink: 0
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--error)';
-                e.currentTarget.style.color = 'white';
-                e.currentTarget.style.transform = 'scale(1.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--card)';
-                e.currentTarget.style.color = 'var(--error)';
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
-            >
-              <ChevronLeft size={28} strokeWidth={3} />
-            </button>
+            {/* Button container for mobile */}
+            <div style={{
+              display: 'flex',
+              gap: '40px',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: isMobile ? '12px' : '0'
+            }}>
+              {/* Left Button - Skip */}
+              <motion.button
+                whileHover={{ scale: 1.1, backgroundColor: 'var(--error)', color: '#fff' }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => handleButtonClick('left')}
+                style={{
+                  width: isMobile ? '56px' : '64px',
+                  height: isMobile ? '56px' : '64px',
+                  borderRadius: '50%',
+                  border: '2px solid var(--error)',
+                  background: 'var(--card)',
+                  color: 'var(--error)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 8px 16px rgba(231, 76, 60, 0.2)',
+                  transition: 'box-shadow 0.2s, background-color 0.2s, color 0.2s',
+                  flexShrink: 0
+                }}
+              >
+                <ChevronLeft size={isMobile ? 28 : 32} strokeWidth={2.5} />
+              </motion.button>
+
+              {isMobile && (
+                <motion.button
+                  whileHover={{ scale: 1.1, boxShadow: '0 12px 32px rgba(0, 200, 5, 0.4)' }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => handleButtonClick('right')}
+                  style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    background: 'var(--primary)',
+                    color: 'white',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 8px 24px rgba(0, 200, 5, 0.3)',
+                    transition: 'all 0.2s',
+                    flexShrink: 0
+                  }}
+                >
+                  <ChevronRight size={28} strokeWidth={2.5} />
+                </motion.button>
+              )}
+            </div>
 
             {/* Card Stack */}
-            <div style={{ position: 'relative', width: '100%', maxWidth: '420px' }}>
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              maxWidth: '420px',
+              height: isMobile ? '480px' : '550px' // Responsive height
+            }}>
               {/* Background cards */}
               {stack.slice(1, 3).map((news, index) => (
                 <NewsSwipeCard
@@ -626,46 +716,47 @@ export default function DashboardPage() {
               ))}
 
               {/* Top card */}
-              <NewsSwipeCard
-                news={stack[0]}
-                onSwipeLeft={() => handleSwipeLeft(stack[0].news_id)}
-                onSwipeRight={() => handleSwipeRight(stack[0].news_id)}
-                onCardClick={() => setSelectedNews(stack[0])}
-                isTop={true}
-                stackIndex={0}
-                totalCards={stack.length}
-              />
+              <AnimatePresence initial={false}>
+                {stack.length > 0 && (
+                  <NewsSwipeCard
+                    key={stack[0].news_id}
+                    news={stack[0]}
+                    onSwipeLeft={() => handleSwipeLeft(stack[0].news_id)}
+                    onSwipeRight={() => handleSwipeRight(stack[0].news_id)}
+                    onCardClick={() => setSelectedNews(stack[0])}
+                    isTop={true}
+                    stackIndex={0}
+                    totalCards={stack.length}
+                    exitDirection={lastDirection}
+                  />
+                )}
+              </AnimatePresence>
             </div>
 
-            {/* Right Button - Save */}
-            <button
-              onClick={() => handleButtonClick('right')}
-              style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '50%',
-                border: 'none',
-                background: 'var(--primary)',
-                color: 'white',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 8px 24px rgba(0, 200, 5, 0.3)',
-                transition: 'all 0.2s',
-                flexShrink: 0
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-                e.currentTarget.style.boxShadow = '0 12px 32px rgba(0, 200, 5, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 200, 5, 0.3)';
-              }}
-            >
-              <ChevronRight size={28} strokeWidth={3} />
-            </button>
+            {!isMobile && (
+              <motion.button
+                whileHover={{ scale: 1.1, boxShadow: '0 12px 32px rgba(0, 200, 5, 0.4)' }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => handleButtonClick('right')}
+                style={{
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '50%',
+                  border: 'none',
+                  background: 'var(--primary)',
+                  color: 'white',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 8px 24px rgba(0, 200, 5, 0.3)',
+                  transition: 'all 0.2s',
+                  flexShrink: 0
+                }}
+              >
+                <ChevronRight size={32} strokeWidth={2.5} />
+              </motion.button>
+            )}
           </div>
         )}
       </main>
@@ -698,12 +789,13 @@ export default function DashboardPage() {
               onClick={(e) => e.stopPropagation()}
               style={{
                 background: 'var(--card)',
-                borderRadius: '24px',
+                borderRadius: isMobile ? '24px 24px 0 0' : '24px',
                 maxWidth: '600px',
                 width: '100%',
-                maxHeight: '85vh',
+                maxHeight: isMobile ? '92vh' : '85vh',
                 overflow: 'hidden',
-                position: 'relative',
+                position: isMobile ? 'absolute' : 'relative',
+                bottom: isMobile ? 0 : 'auto',
                 boxShadow: 'var(--shadow-xl)'
               }}
             >
@@ -742,7 +834,11 @@ export default function DashboardPage() {
               </button>
 
               {/* Modal Content */}
-              <div style={{ padding: '2rem', overflow: 'auto', maxHeight: '85vh' }}>
+              <div style={{
+                padding: isMobile ? '1.5rem' : '2rem',
+                overflow: 'auto',
+                maxHeight: isMobile ? 'calc(92vh - 20px)' : '85vh'
+              }}>
                 {/* Sentiment Badge */}
                 <div style={{
                   display: 'inline-flex',
@@ -865,6 +961,7 @@ export default function DashboardPage() {
                 {/* Action Buttons */}
                 <div style={{
                   display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
                   gap: '1rem',
                   paddingTop: '1rem',
                   borderTop: '1px solid var(--border)'
@@ -877,6 +974,7 @@ export default function DashboardPage() {
                       style={{
                         display: 'inline-flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
                         gap: '0.5rem',
                         padding: '0.75rem 1.5rem',
                         background: 'var(--primary)',

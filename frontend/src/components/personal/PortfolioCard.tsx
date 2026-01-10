@@ -12,6 +12,7 @@ import { usePortfolio } from '@/hooks/usePortfolio';
 import { useAuth } from '@/hooks/useAuth';
 import { CreatePositionData, PortfolioItem } from '@/services/api/portfolio.service';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 // Premium gradient colors for chart
 const CHART_COLORS = [
@@ -69,6 +70,7 @@ export function PortfolioCard() {
     const { t } = useLanguage();
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     const { portfolio, isLoading, error, addNewPosition, removePosition } = usePortfolio();
+    const isMobile = useIsMobile();
 
     // Inline add form state
     const [showAddForm, setShowAddForm] = useState(false);
@@ -282,13 +284,13 @@ export function PortfolioCard() {
             {/* Header */}
             <div style={{
                 display: 'flex',
+                flexDirection: isMobile ? 'column' : 'row',
                 justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '24px',
-                flexWrap: 'wrap',
-                gap: '16px',
+                alignItems: isMobile ? 'flex-start' : 'center',
+                gap: '20px',
+                marginBottom: '28px',
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <div style={{
                         width: '48px',
                         height: '48px',
@@ -596,10 +598,11 @@ export function PortfolioCard() {
                     <div style={{
                         background: 'linear-gradient(135deg, var(--primary) 0%, #00a004 100%)',
                         borderRadius: '20px',
-                        padding: '24px',
-                        marginBottom: '28px',
+                        padding: isMobile ? '20px' : '24px',
+                        marginBottom: isMobile ? '20px' : '28px',
                         position: 'relative',
                         overflow: 'hidden',
+                        color: 'white',
                     }}>
                         {/* Decorative circles */}
                         <div style={{
@@ -644,14 +647,14 @@ export function PortfolioCard() {
                     {/* Chart + Legend Grid */}
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'minmax(200px, 300px) 1fr',
-                        gap: 'clamp(20px, 4vw, 40px)',
+                        gridTemplateColumns: isMobile ? '1fr' : 'minmax(200px, 300px) 1fr',
+                        gap: isMobile ? '32px' : 'clamp(20px, 4vw, 40px)',
                         alignItems: 'start',
                     }}>
                         {/* Donut Chart */}
                         <div style={{
                             position: 'relative',
-                            height: '260px',
+                            height: isMobile ? '240px' : '260px',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',

@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PortfolioCard } from './PortfolioCard';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 // Tier configuration
 const TIER_CONFIG: Record<number, { nameKey: string; color: string; bgColor: string; icon: React.ReactNode }> = {
@@ -42,6 +43,7 @@ const TIER_CONFIG: Record<number, { nameKey: string; color: string; bgColor: str
 export function PersonalTab() {
     const { t } = useLanguage();
     const { user, isAuthenticated } = useAuth();
+    const isMobile = useIsMobile();
 
     // Get tier info
     const tierInfo = user?.role?.role_id ? TIER_CONFIG[user.role.role_id] : TIER_CONFIG[1];
@@ -61,9 +63,9 @@ export function PersonalTab() {
                     style={{
                         background: 'var(--card)',
                         borderRadius: '24px',
-                        padding: '32px',
+                        padding: isMobile ? '24px 20px' : '32px',
                         boxShadow: 'var(--shadow-fintech)',
-                        marginBottom: '32px',
+                        marginBottom: isMobile ? '20px' : '32px',
                         position: 'relative',
                         overflow: 'hidden',
                     }}
@@ -98,16 +100,17 @@ export function PersonalTab() {
 
                     <div style={{
                         display: 'grid',
-                        gridTemplateColumns: 'auto 1fr',
-                        gap: '40px',
+                        gridTemplateColumns: isMobile ? '1fr' : 'auto 1fr',
+                        gap: isMobile ? '20px' : '40px',
                         alignItems: 'center',
                     }}>
                         {/* Avatar Section */}
                         <div style={{
                             display: 'flex',
                             flexDirection: 'column',
-                            alignItems: 'center',
+                            alignItems: isMobile ? 'center' : 'center',
                             gap: '16px',
+                            marginBottom: isMobile ? '12px' : '0',
                         }}>
                             {/* Avatar Image */}
                             <div style={{
@@ -190,8 +193,8 @@ export function PersonalTab() {
                             {/* Name Row */}
                             <div style={{
                                 display: 'grid',
-                                gridTemplateColumns: 'repeat(2, 1fr)',
-                                gap: '24px',
+                                gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+                                gap: isMobile ? '20px' : '24px',
                             }}>
                                 {/* First Name */}
                                 <div>

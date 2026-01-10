@@ -15,6 +15,7 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { SavedNewsItem } from '@/hooks/useSavedNews';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface SavedNewsSidebarProps {
     savedNews: SavedNewsItem[];
@@ -33,6 +34,7 @@ export function SavedNewsSidebar({
     onToggle,
     onNewsClick
 }: SavedNewsSidebarProps) {
+    const isMobile = useIsMobile();
     // Format date
     const formatDate = (dateString: string | null) => {
         if (!dateString) return '';
@@ -66,7 +68,7 @@ export function SavedNewsSidebar({
                 onClick={onToggle}
                 style={{
                     position: 'fixed',
-                    right: isOpen ? '340px' : '0',
+                    right: isOpen ? (isMobile ? 'calc(100% - 40px)' : '340px') : '0',
                     top: '50%',
                     transform: 'translateY(-50%)',
                     zIndex: 100,
@@ -80,7 +82,7 @@ export function SavedNewsSidebar({
                     borderRadius: '12px 0 0 12px',
                     cursor: 'pointer',
                     boxShadow: 'var(--shadow-lg)',
-                    transition: 'right 0.3s ease'
+                    transition: 'all 0.3s ease'
                 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -120,9 +122,9 @@ export function SavedNewsSidebar({
                             right: 0,
                             top: 0,
                             bottom: 0,
-                            width: '340px',
+                            width: isMobile ? '100%' : '340px',
                             background: 'var(--card)',
-                            borderLeft: '1px solid var(--border)',
+                            borderLeft: isMobile ? 'none' : '1px solid var(--border)',
                             boxShadow: 'var(--shadow-xl)',
                             zIndex: 99,
                             display: 'flex',
@@ -152,7 +154,7 @@ export function SavedNewsSidebar({
                                 </div>
                                 <div>
                                     <h3 style={{
-                                        fontSize: '1rem',
+                                        fontSize: isMobile ? '0.9375rem' : '1rem',
                                         fontWeight: 700,
                                         color: 'var(--text-primary)',
                                         marginBottom: '0.125rem'
@@ -163,7 +165,7 @@ export function SavedNewsSidebar({
                                         fontSize: '0.75rem',
                                         color: 'var(--text-tertiary)'
                                     }}>
-                                        {total} bài • Sẽ dùng cho AI
+                                        {total} bài {isMobile ? '' : '• Sẽ dùng cho AI'}
                                     </span>
                                 </div>
                             </div>
@@ -257,7 +259,7 @@ export function SavedNewsSidebar({
                                                 background: 'var(--surface)',
                                                 borderRadius: '12px',
                                                 cursor: onNewsClick ? 'pointer' : 'default',
-                                                border: '1px solid transparent',
+                                                border: isMobile ? '1px solid var(--border)' : '1px solid transparent',
                                                 transition: 'all 0.2s'
                                             }}
                                             whileHover={{
