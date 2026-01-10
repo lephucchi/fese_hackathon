@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from './useAuth';
 import { newsService, NewsItem } from '@/services/api/news.service';
 import { API_BASE_URL } from '@/utils/constants/api';
@@ -36,6 +36,7 @@ const STORAGE_KEYS = {
     SAVED_COUNT: 'news_swipe_saved_count',
     TOTAL: 'news_swipe_total',
     FETCHED: 'news_swipe_fetched',
+    USER_ID: 'news_swipe_user_id', // Track current user
 };
 
 // Helper to safely access sessionStorage (SSR safe)
@@ -56,6 +57,13 @@ const setSessionItem = <T>(key: string, value: T): void => {
     } catch (e) {
         console.error('Error saving to sessionStorage:', e);
     }
+};
+
+const clearAllSessionItems = (): void => {
+    if (typeof window === 'undefined') return;
+    Object.values(STORAGE_KEYS).forEach(key => {
+        sessionStorage.removeItem(key);
+    });
 };
 
 // Sentiment color mapping
@@ -93,6 +101,7 @@ const convertToSwipeItem = (news: NewsItem): NewsSwipeItem => ({
 
 export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
     const { user, isAuthenticated } = useAuth();
+    const previousUserId = useRef<string | null>(null);
 
     // Initialize state from sessionStorage
     const [stack, setStack] = useState<NewsSwipeItem[]>(() =>
@@ -112,6 +121,26 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
     const [hasFetched, setHasFetched] = useState(() =>
         getSessionItem(STORAGE_KEYS.FETCHED, false)
     );
+
+    // Check if user changed (new login) - reset session data
+    useEffect(() => {
+        const storedUserId = getSessionItem<string | null>(STORAGE_KEYS.USER_ID, null);
+        const currentUserId = user?.user_id || null;
+
+        if (currentUserId && storedUserId !== currentUserId) {
+            // User changed - clear session and reset
+            console.log('[useNewsSwipe] User changed, resetting session:', { storedUserId, currentUserId });
+            clearAllSessionItems();
+            setStack([]);
+            setSwipedIds(new Set());
+            setSavedCount(0);
+            setTotal(0);
+            setHasFetched(false);
+            setSessionItem(STORAGE_KEYS.USER_ID, currentUserId);
+        }
+
+        previousUserId.current = currentUserId;
+    }, [user?.user_id]);
 
     // Persist stack to sessionStorage whenever it changes
     useEffect(() => {
@@ -138,6 +167,29 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
         setSessionItem(STORAGE_KEYS.FETCHED, hasFetched);
     }, [hasFetched]);
 
+    // Fetch already-read news IDs from backend
+    const fetchInteractedIds = useCallback(async (): Promise<Set<string>> => {
+        if (!user || !isAuthenticated) return new Set();
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/interactions/my-interests`, {
+                headers: {
+                    'x-user-id': user.user_id,
+                },
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const ids = (data.news || []).map((n: { news_id: string }) => n.news_id);
+                return new Set(ids);
+            }
+        } catch (err) {
+            console.error('Error fetching interacted IDs:', err);
+        }
+        return new Set();
+    }, [user, isAuthenticated]);
+
     const fetchNews = useCallback(async () => {
         setLoading(true);
         setError(null);
@@ -149,10 +201,18 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
             const swipeItems = response.news.map(convertToSwipeItem);
             setTotal(response.total);
 
-            // Filter out already swiped items
+            // Get already interacted IDs from backend (already read articles)
+            const interactedIds = await fetchInteractedIds();
+
+            // Combine with session swiped IDs
             const currentSwipedIds = getSessionItem<string[]>(STORAGE_KEYS.SWIPED_IDS, []);
-            const swipedSet = new Set(currentSwipedIds);
-            const unswipedItems = swipeItems.filter(item => !swipedSet.has(item.news_id));
+            const allSwipedSet = new Set([...currentSwipedIds, ...interactedIds]);
+
+            // Update swipedIds state with backend data
+            setSwipedIds(allSwipedSet);
+
+            // Filter out already swiped/read items
+            const unswipedItems = swipeItems.filter(item => !allSwipedSet.has(item.news_id));
             setStack(unswipedItems);
             setHasFetched(true);
 
@@ -162,14 +222,14 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
         } finally {
             setLoading(false);
         }
-    }, [pageSize]);
+    }, [pageSize, fetchInteractedIds]);
 
     // Fetch only if not already fetched
     useEffect(() => {
-        if (!hasFetched && stack.length === 0) {
+        if (!hasFetched && stack.length === 0 && isAuthenticated) {
             fetchNews();
         }
-    }, [hasFetched, stack.length, fetchNews]);
+    }, [hasFetched, stack.length, fetchNews, isAuthenticated]);
 
     // Record interaction to backend
     const recordInteraction = async (newsId: string, actionType: 'SWIPE_RIGHT' | 'SWIPE_LEFT') => {
@@ -225,11 +285,12 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
     }, [user, isAuthenticated]);
 
     const refetch = useCallback(async () => {
-        // Clear sessionStorage for fresh start
-        sessionStorage.removeItem(STORAGE_KEYS.STACK);
-        sessionStorage.removeItem(STORAGE_KEYS.SWIPED_IDS);
-        sessionStorage.removeItem(STORAGE_KEYS.SAVED_COUNT);
-        sessionStorage.removeItem(STORAGE_KEYS.FETCHED);
+        // Clear sessionStorage for fresh start (keep user_id)
+        const currentUserId = getSessionItem<string | null>(STORAGE_KEYS.USER_ID, null);
+        clearAllSessionItems();
+        if (currentUserId) {
+            setSessionItem(STORAGE_KEYS.USER_ID, currentUserId);
+        }
 
         // Reset state
         setSwipedIds(new Set());
