@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, Scale, TrendingUp, Newspaper, Sparkles, MessageSquarePlus } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface EmptyStateProps {
   onSelectQuery: (query: string) => void;
@@ -11,6 +12,7 @@ interface EmptyStateProps {
 
 export function EnhancedEmptyState({ onSelectQuery }: EmptyStateProps) {
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
 
   const categories = [
     {
@@ -102,12 +104,12 @@ export function EnhancedEmptyState({ onSelectQuery }: EmptyStateProps) {
         </p>
       </motion.div>
 
-      {/* Compact Category Grid - 2x2 */}
+      {/* Category Grid - 1 column on mobile, 2 columns on desktop */}
       <div style={{
         width: '100%',
         display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: 'clamp(0.5rem, 1.5vw, 0.75rem)'
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+        gap: isMobile ? '0.75rem' : 'clamp(0.5rem, 1.5vw, 0.75rem)'
       }}>
         {categories.map((category, categoryIndex) => (
           <motion.div
@@ -161,9 +163,9 @@ export function EnhancedEmptyState({ onSelectQuery }: EmptyStateProps) {
                   style={{
                     width: '100%',
                     textAlign: 'left',
-                    padding: '0.5rem 0.625rem',
+                    padding: isMobile ? '0.625rem 0.75rem' : '0.5rem 0.625rem',
                     borderRadius: '8px',
-                    fontSize: 'clamp(0.7rem, 1.6vw, 0.8rem)',
+                    fontSize: isMobile ? '0.85rem' : 'clamp(0.7rem, 1.6vw, 0.8rem)',
                     background: 'var(--surface)',
                     color: 'var(--text-secondary)',
                     border: '1px solid var(--border)',
@@ -171,8 +173,9 @@ export function EnhancedEmptyState({ onSelectQuery }: EmptyStateProps) {
                     transition: 'all 0.15s',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.375rem',
-                    lineHeight: 1.3
+                    gap: '0.5rem',
+                    lineHeight: 1.4,
+                    minHeight: isMobile ? '44px' : 'auto'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = category.color;
@@ -185,11 +188,12 @@ export function EnhancedEmptyState({ onSelectQuery }: EmptyStateProps) {
                     e.currentTarget.style.transform = 'translateX(0)';
                   }}
                 >
-                  <Sparkles size={10} style={{ color: category.color, flexShrink: 0 }} />
+                  <Sparkles size={12} style={{ color: category.color, flexShrink: 0 }} />
                   <span style={{
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: isMobile ? 'normal' : 'nowrap',
+                    wordBreak: isMobile ? 'break-word' : 'normal'
                   }}>
                     {example}
                   </span>

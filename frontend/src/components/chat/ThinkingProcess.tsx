@@ -270,6 +270,41 @@ export function ThinkingProcess({ steps, isActive }: ThinkingProcessProps) {
                         {step.data.fact_count} facts
                       </span>
                     )}
+                    
+                    {/* Portfolio tickers badges */}
+                    {step.data?.portfolio_tickers && step.data.portfolio_tickers.length > 0 && (
+                      <div style={{ 
+                        display: 'flex', 
+                        gap: '0.25rem',
+                        flexWrap: 'wrap',
+                        alignItems: 'center'
+                      }}>
+                        {step.data.portfolio_tickers.slice(0, 5).map((ticker: string) => (
+                          <span
+                            key={ticker}
+                            style={{
+                              fontWeight: 600,
+                              fontSize: '0.65rem',
+                              padding: '0.1rem 0.4rem',
+                              background: 'rgba(139, 92, 246, 0.15)',
+                              borderRadius: '6px',
+                              color: '#8B5CF6',
+                              border: '1px solid rgba(139, 92, 246, 0.3)',
+                            }}
+                          >
+                            📈 {ticker}
+                          </span>
+                        ))}
+                        {step.data.portfolio_tickers.length > 5 && (
+                          <span style={{
+                            fontSize: '0.6rem',
+                            color: 'var(--text-tertiary)'
+                          }}>
+                            +{step.data.portfolio_tickers.length - 5}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </motion.div>
                 ))}
               </AnimatePresence>

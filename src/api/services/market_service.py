@@ -208,8 +208,21 @@ class MarketService:
                 except Exception as e:
                     logger.warning(f"Failed to fetch news for ticker {ticker}: {e}")
             
+            # Fetch user's portfolio tickers for context
+            portfolio_tickers = []
+            try:
+                from src.api.repositories.portfolio_repository import PortfolioRepository
+                from src.api.dependencies import get_supabase_client
+                supabase = get_supabase_client()
+                portfolio_repo = PortfolioRepository(supabase)
+                positions = await portfolio_repo.find_by_user(user_id)
+                portfolio_tickers = [pos.get("ticker") for pos in positions if pos.get("ticker")]
+                logger.info(f"[3-Tier] User portfolio tickers: {portfolio_tickers}")
+            except Exception as e:
+                logger.warning(f"[3-Tier] Failed to fetch portfolio: {e}")
+            
             # Build full context and process
-            context_str = self._build_full_context(chat_history, context_news)
+            context_str = self._build_full_context(chat_history, context_news, portfolio_tickers)
             answer, extracted_data, pipeline_logs, citations = await self._process_with_context_and_cache(query, context_str)
             
             # Cache RAG results with enhanced context
@@ -278,14 +291,16 @@ class MarketService:
     def _build_full_context(
         self,
         chat_history: List[Dict],
-        news_list: List[Dict]
+        news_list: List[Dict],
+        portfolio_tickers: List[str] = None
     ) -> str:
         """
-        Build full context string including chat history and news.
+        Build full context string including chat history, portfolio, and news.
         
         Args:
             chat_history: Previous Q&A messages
             news_list: Approved news context
+            portfolio_tickers: User's portfolio tickers (optional)
             
         Returns:
             Combined context string
@@ -315,6 +330,13 @@ class MarketService:
                 parts.append("=== LỊCH SỬ TRÒ CHUYỆN ===")
                 parts.append("\n".join(history_parts))
                 parts.append("")
+        
+        # Add portfolio tickers section (NEW)
+        if portfolio_tickers and len(portfolio_tickers) > 0:
+            parts.append("=== DANH MỤC ĐẦU TƯ CỦA NGƯỜI DÙNG ===")
+            parts.append(f"Các mã cổ phiếu trong danh mục: {', '.join(portfolio_tickers)}")
+            parts.append("(Khi trả lời, ưu tiên thông tin liên quan đến các mã này nếu phù hợp với câu hỏi)")
+            parts.append("")
         
         # Add news context
         news_str = self._build_context_string(news_list)

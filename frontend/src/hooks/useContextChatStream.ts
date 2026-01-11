@@ -21,6 +21,8 @@ export interface ThinkingStep {
     doc_count?: number;
     fact_count?: number;
     needs_fallback?: boolean;
+    portfolio_tickers?: string[];
+    context_count?: number;
   };
 }
 

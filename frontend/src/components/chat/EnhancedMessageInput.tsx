@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, Smile, Sparkles } from 'lucide-react';
+import { Send, Sparkles } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 interface EnhancedMessageInputProps {
   onSend: (message: string) => void;
@@ -11,6 +12,7 @@ interface EnhancedMessageInputProps {
 
 export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessageInputProps) {
   const { t } = useLanguage();
+  const isMobile = useIsMobile();
   const [input, setInput] = useState('');
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -55,60 +57,6 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
             boxShadow: isFocused ? '0 4px 20px rgba(0, 200, 5, 0.15)' : 'var(--shadow-sm)'
           }}
         >
-          {/* Left Actions */}
-          <div style={{ display: 'flex', gap: '0.25rem', paddingBottom: '0.25rem' }}>
-            <button
-              type="button"
-              style={{
-                padding: '0.5rem',
-                borderRadius: '12px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary)';
-                e.currentTarget.style.background = 'rgba(0, 200, 5, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border)';
-                e.currentTarget.style.background = 'var(--surface)';
-              }}
-              title={t('chat.input.attachFile') as string}
-            >
-              <Paperclip size={18} style={{ color: 'var(--text-tertiary)' }} />
-            </button>
-            <button
-              type="button"
-              style={{
-                padding: '0.5rem',
-                borderRadius: '12px',
-                background: 'var(--surface)',
-                border: '1px solid var(--border)',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--primary)';
-                e.currentTarget.style.background = 'rgba(0, 200, 5, 0.1)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border)';
-                e.currentTarget.style.background = 'var(--surface)';
-              }}
-              title={t('chat.input.emoji') as string}
-            >
-              <Smile size={18} style={{ color: 'var(--text-tertiary)' }} />
-            </button>
-          </div>
-
           {/* Textarea */}
           <textarea
             ref={textareaRef}
@@ -137,21 +85,23 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
 
           {/* Right Actions */}
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', paddingBottom: '0.25rem' }}>
-            {/* Character Count */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              padding: '0.375rem 0.625rem',
-              borderRadius: '10px',
-              background: 'var(--surface)',
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              color: 'var(--text-tertiary)',
-              border: '1px solid var(--border)'
-            }}>
-              <span>{input.length}</span>
-            </div>
+            {/* Character Count - hide on mobile */}
+            {!isMobile && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                padding: '0.375rem 0.625rem',
+                borderRadius: '10px',
+                background: 'var(--surface)',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: 'var(--text-tertiary)',
+                border: '1px solid var(--border)'
+              }}>
+                <span>{input.length}</span>
+              </div>
+            )}
 
             {/* Send Button */}
             <button
@@ -189,42 +139,44 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
         </div>
       </form>
 
-      {/* Hints Row */}
-      <div style={{
-        marginTop: '0.75rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: '0.75rem',
-        padding: '0 0.5rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-tertiary)' }}>
-          <kbd style={{
-            padding: '0.125rem 0.5rem',
-            borderRadius: '6px',
-            fontSize: '0.7rem',
-            fontWeight: 600,
-            background: 'var(--surface)',
-            border: '1px solid var(--border)'
-          }}>Enter</kbd>
-          <span>{t('chat.input.enterToSend')}</span>
-          <span style={{ opacity: 0.3 }}>•</span>
-          <kbd style={{
-            padding: '0.125rem 0.5rem',
-            borderRadius: '6px',
-            fontSize: '0.7rem',
-            fontWeight: 600,
-            background: 'var(--surface)',
-            border: '1px solid var(--border)'
-          }}>Shift+Enter</kbd>
-          <span>{t('chat.input.shiftEnter')}</span>
+      {/* Hints Row - hide on mobile */}
+      {!isMobile && (
+        <div style={{
+          marginTop: '0.75rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          fontSize: '0.75rem',
+          padding: '0 0.5rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-tertiary)' }}>
+            <kbd style={{
+              padding: '0.125rem 0.5rem',
+              borderRadius: '6px',
+              fontSize: '0.7rem',
+              fontWeight: 600,
+              background: 'var(--surface)',
+              border: '1px solid var(--border)'
+            }}>Enter</kbd>
+            <span>{t('chat.input.enterToSend')}</span>
+            <span style={{ opacity: 0.3 }}>•</span>
+            <kbd style={{
+              padding: '0.125rem 0.5rem',
+              borderRadius: '6px',
+              fontSize: '0.7rem',
+              fontWeight: 600,
+              background: 'var(--surface)',
+              border: '1px solid var(--border)'
+            }}>Shift+Enter</kbd>
+            <span>{t('chat.input.shiftEnter')}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-tertiary)' }}>
+            <Sparkles size={12} style={{ color: 'var(--primary)' }} />
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', animation: 'pulse 2s ease-in-out infinite' }} />
+            <span style={{ fontWeight: 500 }}>{t('chat.input.aiReady')}</span>
+          </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-tertiary)' }}>
-          <Sparkles size={12} style={{ color: 'var(--primary)' }} />
-          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', animation: 'pulse 2s ease-in-out infinite' }} />
-          <span style={{ fontWeight: 500 }}>{t('chat.input.aiReady')}</span>
-        </div>
-      </div>
+      )}
 
       <style jsx>{`
         @keyframes pulse {

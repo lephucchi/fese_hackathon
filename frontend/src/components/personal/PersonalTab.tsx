@@ -296,6 +296,101 @@ export function PersonalTab() {
             {/* Portfolio Card - Uses real API */}
             <PortfolioCard />
 
+            {/* Portfolio Analytics - Coming Soon */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                style={{
+                    background: 'var(--card)',
+                    borderRadius: '24px',
+                    padding: isMobile ? '24px 20px' : '32px',
+                    boxShadow: 'var(--shadow-fintech)',
+                    marginTop: isMobile ? '20px' : '32px',
+                    position: 'relative',
+                    overflow: 'hidden',
+                }}
+            >
+                {/* Coming Soon Badge */}
+                <div style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '16px',
+                    padding: '6px 14px',
+                    borderRadius: '20px',
+                    background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                    color: 'white',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    letterSpacing: '0.05em',
+                    boxShadow: '0 4px 12px rgba(139, 92, 246, 0.4)',
+                }}>
+                    🚀 COMING SOON
+                </div>
+
+                {/* Header */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                    <Sparkles size={24} style={{ color: '#8B5CF6' }} />
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>
+                        Phân tích Danh mục AI
+                    </h2>
+                </div>
+
+                {/* Mock Analytics Grid */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+                    gap: '16px',
+                    opacity: 0.6,
+                    filter: 'blur(1px)',
+                    pointerEvents: 'none',
+                }}>
+                    {/* Risk Score */}
+                    <div style={{
+                        padding: '20px',
+                        background: 'var(--surface)',
+                        borderRadius: '16px',
+                        textAlign: 'center',
+                    }}>
+                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#F59E0B' }}>72</div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Điểm rủi ro</div>
+                    </div>
+
+                    {/* Diversification */}
+                    <div style={{
+                        padding: '20px',
+                        background: 'var(--surface)',
+                        borderRadius: '16px',
+                        textAlign: 'center',
+                    }}>
+                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10B981' }}>85%</div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Đa dạng hóa</div>
+                    </div>
+
+                    {/* News Impact */}
+                    <div style={{
+                        padding: '20px',
+                        background: 'var(--surface)',
+                        borderRadius: '16px',
+                        textAlign: 'center',
+                    }}>
+                        <div style={{ fontSize: '2rem', fontWeight: 800, color: '#3B82F6' }}>+12</div>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Tin liên quan</div>
+                    </div>
+                </div>
+
+                {/* Description */}
+                <p style={{
+                    marginTop: '20px',
+                    fontSize: '0.9rem',
+                    color: 'var(--text-tertiary)',
+                    textAlign: 'center',
+                    lineHeight: 1.6,
+                }}>
+                    Tính năng phân tích danh mục bằng AI đang được phát triển. Bao gồm: đánh giá rủi ro, 
+                    phân tích macro-alignment, và gợi ý tái cân bằng.
+                </p>
+            </motion.div>
 
             {/* Floating Action Button */}
             <Link href="/chat" style={{ textDecoration: 'none' }}>
