@@ -36,7 +36,7 @@ export function EnhancedMessageBubble({ message }: EnhancedMessageBubbleProps) {
       style={{ display: 'flex', gap: '0.75rem', flexDirection: isUser ? 'row-reverse' : 'row' }}
     >
       {/* Avatar */}
-      <div style={{ flexShrink: 0, width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isUser ? 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)' : 'var(--surface)', border: isUser ? 'none' : '1px solid var(--border)' }}>
+      <div style={{ flexShrink: 0, width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isUser ? '#0a8a0a' : 'var(--surface)', border: isUser ? 'none' : '1px solid var(--border)' }}>
         {isUser ? (
           <User size={18} color="white" />
         ) : (
@@ -46,7 +46,7 @@ export function EnhancedMessageBubble({ message }: EnhancedMessageBubbleProps) {
 
       {/* Message Content */}
       <div style={{ flex: 1, maxWidth: '80%', display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start' }}>
-        <div style={{ position: 'relative', padding: '0.75rem 1rem', borderRadius: '1rem', borderTopRightRadius: isUser ? '0.125rem' : undefined, borderTopLeftRadius: isUser ? undefined : '0.125rem', background: isUser ? 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)' : 'var(--surface)', color: isUser ? 'white' : 'var(--text-primary)', border: isUser ? 'none' : '1px solid var(--border)' }}>
+        <div style={{ position: 'relative', padding: '0.75rem 1rem', borderRadius: '1rem', borderTopRightRadius: isUser ? '0.125rem' : undefined, borderTopLeftRadius: isUser ? undefined : '0.125rem', background: isUser ? '#0a8a0a' : 'var(--surface)', color: isUser ? '#ffffff' : 'var(--text-primary)', border: isUser ? 'none' : '1px solid var(--border)', boxShadow: isUser ? '0 2px 12px rgba(10, 138, 10, 0.4)' : 'none' }}>
           {message.isLoading ? (
             <LoadingState />
           ) : (
@@ -118,7 +118,7 @@ function LoadingState() {
 
 function AssistantContent({ message }: { message: Message & { citations?: Citation[] } }) {
   const { content, response } = message;
-  
+
   // Get citations from direct message property (streaming) or response (legacy)
   const messageCitations = message.citations || response?.citations || [];
 
@@ -149,10 +149,10 @@ function AssistantContent({ message }: { message: Message & { citations?: Citati
                 {getRouteIcon(route)} {getRouteLabel(route)}
               </span>
             ))}
-            
+
             {/* New Tier Info */}
             {response.tier && (
-               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '9999px', background: 'var(--background)', color: 'var(--text-secondary)' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', padding: '0.25rem 0.5rem', borderRadius: '9999px', background: 'var(--background)', color: 'var(--text-secondary)' }}>
                 {response.tier === 1 ? '⚡ Cache' : response.tier === 2 ? '🔄 Partial' : '🧠 Pipeline'}
               </span>
             )}
@@ -176,7 +176,7 @@ function AssistantContent({ message }: { message: Message & { citations?: Citati
       {messageCitations.length > 0 && (
         <CitationsList citations={messageCitations} />
       )}
-      
+
       {/* Agent Thought Process Logs */}
       {response?.logs && response.logs.length > 0 && (
         <ThoughtProcess logs={response.logs} />
@@ -187,46 +187,46 @@ function AssistantContent({ message }: { message: Message & { citations?: Citati
 
 function ThoughtProcess({ logs }: { logs: Array<{ step: string; detail: string; timestamp: number }> }) {
   const [expanded, setExpanded] = useState(false);
-  
+
   // Calculate relative times
   const startTime = logs.length > 0 ? logs[0].timestamp : 0;
-  
+
   return (
     <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)' }}>
-        <button
-          onClick={() => setExpanded(!expanded)}
-          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span>🧠 Agent Thoughts</span>
-            <span style={{ fontSize: '0.75rem', padding: '0.125rem 0.5rem', borderRadius: '9999px', background: 'var(--surface-hover)', color: 'var(--text-tertiary)' }}>
-              {logs.length} steps
-            </span>
-          </div>
-          <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>{expanded ? '−' : '+'}</span>
-        </button>
-        
-        {expanded && (
-          <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {logs.map((log, i) => (
-              <div key={i} style={{ display: 'flex', gap: '0.75rem', paddingLeft: '0.5rem', borderLeft: '2px solid var(--border)' }}>
-                 <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--primary)', textTransform: 'uppercase' }}>
-                        {log.step}
-                      </span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                        +{Math.max(0, Math.round(log.timestamp - startTime))}ms
-                      </span>
-                    </div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                      {log.detail}
-                    </p>
-                 </div>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.875rem', color: 'var(--text-secondary)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span>🧠 Agent Thoughts</span>
+          <span style={{ fontSize: '0.75rem', padding: '0.125rem 0.5rem', borderRadius: '9999px', background: 'var(--surface-hover)', color: 'var(--text-tertiary)' }}>
+            {logs.length} steps
+          </span>
+        </div>
+        <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>{expanded ? '−' : '+'}</span>
+      </button>
+
+      {expanded && (
+        <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {logs.map((log, i) => (
+            <div key={i} style={{ display: 'flex', gap: '0.75rem', paddingLeft: '0.5rem', borderLeft: '2px solid var(--border)' }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--primary)', textTransform: 'uppercase' }}>
+                    {log.step}
+                  </span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                    +{Math.max(0, Math.round(log.timestamp - startTime))}ms
+                  </span>
+                </div>
+                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                  {log.detail}
+                </p>
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
