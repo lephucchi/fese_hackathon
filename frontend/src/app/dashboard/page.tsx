@@ -8,7 +8,8 @@ import React, { useState, useEffect } from 'react';
 import { CompletionScreen } from '@/components/news/CompletionScreen';
 import { SavedNewsSidebar } from '@/components/news/SavedNewsSidebar';
 import { Navigation } from '@/components/shared/Navigation';
-import { Coins, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
+import { StreamingChatPanel } from '@/components/chat';
+import { Coins, Sparkles, AlertCircle, Loader2, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useNewsSwipe, NewsSwipeItem } from '@/hooks/useNewsSwipe';
@@ -338,6 +339,7 @@ export default function DashboardPage() {
   const [selectedNews, setSelectedNews] = useState<NewsSwipeItem | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [lastDirection, setLastDirection] = useState<'left' | 'right' | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -1032,6 +1034,42 @@ export default function DashboardPage() {
           });
         }}
       />
+
+      {/* Floating Chat Button */}
+      <motion.button
+        onClick={() => setChatOpen(true)}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          width: '60px',
+          height: '60px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)',
+          border: 'none',
+          cursor: 'pointer',
+          display: chatOpen ? 'none' : 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 4px 20px rgba(0, 200, 5, 0.3)',
+          zIndex: 999,
+        }}
+        title="Chat với AI về tin tức"
+      >
+        <MessageSquare size={28} color="white" />
+      </motion.button>
+
+      {/* Streaming Chat Panel */}
+      <AnimatePresence>
+        {chatOpen && (
+          <StreamingChatPanel 
+            isOpen={chatOpen} 
+            onClose={() => setChatOpen(false)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

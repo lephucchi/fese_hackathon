@@ -134,17 +134,38 @@ class SupabaseVectorDB:
             raise ImportError("supabase not installed")
         self._client = create_client(url, key)
     
-    def search(self, table: str, embedding: list, k: int) -> List[dict]:
-        """Search using Supabase RPC."""
-        response = self._client.rpc(
-            "match_documents",
-            {
-                "_query_embedding": embedding,
-                "_match_count": k,
-                "_table_name": table
-            }
-        ).execute()
-        return response.data if response.data else []
+    def search(self, table: str, embedding: list, k: int, max_retries: int = 3) -> List[dict]:
+        """Search using Supabase RPC with retry logic."""
+        import time as time_module
+        
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                response = self._client.rpc(
+                    "match_documents",
+                    {
+                        "_query_embedding": embedding,
+                        "_match_count": k,
+                        "_table_name": table
+                    }
+                ).execute()
+                return response.data if response.data else []
+            except Exception as e:
+                last_error = e
+                error_msg = str(e).lower()
+                # Retry on transient errors
+                if any(err in error_msg for err in ['disconnect', 'timeout', 'connection', 'reset']):
+                    if attempt < max_retries - 1:
+                        wait_time = (2 ** attempt) * 0.5
+                        logger.warning(f"Supabase error (attempt {attempt+1}/{max_retries}): {e}. Retrying in {wait_time}s...")
+                        time_module.sleep(wait_time)
+                        continue
+                # Non-retryable error
+                raise
+        
+        # All retries exhausted
+        logger.error(f"Supabase search failed after {max_retries} attempts: {last_error}")
+        return []
 
 
 class ParallelRetriever:
@@ -203,15 +224,17 @@ class ParallelRetriever:
         self,
         query: str,
         index: str,
-        k: Optional[int] = None
+        k: Optional[int] = None,
+        max_retries: int = 3
     ) -> List[RetrievedDocument]:
         """
-        Retrieve from a single index synchronously.
+        Retrieve from a single index synchronously with retry logic.
         
         Args:
             query: Query string
             index: Index name
             k: Number of results (default from config)
+            max_retries: Number of retry attempts on failure
             
         Returns:
             List of retrieved documents
@@ -223,24 +246,33 @@ class ParallelRetriever:
         k = k or self.config.k_per_index
         table = INDEX_TABLE_MAP.get(index, f"{index}_index")
         
-        try:
-            embedding = self.encoder.encode(query)
-            results = self.vector_db.search(table, embedding, k)
-            
-            return [
-                RetrievedDocument(
-                    content=row.get("content", ""),
-                    source_index=index,
-                    similarity=row.get("similarity", 0.0),
-                    metadata=row.get("metadata", {}),
-                    sub_query=query,
-                    doc_id=row.get("id")
-                )
-                for row in results
-            ]
-        except Exception as e:
-            logger.error(f"Retrieval error for {index}: {e}")
-            return []
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                embedding = self.encoder.encode(query)
+                results = self.vector_db.search(table, embedding, k)
+                
+                return [
+                    RetrievedDocument(
+                        content=row.get("content", ""),
+                        source_index=index,
+                        similarity=row.get("similarity", 0.0),
+                        metadata=row.get("metadata", {}),
+                        sub_query=query,
+                        doc_id=row.get("id")
+                    )
+                    for row in results
+                ]
+            except Exception as e:
+                last_error = e
+                if attempt < max_retries - 1:
+                    wait_time = (2 ** attempt) * 0.5  # 0.5s, 1s, 2s
+                    logger.warning(f"Retrieval error for {index} (attempt {attempt+1}/{max_retries}): {e}. Retrying in {wait_time}s...")
+                    time.sleep(wait_time)
+                else:
+                    logger.error(f"Retrieval failed for {index} after {max_retries} attempts: {last_error}")
+        
+        return []
     
     async def retrieve_async(
         self,
@@ -248,11 +280,15 @@ class ParallelRetriever:
         index: str,
         k: Optional[int] = None
     ) -> Tuple[List[RetrievedDocument], float]:
-        """Retrieve asynchronously."""
+        """Retrieve asynchronously with error handling."""
         start = time.time()
         loop = asyncio.get_event_loop()
-        docs = await loop.run_in_executor(None, lambda: self.retrieve(query, index, k))
-        return docs, (time.time() - start) * 1000
+        try:
+            docs = await loop.run_in_executor(None, lambda: self.retrieve(query, index, k))
+            return docs, (time.time() - start) * 1000
+        except Exception as e:
+            logger.error(f"Retrieval error for {index}: {e}")
+            return [], (time.time() - start) * 1000
     
     async def retrieve_all_async(
         self,
@@ -279,9 +315,16 @@ class ParallelRetriever:
         _ = self.encoder
         _ = self.vector_db
         
-        # Create parallel tasks
+        # Use semaphore to limit concurrent DB connections (prevent "Server disconnected")
+        semaphore = asyncio.Semaphore(3)  # Max 3 concurrent requests
+        
+        async def retrieve_with_semaphore(sq: str, route: str) -> Tuple[List[RetrievedDocument], float]:
+            async with semaphore:
+                return await self.retrieve_async(sq, route, k)
+        
+        # Create parallel tasks with semaphore
         tasks = [
-            self.retrieve_async(sq, route, k)
+            retrieve_with_semaphore(sq, route)
             for sq, route in zip(sub_queries, routes)
         ]
         
@@ -303,10 +346,15 @@ class ParallelRetriever:
         for (sq, route), result in zip(zip(sub_queries, routes), results):
             if isinstance(result, Exception):
                 logger.error(f"Task error: {result}")
-                sub_query_results[sq] = []
+                if sq not in sub_query_results:
+                    sub_query_results[sq] = []
             else:
                 docs, time_ms = result
-                sub_query_results[sq] = docs
+                # Merge docs for same sub-query instead of overwriting
+                if sq in sub_query_results:
+                    sub_query_results[sq].extend(docs)
+                else:
+                    sub_query_results[sq] = docs
                 all_docs.extend(docs)
                 per_index_time[route] = time_ms
         

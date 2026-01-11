@@ -210,16 +210,16 @@ class MarketService:
             
             # Build full context and process
             context_str = self._build_full_context(chat_history, context_news)
-            answer, extracted_data, pipeline_logs = await self._process_with_context_and_cache(query, context_str)
+            answer, extracted_data, pipeline_logs, citations = await self._process_with_context_and_cache(query, context_str)
             
             # Cache RAG results with enhanced context
             if extracted_data:
                 await self.cache.set_rag_cache(user_id, {
                     "entities": extracted_data.get("entities", []),
                     "facts": extracted_data.get("facts", []),
-                    "ticker_news": ticker_news,  # NEW: Ticker-related news
-                    "retrieved_docs": extracted_data.get("retrieved_docs", []),  # NEW
-                    "web_contexts": extracted_data.get("web_contexts", []),  # NEW
+                    "ticker_news": ticker_news,
+                    "retrieved_docs": extracted_data.get("retrieved_docs", []),
+                    "web_contexts": extracted_data.get("web_contexts", []),
                     "last_query": query
                 })
         
@@ -271,7 +271,8 @@ class MarketService:
             "cached": tier < 3,
             "tier": tier,
             "elapsed_ms": int(elapsed * 1000),
-            "logs": logs
+            "logs": logs,
+            "citations": citations if 'citations' in locals() else []
         }
     
     def _build_full_context(
@@ -291,16 +292,29 @@ class MarketService:
         """
         parts = []
         
-        # Add chat history if exists
+        # Add chat history if exists (filter out error messages)
         if chat_history:
             history_parts = []
             for msg in chat_history:
+                content = msg.get('content', '')
+                
+                # Skip error messages - they provide no useful context
+                if any(err in content for err in [
+                    "Đã xảy ra lỗi",
+                    "Lỗi:",
+                    "object has no attribute",
+                    "Error:",
+                    "Vui lòng thử lại"
+                ]):
+                    continue
+                    
                 role = "Người dùng" if msg.get("role") == "user" else "Trợ lý"
-                history_parts.append(f"{role}: {msg.get('content', '')}")
+                history_parts.append(f"{role}: {content}")
             
-            parts.append("=== LỊCH SỬ TRÒ CHUYỆN ===")
-            parts.append("\n".join(history_parts))
-            parts.append("")
+            if history_parts:  # Only add section if we have valid history
+                parts.append("=== LỊCH SỬ TRÒ CHUYỆN ===")
+                parts.append("\n".join(history_parts))
+                parts.append("")
         
         # Add news context
         news_str = self._build_context_string(news_list)
@@ -460,22 +474,57 @@ class MarketService:
             # Don't add note if just running pure RAG pipeline
             # Note: context_count check removed - let RAG answer speak for itself
             
-            logger.info(f"[Pipeline] Extracted {len(extracted_data['entities'])} entities, {len(extracted_data['facts'])} facts")
+            # Extract citations for frontend display
+            frontend_citations = []
+            citations_map = result.get("citations_map", {})
+            used_citations = result.get("citations", []) # List of {number, used}
+            
+            # Create set of used numbers
+            used_nums = {c.get("number") for c in used_citations if c.get("used")}
+            
+            if citations_map:
+                if isinstance(citations_map, list):
+                    for citation in citations_map:
+                        try:
+                            num = citation.get("number")
+                            if num in used_nums:
+                                frontend_citations.append({
+                                    "number": num,
+                                    "source": citation.get("source", "Unknown"),
+                                    "preview": (citation.get("preview") or "")[:150] + "...",
+                                    "similarity": citation.get("similarity")
+                                })
+                        except:
+                            continue
+                elif isinstance(citations_map, dict):
+                    for num_str, data in citations_map.items():
+                        # Check if this citation was used in the answer
+                        try:
+                            num = int(num_str)
+                            if num in used_nums:
+                                frontend_citations.append({
+                                    "number": num,
+                                    "source": data.get("source", "Unknown"),
+                                    "preview": (data.get("content", "") or "")[:150] + "...",
+                                    "similarity": data.get("score") or data.get("similarity")
+                                })
+                        except:
+                            continue
+            
+            # Sort by citation number
+            frontend_citations.sort(key=lambda x: x["number"])
+            
+            logger.info(f"[Pipeline] Extracted {len(extracted_data['entities'])} entities, {len(extracted_data['facts'])} facts, {len(frontend_citations)} citations")
             
             # Extract logs from pipeline result
             logs = result.get("logs", [])
             
-            return answer, extracted_data, logs
+            return answer, extracted_data, logs, frontend_citations
             
         except Exception as e:
             logger.error(f"RAG processing error: {e}", exc_info=True)
             # Always return error message, don't block when no context
-            return f"Đã xảy ra lỗi khi xử lý. Vui lòng thử lại.\nLỗi: {str(e)}", None, []
-            
-        except Exception as e:
-            logger.error(f"RAG processing error: {e}", exc_info=True)
-            # Always return error message, don't block when no context
-            return f"Đã xảy ra lỗi khi xử lý. Vui lòng thử lại.\nLỗi: {str(e)}", None
+            return f"Đã xảy ra lỗi khi xử lý.\nLỗi: {str(e)}", None, [], []
     
     def _build_augmented_query(self, query: str, context: str) -> str:
         """

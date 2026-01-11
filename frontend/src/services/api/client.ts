@@ -16,6 +16,12 @@ class ApiClient {
         this.baseUrl = baseUrl;
     }
 
+    private onUnauthorized: (() => void) | null = null;
+
+    setUnauthorizedListener(listener: () => void) {
+        this.onUnauthorized = listener;
+    }
+
     private async request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
         const { body, headers, ...rest } = options;
 
@@ -33,6 +39,12 @@ class ApiClient {
         }
 
         const response = await fetch(`${this.baseUrl}${endpoint}`, config);
+
+        if (response.status === 401) {
+            if (this.onUnauthorized) {
+                this.onUnauthorized();
+            }
+        }
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));

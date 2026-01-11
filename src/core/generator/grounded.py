@@ -236,10 +236,25 @@ class GroundedGenerator:
         return text
     
     def _extract_citations(self, text: str) -> List[int]:
-        """Extract citation numbers used in the answer."""
-        pattern = r'\[(\d+)\]'
+        """Extract citation numbers used in the answer.
+        
+        Handles multiple formats:
+        - [1], [2], [3] - single citations
+        - [1, 2], [3, 4, 5] - comma-separated citations
+        - [1][2][3] - consecutive citations
+        """
+        # Pattern to match citation brackets with one or more numbers
+        # Matches: [1], [2, 3], [1, 2, 3], etc.
+        pattern = r'\[(\d+(?:\s*,\s*\d+)*)\]'
         matches = re.findall(pattern, text)
-        return sorted(set(int(m) for m in matches))
+        
+        all_nums = []
+        for match in matches:
+            # Split by comma and extract each number
+            nums = [int(n.strip()) for n in match.split(',')]
+            all_nums.extend(nums)
+        
+        return sorted(set(all_nums))
     
     def _validate_grounding(self, answer: str, citations: List[int]) -> bool:
         """

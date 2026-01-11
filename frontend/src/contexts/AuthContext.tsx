@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_BASE_URL } from '@/utils/constants/api';
+import { apiClient } from '@/services/api/client';
 
 // Types
 export interface RoleInfo {
@@ -99,7 +100,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
-  }, [refreshToken]);
+
+    // Register 401 listener
+    apiClient.setUnauthorizedListener(() => {
+      setUser(null);
+      router.push('/');
+    });
+  }, [refreshToken, router]);
 
   useEffect(() => {
     if (!user) return;

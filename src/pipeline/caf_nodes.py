@@ -121,6 +121,10 @@ def extract_facts_node(state: RAGState) -> RAGState:
     
     extractor = _get_fact_extractor()
     
+    # IMPORTANT: Use original user_query to determine if this is a company-specific query
+    user_query = state.get("user_query") or state["query"]
+    logger.info(f"[INPUT] Original user query: {_truncate(user_query, 100)}")
+    
     # Get sub_query_contexts if available, otherwise use formatted_context
     sub_query_contexts = state.get("sub_query_contexts", {})
     
@@ -160,33 +164,62 @@ def extract_facts_node(state: RAGState) -> RAGState:
             citations_map=state.get("citations_map", [])
         )
         
-        # Store as list of dicts for serialization
-        state["canonical_facts"] = [f.to_dict() for f in facts]
+        # FILTER: Remove irrelevant GLOSSARY facts when query is about a specific company
+        # This prevents glossary terms like "vNM" (von Neumann-Morgenstern) from 
+        # polluting results for company queries like "VNM" (Vinamilk)
+        from src.core.generator import CanonicalFact, FactDomain
         
-        logger.info(f"[OUTPUT] Canonical Facts Extracted: {len(facts)}")
+        original_count = len(list(facts))
+        filtered_facts = []
+        
+        # Detect if query is about a specific company (contains ticker-like patterns)
+        import re
+        has_ticker = bool(re.search(r'\b[A-Z]{2,4}\b', user_query.upper()))
+        primary_route = state.get("routes", [])[0] if state.get("routes") else "financial"
+        
+        for fact in facts:
+            # If query looks like company-specific and primary route is financial,
+            # filter out GLOSSARY facts unless they have HIGH relevance
+            if has_ticker and primary_route == "financial":
+                if fact.domain == FactDomain.GLOSSARY and fact.relevance.value != "HIGH":
+                    logger.debug(f"[FILTER] Removing low-relevance glossary: {_truncate(fact.statement, 50)}")
+                    continue
+            filtered_facts.append(fact)
+        
+        if len(filtered_facts) < original_count:
+            logger.info(f"[FILTER] Removed {original_count - len(filtered_facts)} irrelevant glossary facts")
+        
+        # Store filtered facts
+        state["canonical_facts"] = [f.to_dict() for f in filtered_facts]
+        
+        logger.info(f"[OUTPUT] Canonical Facts Extracted: {len(filtered_facts)}")
         
         # Log facts by domain
-        from src.core.generator import CanonicalFactList, FactDomain
-        fact_list = CanonicalFactList(facts=list(facts))
+        from src.core.generator import CanonicalFactList
+        fact_list = CanonicalFactList(facts=filtered_facts)
         for domain in FactDomain:
             domain_facts = fact_list.filter_by_domain(domain)
             if domain_facts:
                 logger.info(f"  - {domain.value}: {len(domain_facts)} facts")
         
         # Log sample facts
-        for i, fact in enumerate(list(facts)[:3], 1):
+        for i, fact in enumerate(filtered_facts[:3], 1):
             logger.info(f"[SAMPLE {i}] {fact}")
+        
+        facts = filtered_facts  # For logging below
         
     except Exception as e:
         logger.error(f"[ERROR] Fact extraction failed: {e}")
         state["canonical_facts"] = []
         state["error"] = f"Fact extraction failed: {str(e)}"
+        facts = []  # Initialize for logging
     
     state["step_times"]["extract_facts"] = (time.time() - start) * 1000
     logger.info(f"[TIME] Fact Extraction: {state['step_times']['extract_facts']:.2f}ms")
     
-    _log_step(state, "extract_facts", f"Extracted {len(facts)} canonical facts", {
-        "count": len(facts)
+    fact_count = len(state.get("canonical_facts", []))
+    _log_step(state, "extract_facts", f"Extracted {fact_count} canonical facts", {
+        "count": fact_count
     })
     
     return state
@@ -219,10 +252,14 @@ def synthesize_answer_node(state: RAGState) -> RAGState:
     logger.info(f"[INPUT] Query: {_truncate(state['query'])}")
     logger.info(f"[INPUT] Canonical Facts: {len(facts)}")
     
+    # Use original user_query for synthesis (not augmented context)
+    original_query = state.get("user_query") or state["query"]
+    logger.info(f"[INPUT] Using query for synthesis: {_truncate(original_query)}")
+    
     try:
         # Synthesize answer
         answer = synthesizer.synthesize(
-            original_query=state["query"],
+            original_query=original_query,
             facts=facts
         )
         

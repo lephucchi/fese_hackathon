@@ -21,6 +21,15 @@ _decomposer = None
 _retriever = None
 _fusion = None
 _generator = None
+_classifier = None
+
+
+def _get_classifier():
+    global _classifier
+    if _classifier is None:
+        from src.core.decomposition import QueryComplexityClassifier
+        _classifier = QueryComplexityClassifier()
+    return _classifier
 
 
 def _log_separator(title: str = "", char: str = "=", length: int = 60):
@@ -98,22 +107,37 @@ def _log_step(state: RAGState, step: str, detail: str, metadata: Dict[str, Any] 
 def route_node(state: RAGState) -> RAGState:
     """
     Step 1: Route the query to appropriate indices.
+    
+    Uses user_query (original query) for routing if available,
+    to avoid confusion from augmented context.
     """
     start = time.time()
-    query = state["query"]
+    
+    # IMPORTANT: Use original user query for routing, not augmented query
+    # The augmented query contains chat history + news which confuses the router
+    query_for_routing = state.get("user_query") or state["query"]
+    full_query = state["query"]  # Keep full query for logging
     
     logger.info(f"===================== STEP 1: ROUTING =====================")
-    logger.info(f"[INPUT] Query: {query}")
-    _log_step(state, "route", "Analyzing query intent...", {"query": query})
+    logger.info(f"[INPUT] Query for routing: {_truncate(query_for_routing, 100)}")
+    if state.get("user_query"):
+        logger.info(f"[INFO] Using original user_query (ignoring augmented context)")
+    _log_step(state, "route", "Analyzing query intent...", {"query": query_for_routing})
     
     router = _get_router()
-    routes, scores = router.route(query)
+    routes, scores = router.route(query_for_routing)
     
     state["routes"] = routes
     state["route_scores"] = scores
     
-    # Check complexity
-    is_complex, reason, score = router.classify(query)
+    # Check complexity using original query
+    classifier = _get_classifier()
+    classification = classifier.classify(query_for_routing)
+    
+    is_complex = classification.is_complex
+    reason = classification.reason
+    score = classification.complexity_score
+    
     state["is_complex"] = is_complex
     
     state["step_times"]["route"] = (time.time() - start) * 1000
@@ -130,7 +154,7 @@ def route_node(state: RAGState) -> RAGState:
     for r, s in scores.items():
         logger.info(f"  - {r:12s}: {s:.3f} {'#' * int(s*20)}")
     logger.info(f"[TIME] Route: {state['step_times']['route']:.2f}ms")
-    logger.info(f"[CLASSIFY] Query: {query}")
+    logger.info(f"[CLASSIFY] Query: {_truncate(query_for_routing, 100)}")
     logger.info(f"[CLASSIFY] Is Complex: {is_complex}")
     logger.info(f"[CLASSIFY] Score: {score:.2f}")
     logger.info(f"[CLASSIFY] Reason: {reason}")
@@ -139,17 +163,25 @@ def route_node(state: RAGState) -> RAGState:
 
 
 def decompose_node(state: RAGState) -> RAGState:
-    """Decompose complex query into sub-queries."""
+    """
+    Decompose complex query into sub-queries.
+    
+    Uses user_query (original query) for decomposition if available,
+    to avoid confusion from augmented context.
+    """
     logger.info(f"================== STEP 2: DECOMPOSITION ==================")
     _log_step(state, "decompose", "Breaking down complex query...")
     
     decomposer = _get_decomposer()
     start = time.time()
     
-    query = state["query"]
-    logger.info(f"[INPUT] Query: {_truncate(query)}")
+    # IMPORTANT: Use original user query for decomposition
+    query_for_decomp = state.get("user_query") or state["query"]
+    logger.info(f"[INPUT] Query: {_truncate(query_for_decomp, 100)}")
+    if state.get("user_query"):
+        logger.info(f"[INFO] Using original user_query for decomposition")
     
-    result = decomposer.decompose(query)
+    result = decomposer.decompose(query_for_decomp)
     
     state["is_complex"] = result.is_decomposed
     state["sub_queries"] = [sq.query for sq in result.sub_queries]
@@ -193,14 +225,17 @@ async def retrieve_node(state: RAGState) -> RAGState:
         sub_query_types[0] == "UNKNOWN"
     )
     
+    # IMPORTANT: Get original user query for fallback cases
+    original_user_query = state.get("user_query") or state["query"]
+    
     if decomposition_failed:
         # When decomposition fails, query ALL routes selected by router
         # This ensures we don't miss relevant documents from other indices
         all_routes = state["routes"]
         logger.info(f"[FALLBACK] Decomposition failed, querying ALL routes: {all_routes}")
         
-        # Replicate the query for each route
-        sub_queries = [sub_queries[0]] * len(all_routes)
+        # Use original user query (not augmented with chat history) for all routes
+        sub_queries = [original_user_query] * len(all_routes)
         routes = all_routes
     else:
         # Normal case: map sub-queries to their respective routes
@@ -222,9 +257,11 @@ async def retrieve_node(state: RAGState) -> RAGState:
         covered = set(routes)
         unique_missing = [r for r in state["routes"] if r not in covered]
         
+        # IMPORTANT: Use original user query for coverage, not augmented query with chat history
+        original_query = state.get("user_query") or state["query"]
         for r in unique_missing:
-            logger.info(f"[COVERAGE] Adding missing route '{r}' with original query")
-            sub_queries.append(state["query"])
+            logger.info(f"[COVERAGE] Adding missing route '{r}' with original user query")
+            sub_queries.append(original_query)
             routes.append(r)
     
     # Translate queries for glossary index (Vietnamese -> English)
@@ -275,13 +312,36 @@ async def retrieve_node(state: RAGState) -> RAGState:
     # This preserves the relationship between sub-queries and documents for CFE
     if result.sub_query_results:
         sub_query_contexts, caf_citations = fusion.format_by_sub_query(result.sub_query_results)
+        
+        # IMPORTANT: Map translated query keys back to original Vietnamese queries
+        # This ensures fact extraction sees the original user intent
+        # Build mapping: translated_query -> original_query (handle duplicates)
+        translated_to_original = {}
+        for tq, sq in zip(translated_queries, sub_queries):
+            if tq != sq:  # Only map if actually translated
+                translated_to_original[tq] = sq
+        
+        if translated_to_original:
+            remapped_contexts = {}
+            for query_key, context in sub_query_contexts.items():
+                # Map back to original if this was a translated key
+                original_key = translated_to_original.get(query_key, query_key)
+                # Merge contexts if same original query (from multiple routes)
+                if original_key in remapped_contexts:
+                    remapped_contexts[original_key] += "\n\n" + context
+                else:
+                    remapped_contexts[original_key] = context
+            sub_query_contexts = remapped_contexts
+            logger.info(f"[CAF] Remapped translated keys, now {len(sub_query_contexts)} unique contexts")
+        
         state["sub_query_contexts"] = sub_query_contexts
         # Update citations_map with sub_query info
         state["citations_map"] = caf_citations
         logger.info(f"[CAF] Sub-query contexts: {len(sub_query_contexts)} entries")
     else:
-        # Fallback: create single context entry
-        state["sub_query_contexts"] = {state["query"]: fused.formatted_context}
+        # Fallback: create single context entry using ORIGINAL query, not augmented
+        original_query = state.get("user_query") or state["query"]
+        state["sub_query_contexts"] = {original_query: fused.formatted_context}
         logger.info("[CAF] Using fallback single context")
     
     state["step_times"]["retrieve"] = (time.time() - start) * 1000

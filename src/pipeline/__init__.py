@@ -15,7 +15,7 @@ Example:
 """
 from .state import RAGState, create_initial_state
 from .nodes import route_node, decompose_node, retrieve_node, generate_node
-from .graph import build_rag_graph, get_rag_graph, run_rag_pipeline, run_rag_pipeline_async
+from .graph import build_rag_graph, get_rag_graph, run_rag_pipeline, run_rag_pipeline_async, run_rag_pipeline_streaming
 
 # CAF Nodes (Step 8) - Canonical Answer Framework
 from .caf_nodes import (
@@ -42,4 +42,5 @@ __all__ = [
     "get_rag_graph",
     "run_rag_pipeline",
     "run_rag_pipeline_async",
+    "run_rag_pipeline_streaming",
 ]

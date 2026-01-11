@@ -7,10 +7,28 @@ import { API_BASE_URL } from '@/utils/constants/api';
 export interface ThinkingStep {
   type: 'thinking' | 'answer_chunk' | 'answer_start' | 'complete' | 'error';
   step?: string;
+  status?: 'running' | 'done';
   message?: string;
   content?: string;
   count?: number;
+  elapsed_ms?: number;
   message_id?: string;
+  total_time_ms?: number;
+  citations?: Citation[];
+  data?: {
+    routes?: string[];
+    sub_queries?: string[];
+    doc_count?: number;
+    fact_count?: number;
+    needs_fallback?: boolean;
+  };
+}
+
+export interface Citation {
+  number: number;
+  source: string;
+  preview: string;
+  similarity?: number;
 }
 
 interface UseContextChatStreamReturn {
@@ -19,10 +37,12 @@ interface UseContextChatStreamReturn {
   isStreaming: boolean;
   thinkingSteps: ThinkingStep[];
   answer: string;
+  citations: Citation[];
   contextInfo: {
     cached: boolean;
     context_used: number;
   };
+  totalTimeMs: number;
 }
 
 export function useContextChatStream(): UseContextChatStreamReturn {
@@ -30,7 +50,9 @@ export function useContextChatStream(): UseContextChatStreamReturn {
   const [isStreaming, setIsStreaming] = useState(false);
   const [thinkingSteps, setThinkingSteps] = useState<ThinkingStep[]>([]);
   const [answer, setAnswer] = useState('');
+  const [citations, setCitations] = useState<Citation[]>([]);
   const [contextInfo, setContextInfo] = useState({ cached: false, context_used: 0 });
+  const [totalTimeMs, setTotalTimeMs] = useState(0);
 
   const sendStreamingQuery = useCallback(async (query: string) => {
     if (!user) {
@@ -40,7 +62,9 @@ export function useContextChatStream(): UseContextChatStreamReturn {
     setIsStreaming(true);
     setThinkingSteps([]);
     setAnswer('');
+    setCitations([]);
     setContextInfo({ cached: false, context_used: 0 });
+    setTotalTimeMs(0);
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/market/chat/stream`, {
@@ -68,10 +92,41 @@ export function useContextChatStream(): UseContextChatStreamReturn {
       }
 
       let buffer = '';
+      let receivedComplete = false;
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        
+        if (done) {
+          // Process any remaining data in buffer before breaking
+          if (buffer.trim()) {
+            const remainingLines = buffer.split('\n');
+            for (const line of remainingLines) {
+              if (line.startsWith('data: ')) {
+                try {
+                  const data: ThinkingStep = JSON.parse(line.slice(6));
+                  if (data.type === 'complete') {
+                    receivedComplete = true;
+                    setIsStreaming(false);
+                    if (data.total_time_ms) {
+                      setTotalTimeMs(data.total_time_ms);
+                    }
+                    if (data.citations) {
+                      setCitations(data.citations);
+                    }
+                  } else if (data.type === 'answer_chunk') {
+                    setAnswer((prev) => prev + (data.content || ''));
+                  } else if (data.type === 'error') {
+                    throw new Error(data.message || 'Unknown error');
+                  }
+                } catch (parseError) {
+                  console.error('Failed to parse remaining SSE data:', parseError);
+                }
+              }
+            }
+          }
+          break;
+        }
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split('\n');
@@ -83,17 +138,42 @@ export function useContextChatStream(): UseContextChatStreamReturn {
               const data: ThinkingStep = JSON.parse(line.slice(6));
 
               if (data.type === 'thinking') {
-                setThinkingSteps((prev) => [...prev, data]);
-                if (data.count !== undefined) {
-                  setContextInfo((prev) => ({ ...prev, context_used: data.count || 0 }));
+                // Update or add thinking step
+                setThinkingSteps((prev) => {
+                  const existingIndex = prev.findIndex(
+                    (s) => s.step === data.step && s.status === 'running'
+                  );
+                  
+                  if (existingIndex >= 0 && data.status === 'done') {
+                    // Update existing running step to done
+                    const updated = [...prev];
+                    updated[existingIndex] = data;
+                    return updated;
+                  } else if (data.status === 'running') {
+                    // Add new running step
+                    return [...prev, data];
+                  } else {
+                    // Add done step (no matching running step)
+                    return [...prev, data];
+                  }
+                });
+                
+                if (data.data?.doc_count !== undefined) {
+                  setContextInfo((prev) => ({ ...prev, context_used: data.data?.doc_count || 0 }));
                 }
               } else if (data.type === 'answer_start') {
-                // Clear thinking steps when answer starts
-                setThinkingSteps([]);
+                // Keep thinking steps visible, just start building answer
               } else if (data.type === 'answer_chunk') {
                 setAnswer((prev) => prev + (data.content || ''));
               } else if (data.type === 'complete') {
+                receivedComplete = true;
                 setIsStreaming(false);
+                if (data.total_time_ms) {
+                  setTotalTimeMs(data.total_time_ms);
+                }
+                if (data.citations) {
+                  setCitations(data.citations);
+                }
               } else if (data.type === 'error') {
                 throw new Error(data.message || 'Unknown error');
               }
@@ -102,6 +182,13 @@ export function useContextChatStream(): UseContextChatStreamReturn {
             }
           }
         }
+      }
+      
+      // If stream ended without receiving complete event, it's an error
+      if (!receivedComplete) {
+        console.warn('Stream ended without complete event');
+        // Don't throw error - just mark as done, answer should be visible
+        setIsStreaming(false);
       }
     } catch (error) {
       console.error('Streaming error:', error);
@@ -143,6 +230,8 @@ export function useContextChatStream(): UseContextChatStreamReturn {
     isStreaming,
     thinkingSteps,
     answer,
+    citations,
     contextInfo,
+    totalTimeMs,
   };
 }

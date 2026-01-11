@@ -19,10 +19,7 @@ export const chatService = {
     async sendQuery(query: string, options: QueryOptions = {}): Promise<QueryResponse> {
         return apiClient.post<QueryResponse>(API_ENDPOINTS.CHAT.QUERY, {
             query: query.trim(),
-            options: {
-                include_sources: options.include_sources ?? true,
-                include_context: options.include_context ?? false,
-            },
+            use_interests: true,
         });
     },
 

@@ -22,7 +22,7 @@ export const API_ENDPOINTS = {
 
     // Chat
     CHAT: {
-        QUERY: '/api/query',
+        QUERY: '/api/market/chat',
         HEALTH: '/api/health',
     },
 

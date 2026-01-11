@@ -1,31 +1,17 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Zap, Sparkles, Search, Paperclip, Smile, MoreVertical } from 'lucide-react';
+import { Send, Paperclip, Smile } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-interface QueryMode {
-  id: 'fast' | 'standard' | 'deep';
-  labelKey: string;
-  icon: React.ReactNode;
-  descKey: string;
-}
-
-const queryModes: QueryMode[] = [
-  { id: 'fast', labelKey: 'chat.input.modes.fast', icon: <Zap size={14} />, descKey: 'chat.input.modes.fastDesc' },
-  { id: 'standard', labelKey: 'chat.input.modes.standard', icon: <Sparkles size={14} />, descKey: 'chat.input.modes.standardDesc' },
-  { id: 'deep', labelKey: 'chat.input.modes.deep', icon: <Search size={14} />, descKey: 'chat.input.modes.deepDesc' },
-];
-
 interface EnhancedMessageInputProps {
-  onSend: (message: string, mode: 'fast' | 'standard' | 'deep') => void;
+  onSend: (message: string) => void;
   disabled?: boolean;
 }
 
 export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessageInputProps) {
   const { t } = useLanguage();
   const [input, setInput] = useState('');
-  const [mode, setMode] = useState<'fast' | 'standard' | 'deep'>('standard');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -39,7 +25,7 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() && !disabled) {
-      onSend(input.trim(), mode);
+      onSend(input.trim());
       setInput('');
     }
   };
@@ -53,25 +39,6 @@ export function EnhancedMessageInput({ onSend, disabled = false }: EnhancedMessa
 
   return (
     <div style={{ width: '100%' }}>
-      {/* Mode Selector with Descriptions */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
-        {queryModes.map((m) => (
-          <button
-            key={m.id}
-            onClick={() => setMode(m.id)}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '0.625rem 0.875rem', borderRadius: '0.625rem', fontSize: '0.75rem', fontWeight: 500, background: mode === m.id ? 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)' : 'var(--surface)', color: mode === m.id ? 'white' : 'var(--text-secondary)', border: mode === m.id ? 'none' : '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s', boxShadow: mode === m.id ? 'var(--shadow-md)' : 'none' }}
-            onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = mode === m.id ? 'var(--shadow-md)' : 'none'; }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.125rem' }}>
-              {m.icon}
-              <span style={{ fontWeight: 600 }}>{t(m.labelKey)}</span>
-            </div>
-            <span style={{ fontSize: '0.625rem', opacity: mode === m.id ? 0.9 : 0.7 }}>{t(m.descKey)}</span>
-          </button>
-        ))}
-      </div>
-
       {/* Input */}
       <form onSubmit={handleSubmit}>
         <div

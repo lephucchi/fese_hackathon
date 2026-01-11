@@ -71,6 +71,8 @@ class ChatResponse(BaseModel):
     tier: Optional[int] = None  # 1=cache, 2=partial, 3=full pipeline
     elapsed_ms: Optional[int] = None
     history_used: Optional[int] = None
+    logs: Optional[list] = None
+    citations: Optional[list] = None
 
 
 # =========================================================================
@@ -232,24 +234,15 @@ async def chat_with_context(
     "/chat/stream",
     summary="Chat with market context (streaming)",
     description="""
-    Stream chat response with thinking process visualization.
+    Stream chat response with REAL-TIME thinking process visualization.
     
-    Returns Server-Sent Events (SSE) with:
-    - Thinking ECURITY: Check query with QueryGuard
-            query_guard = get_query_guard()
-            guard_result = query_guard.check(request.query)
-            
-            if not guard_result.is_safe:
-                logger.warning(
-                    f"Market chat stream query blocked: {guard_result.reason}. "
-                    f"Risk: {guard_result.risk_level.value}"
-                )
-                yield f"data: {json.dumps({'type': 'error', 'message': guard_result.reason, 'suggestions': guard_result.suggestions})}\n\n"
-                return
-            
-            # Ssteps (fetching interests, building context, querying LLM)
-    - Answer chunks (streamed word by word)
-    - Completion signal
+    Returns Server-Sent Events (SSE) with pipeline steps:
+    - Route: Analyzing query intent
+    - Decompose: Breaking down complex queries  
+    - Retrieve: Searching documents
+    - Fallback Check: Checking coverage
+    - Extract Facts: Extracting canonical facts (CAF)
+    - Synthesize: Generating final answer
     
     Requires authentication via JWT token.
     """
@@ -259,107 +252,164 @@ async def chat_with_context_stream(
     user_id: str = Depends(get_current_user_id),
     market_service: MarketService = Depends(get_market_service)
 ):
-    """Stream chat with thinking process."""
+    """Stream chat with real-time pipeline visualization."""
     from fastapi.responses import StreamingResponse
+    from src.pipeline import run_rag_pipeline_streaming
+    from src.core.security import get_query_guard
     import json
-    import asyncio
+    import uuid
     
     async def event_generator():
         try:
-            # Step 1: Start
-            yield f"data: {json.dumps({'type': 'thinking', 'step': 'start', 'message': '🔍 Bắt đầu xử lý câu hỏi...'})}\n\n"
-            await asyncio.sleep(0.1)
+            # Security check
+            query_guard = get_query_guard()
+            guard_result = query_guard.check(request.query)
             
-            # Step 2: Fetch interests
-            yield f"data: {json.dumps({'type': 'thinking', 'step': 'fetch_interests', 'message': '📊 Đang tải tin tức bạn quan tâm...'})}\n\n"
-            
-            approved_ids = await market_service.interaction_repo.find_approved_news_ids(user_id)
-            
-            if not approved_ids:
-                yield f"data: {json.dumps({'type': 'error', 'message': 'Bạn chưa chọn tin tức nào. Hãy swipe phải các tin quan tâm trước.'})}\n\n"
+            if not guard_result.is_safe:
+                logger.warning(f"Stream query blocked: {guard_result.reason}")
+                yield f"data: {json.dumps({'type': 'error', 'message': guard_result.reason, 'suggestions': guard_result.suggestions}, ensure_ascii=False)}\n\n"
                 return
             
-            yield f"data: {json.dumps({'type': 'thinking', 'step': 'interests_loaded', 'message': f'✅ Tìm thấy {len(approved_ids)} tin tức', 'count': len(approved_ids)})}\n\n"
-            await asyncio.sleep(0.1)
+            # Step 0: Start & load context
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'start', 'status': 'running', 'message': '🔍 Bắt đầu xử lý câu hỏi...', 'elapsed_ms': 0}, ensure_ascii=False)}\n\n"
             
-            # Step 3: Build context
-            yield f"data: {json.dumps({'type': 'thinking', 'step': 'build_context', 'message': '🧠 Đang xây dựng context từ tin tức...'})}\n\n"
+            # Fetch user interests
+            approved_ids = await market_service.interaction_repo.find_approved_news_ids(user_id)
             
-            # Get cached context or build new
-            cached_context = await market_service.cache.get_context(user_id)
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'context', 'status': 'running', 'message': f'📊 Đang tải {len(approved_ids)} tin tức bạn quan tâm...', 'elapsed_ms': 0}, ensure_ascii=False)}\n\n"
             
-            if not cached_context:
-                context_news = await market_service.news_repo.find_by_ids(approved_ids[:10])
-                context_data = {
-                    "news": [
-                        {
-                            "title": n.get("title"),
-                            "analyst": n.get("analyst"),
-                            "sentiment": n.get("sentiment"),
-                            "tickers": n.get("Ticker")
-                        }
-                        for n in context_news
-                    ]
-                }
-                await market_service.cache.set_context(user_id, context_data)
-                context_news_list = context_data["news"]
-            else:
-                context_news_list = cached_context.get("news", [])
+            # Build context
+            context_news = []
+            if approved_ids:
+                cached_context = await market_service.cache.get_context(user_id)
+                if not cached_context:
+                    context_news = await market_service.news_repo.find_by_ids(approved_ids[:10])
+                    context_data = {
+                        "news": [
+                            {
+                                "title": n.get("title"),
+                                "analyst": n.get("analyst"),
+                                "sentiment": n.get("sentiment"),
+                                "tickers": n.get("Ticker")
+                            }
+                            for n in context_news
+                        ]
+                    }
+                    await market_service.cache.set_context(user_id, context_data)
+                    context_news = context_data["news"]
+                else:
+                    context_news = cached_context.get("news", [])
             
-            yield f"data: {json.dumps({'type': 'thinking', 'step': 'context_ready', 'message': '✅ Context đã sẵn sàng'})}\n\n"
-            await asyncio.sleep(0.1)
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'context', 'status': 'done', 'message': f'✅ Context sẵn sàng ({len(context_news)} tin)', 'elapsed_ms': 100}, ensure_ascii=False)}\n\n"
             
-            # Step 4: Query LLM
-            yield f"data: {json.dumps({'type': 'thinking', 'step': 'query_llm', 'message': '✍️ Đang tổng hợp câu trả lời...'})}\n\n"
-            
-            # Build context string
-            context_str = market_service._build_context_string(context_news_list)
-            
-            # Get chat history
+            # Get chat history and build full context
             chat_history = await market_service.cache.get_chat_history(user_id, limit=6)
-            full_context = market_service._build_full_context(chat_history, context_news_list)
+            full_context = market_service._build_full_context(chat_history, context_news)
             
-            # Save user query
+            # Build augmented query
+            if full_context:
+                augmented_query = market_service._build_augmented_query(request.query, full_context)
+            else:
+                augmented_query = request.query
+            
+            # Save user query to history
             await market_service.cache.add_chat_message(user_id, "user", request.query)
             
-            # Process with RAG
-            answer = await market_service._process_with_context(request.query, full_context)
-            
-            # Step 5: Stream answer
-            yield f"data: {json.dumps({'type': 'answer_start'})}\n\n"
-            
-            # Split answer into sentences and stream
-            sentences = answer.split('. ')
-            for sentence in sentences:
-                if sentence.strip():
-                    yield f"data: {json.dumps({'type': 'answer_chunk', 'content': sentence + '. '})}\n\n"
-                    await asyncio.sleep(0.05)  # Small delay for streaming effect
-            
-            # Save assistant response
-            await market_service.cache.add_chat_message(user_id, "assistant", answer)
-            
-            # Save to DB
-            import uuid
-            message_id = str(uuid.uuid4())
-            message_content = json.dumps({
-                "query": request.query,
-                "answer": answer,
-                "context_count": len(context_news_list),
-                "use_interests": request.use_interests
-            }, ensure_ascii=False)
-            
-            await market_service.chat_repo.save_message(
+            # Run streaming pipeline
+            final_result = None
+            async for event in run_rag_pipeline_streaming(
+                query=augmented_query,
                 user_id=user_id,
-                content=message_content,
-                message_id=message_id
-            )
-            
-            # Step 6: Complete
-            yield f"data: {json.dumps({'type': 'complete', 'message_id': message_id})}\n\n"
+                user_query=request.query
+            ):
+                if event["type"] == "thinking":
+                    # Forward thinking events to frontend
+                    yield f"data: {json.dumps(event, ensure_ascii=False)}\n\n"
+                    
+                elif event["type"] == "complete":
+                    final_result = event["result"]
+                    
+                    # Start streaming answer
+                    yield f"data: {json.dumps({'type': 'answer_start'}, ensure_ascii=False)}\n\n"
+                    
+                    # Stream answer in chunks
+                    answer = final_result.get("answer", "")
+                    
+                    # Add context note
+                    if context_news and answer:
+                        answer = f"📰 *Dựa trên {len(context_news)} tin tức bạn quan tâm:*\n\n{answer}"
+                    
+                    # Split into sentences and stream
+                    import re
+                    sentences = re.split(r'(?<=[.!?])\s+', answer)
+                    for sentence in sentences:
+                        if sentence.strip():
+                            yield f"data: {json.dumps({'type': 'answer_chunk', 'content': sentence + ' '}, ensure_ascii=False)}\n\n"
+                    
+                    # Save assistant response
+                    await market_service.cache.add_chat_message(user_id, "assistant", answer)
+                    
+                    # Save to DB
+                    message_id = str(uuid.uuid4())
+                    message_content = json.dumps({
+                        "query": request.query,
+                        "answer": answer,
+                        "context_count": len(context_news),
+                        "use_interests": request.use_interests,
+                        "total_time_ms": event.get("total_time_ms", 0)
+                    }, ensure_ascii=False)
+                    
+                    await market_service.chat_repo.save_message(
+                        user_id=user_id,
+                        content=message_content,
+                        message_id=message_id
+                    )
+                    
+                    # Build frontend citations with full info
+                    frontend_citations = []
+                    citations_map = final_result.get("citations_map", {})
+                    used_citations = final_result.get("citations", [])
+                    used_nums = {c.get("number") for c in used_citations if c.get("used")}
+                    
+                    logger.info(f"[STREAM] citations_map type: {type(citations_map)}, length: {len(citations_map) if citations_map else 0}")
+                    logger.info(f"[STREAM] used_citations: {used_citations[:5] if used_citations else []}")
+                    logger.info(f"[STREAM] used_nums: {used_nums}")
+                    
+                    if citations_map:
+                        if isinstance(citations_map, list):
+                            for citation in citations_map:
+                                num = citation.get("number")
+                                # If no used_nums filter, take all; otherwise filter by used
+                                if not used_nums or num in used_nums:
+                                    frontend_citations.append({
+                                        "number": num,
+                                        "source": citation.get("source", "Unknown"),
+                                        "preview": (citation.get("preview") or "")[:150] + "...",
+                                        "similarity": citation.get("similarity")
+                                    })
+                        elif isinstance(citations_map, dict):
+                            for num_str, data in citations_map.items():
+                                try:
+                                    num = int(num_str)
+                                    if not used_nums or num in used_nums:
+                                        frontend_citations.append({
+                                            "number": num,
+                                            "source": data.get("source", "Unknown"),
+                                            "preview": (data.get("content", "") or "")[:150] + "...",
+                                            "similarity": data.get("score") or data.get("similarity")
+                                        })
+                                except:
+                                    continue
+                    
+                    frontend_citations.sort(key=lambda x: x["number"])
+                    logger.info(f"[STREAM] Final frontend_citations count: {len(frontend_citations)}")
+                    
+                    # Send completion with metadata
+                    yield f"data: {json.dumps({'type': 'complete', 'message_id': message_id, 'total_time_ms': event.get('total_time_ms', 0), 'citations': frontend_citations[:5]}, ensure_ascii=False)}\n\n"
             
         except Exception as e:
             logger.error(f"Streaming error: {e}", exc_info=True)
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
     
     return StreamingResponse(
         event_generator(),
@@ -367,7 +417,7 @@ async def chat_with_context_stream(
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",  # Disable nginx buffering
+            "X-Accel-Buffering": "no",
         }
     )
 

@@ -19,6 +19,7 @@ const navItems: NavItem[] = [
   { labelKey: 'nav.home', href: '/' },
   { labelKey: 'nav.news', href: '/dashboard', requiresAuth: true },
   { labelKey: 'nav.personal', href: '/personal', requiresAuth: true },
+  { labelKey: 'nav.chat', href: '/chat', requiresAuth: true }, // Added Chat
   { labelKey: 'nav.education', href: '/education', requiresAuth: true },
   { labelKey: 'nav.about', href: '/about' },
 ];

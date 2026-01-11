@@ -223,37 +223,49 @@ class CanonicalAnswerSynthesizer:
             answer = answer[:-3]
         answer = answer.strip()
         
-        # Ensure "Lưu ý & Giới hạn" section exists
-        if "## 4." not in answer and "Lưu ý" not in answer and "Giới hạn" not in answer:
-            answer += "\n\n## 4. Lưu ý & Giới hạn\n\nThông tin trên được tổng hợp từ các tài liệu có sẵn. Vui lòng tham khảo thêm các nguồn chính thức và chuyên gia tư vấn cho các quyết định quan trọng."
+        # Add small disclaimer at the end if not present (smaller, less rigid)
+        disclaimer_keywords = ["lưu ý", "giới hạn", "disclaimer", "tham khảo thêm"]
+        has_disclaimer = any(kw in answer.lower() for kw in disclaimer_keywords)
+        
+        if not has_disclaimer:
+            answer += "\n\n---\n*Lưu ý: Thông tin tổng hợp từ tài liệu có sẵn. Tham khảo thêm nguồn chính thức khi cần.*"
         
         return answer
     
     def _generate_no_facts_response(self, query: str) -> str:
         """Generate response when no facts are available."""
-        return f"""## 1. Tổng quan
+        return f"""Xin lỗi, mình chưa tìm thấy thông tin cụ thể để trả lời câu hỏi: "{query}"
 
-Không tìm thấy thông tin cụ thể trong cơ sở dữ liệu để trả lời câu hỏi: "{query}"
+Bạn có thể thử:
+- Diễn đạt lại câu hỏi rõ ràng hơn
+- Kiểm tra lại thuật ngữ hoặc mã cổ phiếu
+- Hỏi về một khía cạnh cụ thể hơn
 
-## 4. Lưu ý & Giới hạn
-
-Hệ thống không có đủ dữ liệu liên quan đến câu hỏi của bạn. Vui lòng:
-- Thử diễn đạt lại câu hỏi
-- Kiểm tra các thuật ngữ chính xác hơn
-- Liên hệ chuyên gia tư vấn nếu cần thông tin chi tiết"""
+---\n*Lưu ý: Hệ thống đang phát triển, một số thông tin có thể chưa được cập nhật.*"""
     
     def _generate_error_response(self) -> str:
         """Generate response when an error occurs."""
-        return """## Lỗi hệ thống
+        return """Xin lỗi, đã xảy ra lỗi trong quá trình xử lý. Vui lòng thử lại sau nhé! 🙏
 
-Đã xảy ra lỗi trong quá trình tổng hợp câu trả lời. Vui lòng thử lại sau.
-
-## 4. Lưu ý & Giới hạn
-
-Nếu lỗi tiếp tục xảy ra, vui lòng liên hệ bộ phận hỗ trợ."""
+---\n*Nếu lỗi tiếp tục, hãy liên hệ bộ phận hỗ trợ.*"""
     
     def extract_citations_used(self, answer: str) -> List[int]:
-        """Extract citation numbers used in the answer."""
-        pattern = r'\[(\d+)\]'
+        """Extract citation numbers used in the answer.
+        
+        Handles multiple formats:
+        - [1], [2], [3] - single citations
+        - [1, 2], [3, 4, 5] - comma-separated citations
+        - [1][2][3] - consecutive citations
+        """
+        # Pattern to match citation brackets with one or more numbers
+        # Matches: [1], [2, 3], [1, 2, 3], etc.
+        pattern = r'\[(\d+(?:\s*,\s*\d+)*)\]'
         matches = re.findall(pattern, answer)
-        return sorted(set(int(m) for m in matches))
+        
+        all_nums = []
+        for match in matches:
+            # Split by comma and extract each number
+            nums = [int(n.strip()) for n in match.split(',')]
+            all_nums.extend(nums)
+        
+        return sorted(set(all_nums))

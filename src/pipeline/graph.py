@@ -255,6 +255,264 @@ async def run_rag_pipeline_async(
     return response
 
 
+async def run_rag_pipeline_streaming(
+    query: str,
+    user_id: str = "anonymous",
+    use_caf: bool = None,
+    user_query: str = None
+):
+    """
+    Run RAG pipeline with streaming updates for each step.
+    
+    Yields progress events as each step completes:
+    - {"type": "step", "step": "route", "message": "...", "elapsed_ms": 123}
+    - {"type": "step", "step": "decompose", ...}
+    - {"type": "step", "step": "retrieve", ...}
+    - {"type": "step", "step": "extract_facts", ...}
+    - {"type": "step", "step": "synthesize", ...}
+    - {"type": "complete", "result": {...}}
+    
+    Args:
+        query: User question (may be augmented with context)
+        user_id: User identifier
+        use_caf: Override CAF setting
+        user_query: Original user query for fallback detection
+        
+    Yields:
+        Progress events as dicts
+    """
+    import time
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    try:
+        # Determine CAF setting
+        enable_caf = use_caf if use_caf is not None else CAF_ENABLED
+        enable_fallback = FALLBACK_ENABLED
+        
+        # Initialize state
+        initial_state = create_initial_state(query, user_id=user_id)
+        if user_query:
+            initial_state["user_query"] = user_query
+        
+        state = initial_state
+        start_time = time.time()
+    
+        # Step 1: Route
+        step_start = time.time()
+        yield {
+            "type": "thinking", 
+            "step": "route",
+            "status": "running",
+            "message": "🔍 Đang phân tích câu hỏi...",
+            "elapsed_ms": 0
+        }
+        state = route_node(state)
+        route_time = int((time.time() - step_start) * 1000)
+        yield {
+            "type": "thinking",
+            "step": "route", 
+            "status": "done",
+            "message": f"✅ Đã xác định loại câu hỏi: {', '.join(state['routes'])}",
+            "elapsed_ms": route_time,
+            "data": {"routes": state["routes"]}
+        }
+    
+        # Step 2: Decompose (conditional)
+        if should_decompose(state):
+            step_start = time.time()
+            yield {
+                "type": "thinking",
+                "step": "decompose",
+                "status": "running", 
+                "message": "🧩 Đang phân tích câu hỏi phức tạp...",
+                "elapsed_ms": 0
+            }
+            state = decompose_node(state)
+            decompose_time = int((time.time() - step_start) * 1000)
+            yield {
+                "type": "thinking",
+                "step": "decompose",
+                "status": "done",
+                "message": f"✅ Đã tách thành {len(state['sub_queries'])} câu hỏi con",
+                "elapsed_ms": decompose_time,
+                "data": {"sub_queries": state["sub_queries"][:3]}  # First 3 only
+            }
+    
+        # Step 3: Retrieve
+        step_start = time.time()
+        yield {
+            "type": "thinking",
+            "step": "retrieve",
+            "status": "running",
+            "message": "📚 Đang tìm kiếm tài liệu liên quan...",
+            "elapsed_ms": 0
+        }
+        state = await retrieve_node(state)
+        retrieve_time = int((time.time() - step_start) * 1000)
+        # Count actual documents from contexts list, not string lengths
+        doc_count = len(state.get("contexts", []))
+        yield {
+            "type": "thinking",
+            "step": "retrieve",
+            "status": "done",
+            "message": f"✅ Đã tìm thấy {doc_count} tài liệu",
+            "elapsed_ms": retrieve_time,
+            "data": {"doc_count": doc_count}
+        }
+    
+        # Step 4: Fallback check (if enabled)
+        if enable_fallback:
+            step_start = time.time()
+            yield {
+                "type": "thinking",
+                "step": "fallback_check",
+                "status": "running",
+                "message": "🔎 Kiểm tra độ bao phủ thông tin...",
+                "elapsed_ms": 0
+            }
+            state = fallback_check_node(state)  # sync function
+            fallback_time = int((time.time() - step_start) * 1000)
+            
+            if should_fallback(state):
+                yield {
+                    "type": "thinking",
+                    "step": "fallback_check",
+                    "status": "done",
+                    "message": "⚠️ Cần tìm thêm thông tin từ web...",
+                    "elapsed_ms": fallback_time,
+                    "data": {"needs_fallback": True}
+                }
+                
+                # Step 4b: Google search
+                step_start = time.time()
+                yield {
+                    "type": "thinking",
+                    "step": "google_search",
+                    "status": "running",
+                    "message": "🌐 Đang tìm kiếm trên web...",
+                    "elapsed_ms": 0
+                }
+                state = await google_search_node(state)
+                search_time = int((time.time() - step_start) * 1000)
+                yield {
+                    "type": "thinking",
+                    "step": "google_search",
+                    "status": "done",
+                    "message": f"✅ Đã bổ sung thông tin từ web",
+                    "elapsed_ms": search_time
+                }
+            else:
+                yield {
+                    "type": "thinking",
+                    "step": "fallback_check",
+                    "status": "done",
+                    "message": "✅ Thông tin đầy đủ",
+                    "elapsed_ms": fallback_time,
+                    "data": {"needs_fallback": False}
+                }
+    
+        # Step 5: Generate (CAF or original)
+        if enable_caf:
+            # CAF: extract_facts then synthesize
+            step_start = time.time()
+            yield {
+                "type": "thinking",
+                "step": "extract_facts",
+                "status": "running",
+                "message": "🔬 Đang trích xuất thông tin từ tài liệu...",
+                "elapsed_ms": 0
+            }
+            state = extract_facts_node(state)  # sync function
+            extract_time = int((time.time() - step_start) * 1000)
+            fact_count = len(state.get("canonical_facts", []))
+            yield {
+                "type": "thinking",
+                "step": "extract_facts",
+                "status": "done",
+                "message": f"✅ Đã trích xuất {fact_count} facts",
+                "elapsed_ms": extract_time,
+                "data": {"fact_count": fact_count}
+            }
+            
+            step_start = time.time()
+            yield {
+                "type": "thinking",
+                "step": "synthesize",
+                "status": "running",
+                "message": "✍️ Đang tổng hợp câu trả lời...",
+                "elapsed_ms": 0
+            }
+            state = synthesize_answer_node(state)  # sync function
+            synthesize_time = int((time.time() - step_start) * 1000)
+            yield {
+                "type": "thinking",
+                "step": "synthesize",
+                "status": "done",
+                "message": "✅ Hoàn thành!",
+                "elapsed_ms": synthesize_time
+            }
+        else:
+            # Original generate
+            step_start = time.time()
+            yield {
+                "type": "thinking",
+                "step": "generate",
+                "status": "running",
+                "message": "✍️ Đang tạo câu trả lời...",
+                "elapsed_ms": 0
+            }
+            state = generate_node(state)
+            generate_time = int((time.time() - step_start) * 1000)
+            yield {
+                "type": "thinking",
+                "step": "generate",
+                "status": "done",
+                "message": "✅ Hoàn thành!",
+                "elapsed_ms": generate_time
+            }
+    
+        # Final result
+        total_time = int((time.time() - start_time) * 1000)
+        
+        response = {
+            "query": state["query"],
+            "answer": state["answer"],
+            "is_grounded": state["is_grounded"],
+            "citations": state.get("citations", []),
+            "citations_map": state.get("citations_map", {}),
+            "routes": state["routes"],
+            "sub_queries": state["sub_queries"],
+            "is_complex": state["is_complex"],
+            "step_times": state["step_times"],
+            "total_time_ms": total_time,
+            "logs": state.get("logs", [])
+        }
+        
+        # Include CAF-specific fields
+        if "canonical_facts" in state and state["canonical_facts"]:
+            response["canonical_facts"] = state["canonical_facts"]
+        
+        # Include fallback-specific fields
+        if state.get("fallback_used"):
+            response["fallback_used"] = state["fallback_used"]
+            response["web_contexts"] = state.get("web_contexts", [])
+        
+        yield {
+            "type": "complete",
+            "result": response,
+            "total_time_ms": total_time
+        }
+    
+    except Exception as e:
+        logger.error(f"[STREAMING PIPELINE ERROR] {e}", exc_info=True)
+        yield {
+            "type": "error",
+            "message": f"Pipeline error: {str(e)}"
+        }
+
+
 # Fallback for when langgraph is not installed
 def run_rag_pipeline_fallback(query: str, use_caf: bool = None) -> Dict[str, Any]:
     """Fallback pipeline without LangGraph."""

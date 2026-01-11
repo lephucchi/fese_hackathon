@@ -1,8 +1,6 @@
-'use client';
-
 import { useState, useCallback } from 'react';
-import { Message, QueryResponse } from '@/types';
-import { API_BASE_URL } from '@/utils/constants/api';
+import { QueryResponse } from '@/types';
+import { apiClient } from '@/services/api/client';
 
 export function useChatAPI() {
   const [isLoading, setIsLoading] = useState(false);
@@ -15,29 +13,13 @@ export function useChatAPI() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/query`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: query.trim(),
-          options: {
-            include_sources: true,
-            include_context: false,
-          },
-        }),
+      const data = await apiClient.post<QueryResponse>('/api/market/chat', {
+        query: query.trim(),
+        use_interests: true, // Enable context enrichment
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to process query');
-      }
-
-      const data: QueryResponse = await response.json();
       return data;
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+    } catch (err: any) {
+      const errorMessage = err.message || 'An error occurred';
       setError(errorMessage);
       console.error('Query error:', err);
       return null;
@@ -48,8 +30,8 @@ export function useChatAPI() {
 
   const checkHealth = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/health`);
-      return response.ok;
+      await apiClient.get('/api/health');
+      return true;
     } catch {
       return false;
     }

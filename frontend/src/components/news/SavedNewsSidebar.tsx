@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { SavedNewsItem } from '@/hooks/useSavedNews';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { useRouter } from 'next/navigation';
 
 interface SavedNewsSidebarProps {
     savedNews: SavedNewsItem[];
@@ -35,6 +36,7 @@ export function SavedNewsSidebar({
     onNewsClick
 }: SavedNewsSidebarProps) {
     const isMobile = useIsMobile();
+    const router = useRouter();
     // Format date
     const formatDate = (dateString: string | null) => {
         if (!dateString) return '';
@@ -367,6 +369,7 @@ export function SavedNewsSidebar({
                                         justifyContent: 'center',
                                         gap: '0.5rem'
                                     }}
+                                    onClick={() => router.push('/chat')}
                                 >
                                     <Sparkles size={16} />
                                     Chat với AI về {total} tin

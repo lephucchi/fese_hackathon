@@ -17,7 +17,8 @@ class RAGState(TypedDict):
     Updated to support Rate Limiting (Phase 4).
     """
     # Input
-    query: str
+    query: str  # Full augmented query (with context)
+    user_query: Optional[str]  # Original user query (for routing/decomposition)
     
     # NEW: User context for rate limiting
     user_id: Optional[str]
@@ -70,6 +71,7 @@ def create_initial_state(query: str, user_id: Optional[str] = None) -> RAGState:
     """Create initial state from query."""
     return RAGState(
         query=query,
+        user_query=None,  # Set by graph.py if provided
         user_id=user_id,
         routes=[],
         route_scores={},

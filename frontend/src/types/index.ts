@@ -19,11 +19,17 @@ export interface ResponseMetadata {
 
 export interface QueryResponse {
   answer: string;
-  is_grounded: boolean;
-  citations: Citation[];
-  metadata: ResponseMetadata;
-  sources?: string[];
-  context?: string;
+  message_id: string;
+  context_used: number;
+  cached: boolean;
+  tier?: number;
+  elapsed_ms?: number;
+  history_used?: number;
+  logs?: Array<{ step: string; detail: string; timestamp: number }>;
+  citations?: Citation[];
+  // Legacy fields (optional compatibility)
+  is_grounded?: boolean;
+  metadata?: ResponseMetadata;
 }
 
 export interface Message {
