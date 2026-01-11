@@ -203,6 +203,10 @@ fi
 # Pull Latest Images / Build
 # =============================================================================
 
+log "Cleaning Docker build cache to prevent snapshot errors..."
+docker builder prune -f || log_warning "Could not prune builder cache"
+log_success "Docker cache cleaned"
+
 log "Building Docker images..."
 docker compose build --no-cache || error_exit "Failed to build Docker images"
 log_success "Images built successfully"
