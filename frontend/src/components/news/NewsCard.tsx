@@ -2,12 +2,21 @@
 
 import React from 'react';
 import { TrendingUp, TrendingDown, Minus, ExternalLink, Clock, Tag } from 'lucide-react';
+import { NewsArticle } from '@/types/dashboard.types';
 import { NewsItem } from '@/services/api/news.service';
 
+// Union type to support both NewsItem and NewsArticle
+type NewsData = NewsItem | NewsArticle;
+
 interface NewsCardProps {
-    news: NewsItem;
-    onCardClick?: (news: NewsItem) => void;
+    news: NewsData;
+    onCardClick?: (news: NewsData) => void;
     variant?: 'default' | 'compact';
+}
+
+// Type guard to check if news is NewsItem
+function isNewsItem(news: NewsData): news is NewsItem {
+    return 'news_id' in news;
 }
 
 export function NewsCard({ news, onCardClick, variant = 'default' }: NewsCardProps) {
@@ -32,14 +41,23 @@ export function NewsCard({ news, onCardClick, variant = 'default' }: NewsCardPro
         }
     };
 
-    const sentiment = (news.sentiment?.toLowerCase() || 'neutral') as keyof typeof sentimentConfig;
+    // Extract sentiment based on type
+    const getSentiment = (): keyof typeof sentimentConfig => {
+        if (isNewsItem(news)) {
+            return (news.sentiment?.toLowerCase() || 'neutral') as keyof typeof sentimentConfig;
+        } else {
+            return (news.impact?.type || 'neutral') as keyof typeof sentimentConfig;
+        }
+    };
+
+    const sentiment = getSentiment();
     const config = sentimentConfig[sentiment] || sentimentConfig.neutral;
     const SentimentIcon = config.icon;
 
     // Format date
-    const formatDate = (dateString: string | null) => {
+    const formatDate = (dateString: string | Date | null) => {
         if (!dateString) return 'Mới nhất';
-        const date = new Date(dateString);
+        const date = dateString instanceof Date ? dateString : new Date(dateString);
         const now = new Date();
         const diffMs = now.getTime() - date.getTime();
         const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -50,6 +68,35 @@ export function NewsCard({ news, onCardClick, variant = 'default' }: NewsCardPro
         if (diffDays < 7) return `${diffDays} ngày trước`;
         return date.toLocaleDateString('vi-VN');
     };
+
+    // Helper functions to extract data based on type
+    const getPublishedDate = (): string | Date | null => {
+        if (isNewsItem(news)) {
+            return news.published_at;
+        } else {
+            return news.publishedAt;
+        }
+    };
+
+    const getTags = (): string[] => {
+        if (isNewsItem(news)) {
+            return news.tickers.map(t => t.ticker);
+        } else {
+            return news.tags as string[];
+        }
+    };
+
+    const getSource = (): string | null => {
+        if (isNewsItem(news)) {
+            return news.source_url;
+        } else {
+            return news.source;
+        }
+    };
+
+    const tags = getTags();
+    const publishedDate = getPublishedDate();
+    const source = getSource();
 
     // Truncate content
     const truncateContent = (content: string | null, maxLength: number = 150) => {
@@ -110,9 +157,9 @@ export function NewsCard({ news, onCardClick, variant = 'default' }: NewsCardPro
                         </h4>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                             <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                                {formatDate(news.published_at)}
+                                {formatDate(publishedDate)}
                             </span>
-                            {news.tickers.length > 0 && (
+                            {tags.length > 0 && (
                                 <span style={{
                                     fontSize: '0.7rem',
                                     padding: '0.125rem 0.375rem',
@@ -121,7 +168,7 @@ export function NewsCard({ news, onCardClick, variant = 'default' }: NewsCardPro
                                     color: 'white',
                                     fontWeight: 600
                                 }}>
-                                    {news.tickers[0].ticker}
+                                    {tags[0]}
                                 </span>
                             )}
                         </div>
@@ -180,7 +227,7 @@ export function NewsCard({ news, onCardClick, variant = 'default' }: NewsCardPro
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', color: 'var(--text-tertiary)' }}>
                     <Clock size={14} />
-                    <span style={{ fontSize: '0.75rem' }}>{formatDate(news.published_at)}</span>
+                    <span style={{ fontSize: '0.75rem' }}>{formatDate(publishedDate)}</span>
                 </div>
             </div>
 
@@ -224,11 +271,11 @@ export function NewsCard({ news, onCardClick, variant = 'default' }: NewsCardPro
                     flexWrap: 'wrap',
                     gap: '0.5rem'
                 }}>
-                    {/* Tickers */}
+                    {/* Tags */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', flexWrap: 'wrap' }}>
-                        {news.tickers.slice(0, 3).map((ticker) => (
+                        {tags.slice(0, 3).map((tag: string) => (
                             <span
-                                key={ticker.ticker}
+                                key={tag}
                                 style={{
                                     fontSize: '0.75rem',
                                     padding: '0.25rem 0.5rem',
@@ -242,39 +289,37 @@ export function NewsCard({ news, onCardClick, variant = 'default' }: NewsCardPro
                                 }}
                             >
                                 <Tag size={10} />
-                                {ticker.ticker}
+                                {tag}
                             </span>
                         ))}
-                        {news.tickers.length > 3 && (
+                        {tags.length > 3 && (
                             <span style={{
                                 fontSize: '0.7rem',
                                 color: 'var(--text-tertiary)',
                                 fontWeight: 500
                             }}>
-                                +{news.tickers.length - 3}
+                                +{tags.length - 3}
                             </span>
                         )}
                     </div>
 
-                    {/* Source Link */}
-                    {news.source_url && (
-                        <a
-                            href={news.source_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                                fontSize: '0.75rem',
-                                color: 'var(--primary)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.25rem',
-                                textDecoration: 'none',
-                                fontWeight: 500
-                            }}
-                        >
-                            Nguồn <ExternalLink size={12} />
-                        </a>
+                    {/* Source */}
+                    {source && (
+                        <div style={{
+                            fontSize: '0.75rem',
+                            color: 'var(--text-secondary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            fontWeight: 500
+                        }}>
+                            <ExternalLink size={12} />
+                            {isNewsItem(news) ? (
+                                <a href={source} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'none' }}>
+                                    Nguồn
+                                </a>
+                            ) : source}
+                        </div>
                     )}
                 </div>
             </div>

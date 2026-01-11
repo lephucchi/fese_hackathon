@@ -88,7 +88,7 @@ export function MarketTab({
                         </div>
 
                         <div className="swipe-container">
-                            <NewsCard article={currentArticle} />
+                            <NewsCard news={currentArticle} />
                         </div>
 
                         <SwipeActions
