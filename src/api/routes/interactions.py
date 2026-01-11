@@ -125,6 +125,56 @@ async def get_my_interests(
         )
 
 
+@router.delete(
+    "/{news_id}",
+    response_model=InteractionResponse,
+    responses={
+        200: {"description": "Saved news removed successfully"},
+        401: {"model": ErrorResponse, "description": "Unauthorized"},
+        404: {"model": ErrorResponse, "description": "News not found in saved list"},
+        500: {"model": ErrorResponse, "description": "Server error"},
+    },
+    summary="Remove saved news",
+    description="""
+    Remove a news article from user's saved list (undo swipe right).
+    
+    - **news_id**: UUID of the news article to remove
+    
+    Requires authentication via JWT token.
+    """
+)
+async def delete_saved_news(
+    news_id: str,
+    user_id: str = Depends(get_current_user_id),
+    interaction_repo: UserInteractionRepository = Depends(get_user_interaction_repository)
+):
+    """Remove a saved news article from user's interests."""
+    try:
+        deleted = await interaction_repo.delete_by_user_and_news(user_id, news_id)
+        
+        if not deleted:
+            raise HTTPException(
+                status_code=404,
+                detail={"error": "not_found", "message": "Tin tức không có trong danh sách đã lưu"}
+            )
+        
+        logger.info(f"User {user_id} removed saved news {news_id}")
+        
+        return InteractionResponse(
+            message="Đã xóa tin tức khỏi danh sách đã lưu",
+            interaction_id=""
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting saved news {news_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail={"error": "delete_error", "message": str(e)}
+        )
+
+
 def _build_news_item(data: dict) -> NewsItem:
     """
     Build NewsItem from database data.
