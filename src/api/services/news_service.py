@@ -126,3 +126,41 @@ class NewsService:
             "top_tickers": top_tickers,
             "latest_crawl_at": None  # TODO: Track last crawl time
         }
+    
+    async def get_unread_news_for_user(
+        self,
+        interacted_news_ids: List[str],
+        page: int = 1,
+        page_size: int = 20
+    ) -> Dict[str, Any]:
+        """
+        Get news articles that user has not interacted with.
+        
+        Args:
+            interacted_news_ids: List of news IDs user has already interacted with
+            page: Page number (1-indexed)
+            page_size: Items per page
+            
+        Returns:
+            Dict with unread news list and pagination info
+        """
+        offset = (page - 1) * page_size
+        
+        news_data = await self.news_repo.find_unread_for_user(
+            exclude_news_ids=interacted_news_ids,
+            limit=page_size,
+            offset=offset
+        )
+        
+        total_unread = await self.news_repo.count_unread_for_user(interacted_news_ids)
+        
+        has_next = offset + page_size < total_unread
+        
+        return {
+            "news": news_data,
+            "total_unread": total_unread,
+            "page": page,
+            "page_size": page_size,
+            "has_next": has_next
+        }
+

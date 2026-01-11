@@ -247,6 +247,60 @@ class NewsRepository(BaseRepository):
         
         return [{"ticker": t, "count": c} for t, c in sorted_tickers]
     
+    async def find_unread_for_user(
+        self,
+        exclude_news_ids: List[str],
+        limit: int = 20,
+        offset: int = 0,
+        order_by: str = "published_at",
+        ascending: bool = False
+    ) -> List[Dict[str, Any]]:
+        """
+        Find news articles that user has not interacted with.
+        
+        Args:
+            exclude_news_ids: List of news IDs to exclude (already interacted)
+            limit: Maximum number of articles to return
+            offset: Number of articles to skip
+            order_by: Column to order by
+            ascending: Sort direction
+            
+        Returns:
+            List of unread news dicts with ticker mappings
+        """
+        query = self.supabase.table(self.table_name)\
+            .select("*, news_stock_mapping(ticker)")
+        
+        # Exclude already interacted news
+        if exclude_news_ids:
+            # Supabase uses 'not.in' filter for exclusion
+            query = query.not_.in_("news_id", exclude_news_ids)
+        
+        query = query.order(order_by, desc=not ascending)
+        query = query.range(offset, offset + limit - 1)
+        
+        response = query.execute()
+        return [self._format_news_with_tickers(item) for item in response.data]
+    
+    async def count_unread_for_user(self, exclude_news_ids: List[str]) -> int:
+        """
+        Count news articles that user has not interacted with.
+        
+        Args:
+            exclude_news_ids: List of news IDs to exclude
+            
+        Returns:
+            Total count of unread news
+        """
+        query = self.supabase.table(self.table_name)\
+            .select("news_id", count="exact")
+        
+        if exclude_news_ids:
+            query = query.not_.in_("news_id", exclude_news_ids)
+        
+        response = query.execute()
+        return response.count if hasattr(response, 'count') and response.count else len(response.data)
+    
     def _format_news_with_tickers(self, news_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Format news data with extracted tickers.
