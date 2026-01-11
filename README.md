@@ -365,15 +365,31 @@ macroinsight/
 
 ## 👥 Team
 
-**MacroInsight Team** - UEL Final Report Project
+<p align="center">
+  <strong>🐵 4 MONKEY HACKATHON - UEL 2025 🐵</strong>
+</p>
+
+<table align="center">
+  <tr>
+    <td align="center">🙈<br><strong>Lê Phúc Chí</strong><br><sub>Team Lead / Backend</sub></td>
+    <td align="center">🙉<br><strong>Lê Hoàng Long</strong><br><sub>AI/ML Engineer</sub></td>
+    <td align="center">🙊<br><strong>Lê Nam Tuyên</strong><br><sub>Frontend Developer</sub></td>
+    <td align="center">🐒<br><strong>Phạm Phương Việt</strong><br><sub>Data Engineer</sub></td>
+  </tr>
+</table>
 
 ---
 
 ## 📄 License
 
-This project is part of the UEL Final Report.
+This project was built for **UEL 4 MONKEY HACKATHON 2025**.
 
 ---
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Made_with-❤️-red?style=for-the-badge" alt="Made with love">
+  <img src="https://img.shields.io/badge/By-4_Monkeys_🐵-yellow?style=for-the-badge" alt="4 Monkeys">
+</p>
 
 <p align="center">
   <strong>MacroInsight</strong> - Hiểu thị trường Việt Nam như chuyên gia! 🇻🇳
