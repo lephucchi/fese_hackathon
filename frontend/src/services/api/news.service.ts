@@ -123,4 +123,28 @@ export const newsService = {
 
         return response.json();
     },
+
+    /**
+     * Fetch unread news for authenticated user (server-filtered)
+     */
+    async getUnreadNews(
+        page: number = 1,
+        pageSize: number = 20
+    ): Promise<NewsListResponse> {
+        const response = await fetch(
+            `${API_BASE_URL}/api/news/for-user?page=${page}&page_size=${pageSize}`,
+            {
+                credentials: 'include',
+            }
+        );
+
+        if (!response.ok) {
+            if (response.status === 401) {
+                throw new Error('Vui lòng đăng nhập để xem tin tức');
+            }
+            throw new Error('Không thể tải tin tức chưa đọc');
+        }
+
+        return response.json();
+    },
 };

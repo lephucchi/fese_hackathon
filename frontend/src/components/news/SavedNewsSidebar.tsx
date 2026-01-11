@@ -12,7 +12,8 @@ import {
     Sparkles,
     Tag,
     X,
-    ChevronRight
+    ChevronRight,
+    Trash2
 } from 'lucide-react';
 import { SavedNewsItem } from '@/hooks/useSavedNews';
 import { useIsMobile } from '@/hooks/useIsMobile';
@@ -25,6 +26,8 @@ interface SavedNewsSidebarProps {
     isOpen: boolean;
     onToggle: () => void;
     onNewsClick?: (news: SavedNewsItem) => void;
+    onDelete?: (newsId: string) => Promise<boolean>;
+    deleting?: string | null;
 }
 
 export function SavedNewsSidebar({
@@ -33,7 +36,9 @@ export function SavedNewsSidebar({
     total,
     isOpen,
     onToggle,
-    onNewsClick
+    onNewsClick,
+    onDelete,
+    deleting
 }: SavedNewsSidebarProps) {
     const isMobile = useIsMobile();
     const router = useRouter();
@@ -320,26 +325,64 @@ export function SavedNewsSidebar({
                                                 {news.title}
                                             </h4>
 
-                                            {/* Source link */}
-                                            {news.source_url && (
-                                                <a
-                                                    href={news.source_url}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    style={{
-                                                        fontSize: '0.7rem',
-                                                        color: 'var(--primary)',
-                                                        display: 'inline-flex',
-                                                        alignItems: 'center',
-                                                        gap: '0.25rem',
-                                                        marginTop: '0.5rem',
-                                                        textDecoration: 'none'
-                                                    }}
-                                                >
-                                                    Nguồn <ExternalLink size={10} />
-                                                </a>
-                                            )}
+                                            {/* Footer row: Source + Delete */}
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                marginTop: '0.5rem'
+                                            }}>
+                                                {/* Source link */}
+                                                {news.source_url ? (
+                                                    <a
+                                                        href={news.source_url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        style={{
+                                                            fontSize: '0.7rem',
+                                                            color: 'var(--primary)',
+                                                            display: 'inline-flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.25rem',
+                                                            textDecoration: 'none'
+                                                        }}
+                                                    >
+                                                        Nguồn <ExternalLink size={10} />
+                                                    </a>
+                                                ) : <span />}
+
+                                                {/* Delete button */}
+                                                {onDelete && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            onDelete(news.news_id);
+                                                        }}
+                                                        disabled={deleting === news.news_id}
+                                                        style={{
+                                                            background: 'transparent',
+                                                            border: 'none',
+                                                            padding: '0.25rem',
+                                                            cursor: deleting === news.news_id ? 'wait' : 'pointer',
+                                                            color: deleting === news.news_id ? 'var(--text-tertiary)' : '#E74C3C',
+                                                            borderRadius: '4px',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            opacity: deleting === news.news_id ? 0.5 : 1,
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                        title="Xóa khỏi danh sách đã lưu"
+                                                    >
+                                                        {deleting === news.news_id ? (
+                                                            <Loader2 size={14} className="spin" />
+                                                        ) : (
+                                                            <Trash2 size={14} />
+                                                        )}
+                                                    </button>
+                                                )}
+                                            </div>
                                         </motion.div>
                                     );
                                 })}

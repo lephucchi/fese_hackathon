@@ -25,6 +25,8 @@ interface UseSavedNewsReturn {
     refetch: () => Promise<void>;
     addOptimisticNews: (news: SavedNewsItem) => void;
     removeOptimisticNews: (newsId: string) => void;
+    deleteSavedNews: (newsId: string) => Promise<boolean>;
+    deleting: string | null;
 }
 
 // Helper function to deduplicate news by news_id
@@ -111,6 +113,48 @@ export function useSavedNews(): UseSavedNewsReturn {
         setSavedNews(prev => prev.filter(n => n.news_id !== newsId));
     }, []);
 
+    // Track which news is being deleted
+    const [deleting, setDeleting] = useState<string | null>(null);
+
+    // Delete saved news with API call
+    const deleteSavedNews = useCallback(async (newsId: string): Promise<boolean> => {
+        if (!user || !isAuthenticated) {
+            return false;
+        }
+
+        // Store the item before removing (for rollback)
+        const itemToDelete = savedNews.find(n => n.news_id === newsId);
+        if (!itemToDelete) return false;
+
+        // Optimistic remove
+        setDeleting(newsId);
+        setSavedNews(prev => prev.filter(n => n.news_id !== newsId));
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/interactions/${newsId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+
+            if (!response.ok) {
+                // Rollback on failure
+                setSavedNews(prev => [itemToDelete, ...prev]);
+                console.error('Failed to delete saved news');
+                return false;
+            }
+
+            console.log(`Successfully deleted saved news: ${newsId}`);
+            return true;
+        } catch (err) {
+            // Rollback on error
+            setSavedNews(prev => [itemToDelete, ...prev]);
+            console.error('Error deleting saved news:', err);
+            return false;
+        } finally {
+            setDeleting(null);
+        }
+    }, [user, isAuthenticated, savedNews]);
+
     return {
         savedNews,
         loading,
@@ -121,5 +165,7 @@ export function useSavedNews(): UseSavedNewsReturn {
         refetch: fetchSavedNews,
         addOptimisticNews,
         removeOptimisticNews,
+        deleteSavedNews,
+        deleting,
     };
 }

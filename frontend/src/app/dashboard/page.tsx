@@ -329,7 +329,7 @@ export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const { stack, loading, error, remaining, swipeRight, swipeLeft, refetch, savedCount, total } = useNewsSwipe(20);
-  const { savedNews, loading: savedLoading, total: savedTotal, addOptimisticNews } = useSavedNews();
+  const { savedNews, loading: savedLoading, total: savedTotal, addOptimisticNews, deleteSavedNews, deleting } = useSavedNews();
   const isMobile = useIsMobile();
 
   const [mPoints, setMPoints] = useState(650);
@@ -1019,6 +1019,8 @@ export default function DashboardPage() {
         total={savedTotal}
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
+        onDelete={deleteSavedNews}
+        deleting={deleting}
         onNewsClick={(news) => {
           // Convert SavedNewsItem to NewsSwipeItem format for detail modal
           setSelectedNews({
@@ -1064,9 +1066,9 @@ export default function DashboardPage() {
       {/* Streaming Chat Panel */}
       <AnimatePresence>
         {chatOpen && (
-          <StreamingChatPanel 
-            isOpen={chatOpen} 
-            onClose={() => setChatOpen(false)} 
+          <StreamingChatPanel
+            isOpen={chatOpen}
+            onClose={() => setChatOpen(false)}
           />
         )}
       </AnimatePresence>

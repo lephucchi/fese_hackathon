@@ -165,3 +165,23 @@ class UserInteractionRepository(BaseRepository):
         
         response = query.execute()
         return response.count if hasattr(response, 'count') and response.count else len(response.data)
+    
+    async def delete_by_user_and_news(self, user_id: str, news_id: str) -> bool:
+        """
+        Delete interaction for a specific user and news.
+        
+        Args:
+            user_id: UUID of user
+            news_id: UUID of news article
+            
+        Returns:
+            True if deleted, False if not found
+        """
+        response = self.supabase.table(self.table_name)\
+            .delete()\
+            .eq("user_id", user_id)\
+            .eq("news_id", news_id)\
+            .execute()
+        
+        return len(response.data) > 0 if response.data else False
+

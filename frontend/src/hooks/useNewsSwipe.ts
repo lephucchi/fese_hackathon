@@ -27,6 +27,8 @@ interface UseNewsSwipeReturn {
     refetch: () => Promise<void>;
     savedCount: number;
     total: number;
+    hasMore: boolean;
+    loadMore: () => Promise<void>;
 }
 
 // Storage keys
@@ -167,53 +169,33 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
         setSessionItem(STORAGE_KEYS.FETCHED, hasFetched);
     }, [hasFetched]);
 
-    // Fetch already-read news IDs from backend
-    const fetchInteractedIds = useCallback(async (): Promise<Set<string>> => {
-        if (!user || !isAuthenticated) return new Set();
+    // Track current page for pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/interactions/my-interests`, {
-                headers: {
-                    'x-user-id': user.user_id,
-                },
-                credentials: 'include',
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const ids = (data.news || []).map((n: { news_id: string }) => n.news_id);
-                return new Set(ids);
-            }
-        } catch (err) {
-            console.error('Error fetching interacted IDs:', err);
+    // Fetch unread news using new server-filtered endpoint
+    const fetchNews = useCallback(async (page: number = 1, append: boolean = false) => {
+        if (!append) {
+            setLoading(true);
         }
-        return new Set();
-    }, [user, isAuthenticated]);
-
-    const fetchNews = useCallback(async () => {
-        setLoading(true);
         setError(null);
 
         try {
-            // Fetch news from /api/news
-            const response = await newsService.getNewsList(1, pageSize);
+            // Use new endpoint that returns only unread news
+            const response = await newsService.getUnreadNews(page, pageSize);
 
             const swipeItems = response.news.map(convertToSwipeItem);
             setTotal(response.total);
+            setHasMore(response.has_next);
+            setCurrentPage(page);
 
-            // Get already interacted IDs from backend (already read articles)
-            const interactedIds = await fetchInteractedIds();
-
-            // Combine with session swiped IDs
-            const currentSwipedIds = getSessionItem<string[]>(STORAGE_KEYS.SWIPED_IDS, []);
-            const allSwipedSet = new Set([...currentSwipedIds, ...interactedIds]);
-
-            // Update swipedIds state with backend data
-            setSwipedIds(allSwipedSet);
-
-            // Filter out already swiped/read items
-            const unswipedItems = swipeItems.filter(item => !allSwipedSet.has(item.news_id));
-            setStack(unswipedItems);
+            if (append) {
+                // Append to existing stack
+                setStack(prev => [...prev, ...swipeItems]);
+            } else {
+                // Replace stack
+                setStack(swipeItems);
+            }
             setHasFetched(true);
 
         } catch (err) {
@@ -222,7 +204,15 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
         } finally {
             setLoading(false);
         }
-    }, [pageSize, fetchInteractedIds]);
+    }, [pageSize]);
+
+    // Load more when stack is running low
+    const loadMore = useCallback(async () => {
+        if (hasMore && !loading && stack.length < 5) {
+            console.log('[useNewsSwipe] Loading more news, page:', currentPage + 1);
+            await fetchNews(currentPage + 1, true);
+        }
+    }, [hasMore, loading, stack.length, currentPage, fetchNews]);
 
     // Fetch only if not already fetched
     useEffect(() => {
@@ -301,6 +291,13 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
         await fetchNews();
     }, [fetchNews]);
 
+    // Auto-load more when stack is running low
+    useEffect(() => {
+        if (stack.length > 0 && stack.length < 5 && hasMore && !loading) {
+            loadMore();
+        }
+    }, [stack.length, hasMore, loading, loadMore]);
+
     return {
         stack,
         loading,
@@ -311,5 +308,7 @@ export function useNewsSwipe(pageSize: number = 20): UseNewsSwipeReturn {
         refetch,
         savedCount,
         total,
+        hasMore,
+        loadMore,
     };
 }

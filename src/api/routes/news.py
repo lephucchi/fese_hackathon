@@ -20,7 +20,9 @@ from ..schemas.responses import (
 )
 from ..services.news_service import NewsService
 from ..repositories.news_repository import NewsRepository
+from ..repositories.user_interaction_repository import UserInteractionRepository
 from ..dependencies import get_supabase_client
+from ..middleware.auth import get_current_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +41,69 @@ def get_news_service(
 ) -> NewsService:
     """Dependency to get NewsService instance."""
     return NewsService(news_repo)
+
+
+def get_user_interaction_repository(
+    supabase=Depends(get_supabase_client)
+) -> UserInteractionRepository:
+    """Dependency to get UserInteractionRepository instance."""
+    return UserInteractionRepository(supabase)
+
+
+@router.get(
+    "/for-user",
+    response_model=NewsListResponse,
+    responses={
+        200: {"description": "Unread news for authenticated user"},
+        401: {"model": ErrorResponse, "description": "Unauthorized"},
+        500: {"model": ErrorResponse, "description": "Server error"},
+    },
+    summary="Get unread news for user",
+    description="""
+    Get news articles that the authenticated user has NOT interacted with.
+    
+    - **page**: Page number (default: 1)
+    - **page_size**: Items per page (default: 20, max: 100)
+    
+    Requires authentication. Returns news filtered by user's interaction history.
+    """
+)
+async def get_news_for_user(
+    page: int = Query(default=1, ge=1, description="Page number"),
+    page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    user_id: str = Depends(get_current_user_id),
+    news_service: NewsService = Depends(get_news_service),
+    interaction_repo: UserInteractionRepository = Depends(get_user_interaction_repository)
+):
+    """Get unread news articles for authenticated user."""
+    try:
+        # Get all news IDs user has interacted with (both swipe left and right)
+        interacted_ids = await interaction_repo.find_by_user(user_id, limit=10000)
+        interacted_news_ids = [item["news_id"] for item in interacted_ids]
+        
+        # Get unread news using service
+        result = await news_service.get_unread_news_for_user(
+            interacted_news_ids=interacted_news_ids,
+            page=page,
+            page_size=page_size
+        )
+        
+        news_items = [_build_news_item(item) for item in result["news"]]
+        
+        return NewsListResponse(
+            news=news_items,
+            total=result["total_unread"],
+            page=result["page"],
+            page_size=result["page_size"],
+            has_next=result["has_next"]
+        )
+        
+    except Exception as e:
+        logger.error(f"Error fetching news for user {user_id}: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail={"error": "fetch_error", "message": str(e)}
+        )
 
 
 @router.get(
