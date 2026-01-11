@@ -371,10 +371,10 @@ macroinsight/
 
 <table align="center">
   <tr>
-    <td align="center">🙈<br><strong>Lê Phúc Chí</strong><br><sub>Team Lead / Backend</sub></td>
-    <td align="center">🙉<br><strong>Lê Hoàng Long</strong><br><sub>AI/ML Engineer</sub></td>
-    <td align="center">🙊<br><strong>Lê Nam Tuyên</strong><br><sub>Frontend Developer</sub></td>
-    <td align="center">🐒<br><strong>Phạm Phương Việt</strong><br><sub>Data Engineer</sub></td>
+    <td align="center">🙈<br><strong>Lê Phúc Chí</strong><br><sub>Team Lead / DE/BE</sub></td>
+    <td align="center">🙉<br><strong>Lê Hoàng Long</strong><br><sub>DA/FE/BE</sub></td>
+    <td align="center">🙊<br><strong>Lê Nam Tuyên</strong><br><sub>PM/UI/UX</sub></td>
+    <td align="center">🐒<br><strong>Phạm Phương Việt</strong><br><sub>DA/DE </sub></td>
   </tr>
 </table>
 
