@@ -68,16 +68,17 @@ export function Hero({ onGetStarted }: HeroProps) {
             style={{
               fontSize: 'clamp(1.75rem, 5vw, 4rem)',
               fontWeight: 800,
-              lineHeight: 1.15,
+              fontStyle: 'normal',
+              lineHeight: 1.5,
               marginBottom: '20px',
-              letterSpacing: '-0.02em',
+              letterSpacing: '-0.01em',
               color: 'var(--text-primary)',
               padding: '0 0.5rem'
             }}
           >
-            <span style={{ display: 'block' }}>{t('hero.titleLine1')}</span>
-            <span style={{ display: 'block' }}>{t('hero.titleLine2')}</span>
-            <span className="text-gradient" style={{ display: 'block' }}>{t('hero.titleHighlight')}</span>
+            <span style={{ display: 'block', fontStyle: 'normal' }}>{t('hero.titleLine1')}</span>
+            <span style={{ display: 'block', fontStyle: 'normal' }}>{t('hero.titleLine2')}</span>
+            <span className="text-gradient" style={{ display: 'block', fontStyle: 'normal' }}>{t('hero.titleHighlight')}</span>
           </motion.h1>
 
           {/* Subheading */}

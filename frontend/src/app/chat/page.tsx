@@ -8,8 +8,8 @@ import { useContextChatStream, ThinkingStep, Citation } from '@/hooks/useContext
 import { useChatHistory } from '@/hooks/useChatHistory';
 import { useDisclaimer } from '@/hooks/useDisclaimer';
 import { DisclaimerModal } from '@/components/common/DisclaimerModal';
+import { Navigation } from '@/components/shared/Navigation';
 import {
-  ChatTopBar,
   ChatSidebar,
   EnhancedMessageInput,
   EnhancedEmptyState,
@@ -36,26 +36,26 @@ export default function ChatPage() {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  
+
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const { 
-    sendStreamingQuery, 
-    isStreaming, 
-    thinkingSteps, 
-    answer, 
+  const {
+    sendStreamingQuery,
+    isStreaming,
+    thinkingSteps,
+    answer,
     citations,
-    totalTimeMs 
+    totalTimeMs
   } = useContextChatStream();
-  const { 
-    history, 
-    createNewChat, 
-    saveChat, 
-    deleteChat, 
+  const {
+    history,
+    createNewChat,
+    saveChat,
+    deleteChat,
     getChat,
-    setActiveId 
+    setActiveId
   } = useChatHistory();
   const { hasAccepted, isLoading: disclaimerLoading, acceptDisclaimer } = useDisclaimer();
-  
+
   // Protect route
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -176,7 +176,7 @@ export default function ChatPage() {
 
     try {
       await sendStreamingQuery(content);
-      
+
       // After streaming completes, save the final message
       setMessages((prev) => {
         const finalMessages = prev.map((m, i) => {
@@ -185,11 +185,11 @@ export default function ChatPage() {
           }
           return m;
         });
-        
+
         // Save to chat history
         const title = content;
         saveChat(chatId!, title, finalMessages.map((m) => ({ role: m.role, content: m.content })));
-        
+
         return finalMessages;
       });
     } catch (error) {
@@ -225,10 +225,10 @@ export default function ChatPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: 'var(--background)' }}>
-      <ChatTopBar />
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: 'var(--background)' }}>
+      <Navigation />
 
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative' }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', position: 'relative', paddingTop: '70px', height: '100vh' }}>
         <ChatSidebar
           isOpen={sidebarOpen}
           onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -239,14 +239,43 @@ export default function ChatPage() {
           onDeleteChat={handleDeleteChat}
         />
 
-        <main style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, transition: 'margin-left 0.3s ease-in-out', marginLeft: sidebarOpen && typeof window !== 'undefined' && window.innerWidth >= 1024 ? '18rem' : '0' }}>
-          <div style={{ flex: 1, overflowY: 'auto', padding: '0 1rem' }}>
+        <main style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          minWidth: 0,
+          transition: 'margin-left 0.3s ease-in-out',
+          marginLeft: sidebarOpen && typeof window !== 'undefined' && window.innerWidth >= 1024 ? '18rem' : '0',
+          background: 'var(--background)'
+        }}>
+          <div style={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: 'clamp(0.5rem, 2vw, 1rem) clamp(0.75rem, 2vw, 1.5rem)',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
             {messages.length === 0 ? (
-              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingTop: 'clamp(0.5rem, 2vh, 1rem)',
+                paddingBottom: 'clamp(0.5rem, 2vh, 1rem)'
+              }}>
                 <EnhancedEmptyState onSelectQuery={handleExampleQuery} />
               </div>
             ) : (
-              <div style={{ width: '100%', maxWidth: '56rem', margin: '0 auto', padding: '2rem 0', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{
+                width: '100%',
+                maxWidth: '56rem',
+                margin: '0 auto',
+                padding: 'clamp(1rem, 3vw, 2rem) 0',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.5rem'
+              }}>
                 {messages.map((message: StreamingMessage) => (
                   <div key={message.id}>
                     {/* Show thinking process for assistant messages - always visible once available */}
@@ -261,7 +290,14 @@ export default function ChatPage() {
             )}
           </div>
 
-          <div style={{ flexShrink: 0, borderTop: '1px solid var(--border)', padding: '1rem', background: 'var(--background)' }}>
+          {/* Input Container with better styling */}
+          <div style={{
+            flexShrink: 0,
+            padding: 'clamp(0.75rem, 2vw, 1.25rem) clamp(1rem, 3vw, 2rem)',
+            background: 'var(--card)',
+            borderTop: '1px solid var(--border)',
+            boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.05)'
+          }}>
             <div style={{ width: '100%', maxWidth: '56rem', margin: '0 auto' }}>
               <EnhancedMessageInput onSend={handleSendMessage} disabled={isStreaming} />
             </div>

@@ -23,16 +23,16 @@ interface ChatSidebarProps {
 }
 
 // Separate component to handle hover state properly
-function ChatHistoryItemComponent({ 
-  item, 
-  activeId, 
-  onSelectChat, 
-  onDeleteChat 
-}: { 
-  item: ChatHistoryItem; 
-  activeId: string | null; 
-  onSelectChat: (id: string) => void; 
-  onDeleteChat: (id: string) => void; 
+function ChatHistoryItemComponent({
+  item,
+  activeId,
+  onSelectChat,
+  onDeleteChat
+}: {
+  item: ChatHistoryItem;
+  activeId: string | null;
+  onSelectChat: (id: string) => void;
+  onDeleteChat: (id: string) => void;
 }) {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -75,7 +75,7 @@ export function ChatSidebar({
   onDeleteChat,
 }: ChatSidebarProps) {
   const { t } = useLanguage();
-  
+
   return (
     <>
       {/* Mobile Toggle Button */}
@@ -99,27 +99,27 @@ export function ChatSidebar({
 
       {/* Sidebar */}
       <aside
-        style={{ position: typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'fixed' : 'fixed', top: 0, bottom: 0, left: 0, zIndex: 50, width: '18rem', display: 'flex', flexDirection: 'column', transition: 'transform 0.3s ease-in-out', transform: isOpen ? 'translateX(0)' : 'translateX(-100%)', background: 'var(--surface)', borderRight: '1px solid var(--border)' }}
+        style={{ position: 'fixed', top: '70px', bottom: 0, left: 0, zIndex: 40, width: '18rem', display: 'flex', flexDirection: 'column', transition: 'transform 0.3s ease-in-out', transform: isOpen ? 'translateX(0)' : 'translateX(-100%)', background: 'var(--surface)', borderRight: '1px solid var(--border)' }}
       >
         {/* Close button (mobile) */}
         <button
           onClick={onToggle}
-          style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.5rem', borderRadius: '0.5rem', background: 'var(--background)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
+          style={{ position: 'absolute', top: '0.75rem', right: '0.75rem', padding: '0.5rem', borderRadius: '0.5rem', background: 'var(--background)', border: '1px solid var(--border)', cursor: 'pointer', transition: 'all 0.2s', zIndex: 10 }}
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <X size={20} style={{ color: 'var(--text-primary)' }} />
+          <X size={18} style={{ color: 'var(--text-primary)' }} />
         </button>
 
         {/* New Chat Button */}
-        <div style={{ padding: '1.5rem 1rem 1rem 1rem' }}>
+        <div style={{ padding: '1rem' }}>
           <button
             onClick={onNewChat}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem', borderRadius: '0.75rem', fontWeight: 500, color: 'white', background: 'linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%)', boxShadow: 'var(--shadow-md)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem', borderRadius: '0.75rem', fontWeight: 600, fontSize: '0.875rem', color: 'white', background: 'var(--primary)', boxShadow: '0 2px 8px rgba(0, 200, 5, 0.3)', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
             onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            <Plus size={20} />
+            <Plus size={18} />
             {t('chat.newChat')}
           </button>
         </div>
