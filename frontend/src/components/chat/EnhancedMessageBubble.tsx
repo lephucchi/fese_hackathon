@@ -36,7 +36,7 @@ export function EnhancedMessageBubble({ message }: EnhancedMessageBubbleProps) {
       style={{ display: 'flex', gap: '0.75rem', flexDirection: isUser ? 'row-reverse' : 'row' }}
     >
       {/* Avatar */}
-      <div style={{ flexShrink: 0, width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isUser ? '#0a8a0a' : 'var(--surface)', border: isUser ? 'none' : '1px solid var(--border)' }}>
+      <div style={{ flexShrink: 0, width: '2.25rem', height: '2.25rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', background: isUser ? 'var(--user-avatar-bg)' : 'var(--surface)', border: isUser ? 'none' : '1px solid var(--border)' }}>
         {isUser ? (
           <User size={18} color="white" />
         ) : (
@@ -46,7 +46,7 @@ export function EnhancedMessageBubble({ message }: EnhancedMessageBubbleProps) {
 
       {/* Message Content */}
       <div style={{ flex: 1, maxWidth: '80%', display: 'flex', flexDirection: 'column', alignItems: isUser ? 'flex-end' : 'flex-start' }}>
-        <div style={{ position: 'relative', padding: '0.75rem 1rem', borderRadius: '1rem', borderTopRightRadius: isUser ? '0.125rem' : undefined, borderTopLeftRadius: isUser ? undefined : '0.125rem', background: isUser ? '#0a8a0a' : 'var(--surface)', color: isUser ? '#ffffff' : 'var(--text-primary)', border: isUser ? 'none' : '1px solid var(--border)', boxShadow: isUser ? '0 2px 12px rgba(10, 138, 10, 0.4)' : 'none' }}>
+        <div style={{ position: 'relative', padding: '0.75rem 1rem', borderRadius: '1rem', borderTopRightRadius: isUser ? '0.125rem' : undefined, borderTopLeftRadius: isUser ? undefined : '0.125rem', background: isUser ? 'var(--user-bubble-bg)' : 'var(--surface)', color: isUser ? 'var(--user-bubble-text)' : 'var(--text-primary)', border: isUser ? '1px solid var(--user-bubble-border)' : '1px solid var(--border)', boxShadow: isUser ? '0 2px 12px var(--user-bubble-shadow)' : 'none' }}>
           {message.isLoading ? (
             <LoadingState />
           ) : (

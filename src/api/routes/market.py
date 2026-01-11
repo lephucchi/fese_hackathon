@@ -273,38 +273,82 @@ async def chat_with_context_stream(
             # Step 0: Start & load context
             yield f"data: {json.dumps({'type': 'thinking', 'step': 'start', 'status': 'running', 'message': '🔍 Bắt đầu xử lý câu hỏi...', 'elapsed_ms': 0}, ensure_ascii=False)}\n\n"
             
-            # Fetch user interests
+            # 1. Fetch user swiped-right news IDs
             approved_ids = await market_service.interaction_repo.find_approved_news_ids(user_id)
+            logger.info(f"[STREAM] Found {len(approved_ids)} approved news IDs for user {user_id}")
             
-            yield f"data: {json.dumps({'type': 'thinking', 'step': 'context', 'status': 'running', 'message': f'📊 Đang tải {len(approved_ids)} tin tức bạn quan tâm...', 'elapsed_ms': 0}, ensure_ascii=False)}\n\n"
+            # 2. Fetch user portfolio tickers
+            portfolio_tickers = []
+            try:
+                from src.api.repositories.portfolio_repository import PortfolioRepository
+                portfolio_repo = PortfolioRepository(market_service.supabase)
+                positions = await portfolio_repo.find_by_user(user_id)
+                portfolio_tickers = [pos.get("ticker") for pos in positions if pos.get("ticker")]
+                logger.info(f"[STREAM] Found {len(portfolio_tickers)} portfolio tickers: {portfolio_tickers}")
+            except Exception as e:
+                logger.warning(f"[STREAM] Failed to fetch portfolio: {e}")
             
-            # Build context
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'context', 'status': 'running', 'message': f'📊 Đang tải context ({len(approved_ids)} tin quẹt phải, {len(portfolio_tickers)} tickers)...', 'elapsed_ms': 0}, ensure_ascii=False)}\n\n"
+            
+            # 3. Build context from approved news
             context_news = []
             if approved_ids:
+                logger.info(f"[STREAM] Approved IDs: {approved_ids[:5]}...")  # Log first 5 IDs
                 cached_context = await market_service.cache.get_context(user_id)
                 if not cached_context:
-                    context_news = await market_service.news_repo.find_by_ids(approved_ids[:10])
-                    context_data = {
-                        "news": [
-                            {
+                    fetched_news = await market_service.news_repo.find_by_ids(approved_ids[:10])
+                    logger.info(f"[STREAM] Fetched {len(fetched_news)} news from {len(approved_ids[:10])} IDs")
+                    for fn in fetched_news[:3]:  # Log first 3 news for debugging
+                        logger.info(f"[STREAM] News: {fn.get('title', 'NO TITLE')[:50]} - Ticker: {fn.get('Ticker')}")
+                    context_news = [
+                        {
+                            "title": n.get("title"),
+                            "analyst": n.get("analyst"),
+                            "sentiment": n.get("sentiment"),
+                            "tickers": n.get("Ticker"),
+                            "content": (n.get("content") or "")[:300]
+                        }
+                        for n in fetched_news
+                    ]
+                    # Don't cache yet - will add portfolio news first
+                else:
+                    context_news = cached_context.get("news", [])
+                    logger.info(f"[STREAM] Using {len(context_news)} cached news")
+            
+            # 4. Fetch news from portfolio tickers (mapping)
+            ticker_news = []
+            for ticker in portfolio_tickers[:5]:  # Limit to top 5 tickers
+                try:
+                    news_items = await market_service.news_repo.find_by_ticker(ticker, limit=3)
+                    for n in news_items:
+                        # Avoid duplicates
+                        news_id = n.get("news_id") or n.get("id")
+                        if news_id not in approved_ids:
+                            ticker_news.append({
                                 "title": n.get("title"),
                                 "analyst": n.get("analyst"),
                                 "sentiment": n.get("sentiment"),
-                                "tickers": n.get("Ticker")
-                            }
-                            for n in context_news
-                        ]
-                    }
-                    await market_service.cache.set_context(user_id, context_data)
-                    context_news = context_data["news"]
-                else:
-                    context_news = cached_context.get("news", [])
+                                "tickers": ticker,
+                                "content": (n.get("content") or "")[:300],
+                                "source": f"portfolio:{ticker}"
+                            })
+                    logger.info(f"[STREAM] Fetched {len(news_items)} news for portfolio ticker {ticker}")
+                except Exception as e:
+                    logger.warning(f"[STREAM] Failed to fetch news for ticker {ticker}: {e}")
             
-            yield f"data: {json.dumps({'type': 'thinking', 'step': 'context', 'status': 'done', 'message': f'✅ Context sẵn sàng ({len(context_news)} tin)', 'elapsed_ms': 100}, ensure_ascii=False)}\n\n"
+            # Merge context: approved news + portfolio ticker news
+            all_context_news = context_news + ticker_news[:10]  # Limit ticker news to 10
+            logger.info(f"[STREAM] Total context: {len(context_news)} approved + {len(ticker_news[:10])} ticker = {len(all_context_news)} news")
+            
+            # Cache combined context
+            if all_context_news and not await market_service.cache.get_context(user_id):
+                await market_service.cache.set_context(user_id, {"news": all_context_news})
+            
+            yield f"data: {json.dumps({'type': 'thinking', 'step': 'context', 'status': 'done', 'message': f'✅ Context sẵn sàng ({len(all_context_news)} tin)', 'elapsed_ms': 100}, ensure_ascii=False)}\n\n"
             
             # Get chat history and build full context
             chat_history = await market_service.cache.get_chat_history(user_id, limit=6)
-            full_context = market_service._build_full_context(chat_history, context_news)
+            full_context = market_service._build_full_context(chat_history, all_context_news)
             
             # Build augmented query
             if full_context:
@@ -336,8 +380,8 @@ async def chat_with_context_stream(
                     answer = final_result.get("answer", "")
                     
                     # Add context note
-                    if context_news and answer:
-                        answer = f"📰 *Dựa trên {len(context_news)} tin tức bạn quan tâm:*\n\n{answer}"
+                    if all_context_news and answer:
+                        answer = f"📰 *Dựa trên {len(all_context_news)} tin tức bạn quan tâm:*\n\n{answer}"
                     
                     # Split into sentences and stream
                     import re

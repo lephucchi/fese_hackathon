@@ -98,6 +98,13 @@
   --text-tertiary: #6B7280;
   --text-muted: #9CA3AF;
 
+  /* User Chat Bubble - Light Mode */
+  --user-bubble-bg: #C8F7C5;
+  --user-bubble-text: #1F2937;
+  --user-bubble-border: #6BCB77;
+  --user-bubble-shadow: rgba(107, 203, 119, 0.3);
+  --user-avatar-bg: #6BCB77;
+
   /* Glass Effect */
   --glass-bg: rgba(255, 255, 255, 0.9);
   --glass-border: rgba(229, 231, 235, 0.8);
@@ -153,6 +160,13 @@
   /* Much brighter for readability */
   --text-tertiary: #9CA3AF;
   --text-muted: #6B7280;
+
+  /* User Chat Bubble - Dark Mode */
+  --user-bubble-bg: #0a8a0a;
+  --user-bubble-text: #ffffff;
+  --user-bubble-border: transparent;
+  --user-bubble-shadow: rgba(10, 138, 10, 0.4);
+  --user-avatar-bg: #0a8a0a;
 
   /* Glass Effect */
   --glass-bg: rgba(26, 31, 46, 0.85);
